@@ -358,6 +358,15 @@ class RenameDialog:
 
 def main():
     GObject.threads_init()
+    dm = Gdk.DisplayManager.get()
+    disps = dm.list_displays()
+    print("NBDisplays: %d"% len(disps))
+    screens = []
+    for disp in disps:
+        print("Name: '%s' NBDisplays: %d"% (disp.get_name(), disp.get_n_screens()))
+        for num in range(disp.get_n_screens()):
+            print("Num: %d"% num)
+            screens.insert(num, disp.get_screen(num))
     app = TerminalWin()
 
     keybinding = GlobalKeyBinding()

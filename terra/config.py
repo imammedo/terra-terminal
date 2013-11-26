@@ -21,7 +21,7 @@ from gi.repository import Gdk
 import ConfigParser
 import os
 
-__terra_data_directory__ = '../data/'
+__terra_data_directory__ = '/usr/share/terra/'
 __version__ = '0.2'
 
 class ConfigManager():

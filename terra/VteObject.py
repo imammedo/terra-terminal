@@ -66,17 +66,17 @@ class VteObject(Gtk.HBox):
         self.update_ui()
 
     def update_ui(self):
-        self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+#        self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
 
-        self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
+#        self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
 
         self.vte.set_colors(
             Gdk.color_parse(ConfigManager.get_conf('color-text')),
             Gdk.color_parse(ConfigManager.get_conf('color-background')),
             [])
 
-        self.vte.set_background_image_file(
-            ConfigManager.get_conf('background-image'))
+#        self.vte.set_background_image_file(
+#            ConfigManager.get_conf('background-image'))
 
         if not ConfigManager.get_conf('use-default-font'):
             self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
