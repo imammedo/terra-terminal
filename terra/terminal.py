@@ -43,8 +43,8 @@ class TerminalWin(Gtk.Window):
         self.init_transparency()
         self.init_ui()
         self.add_page()
+        self.monitor = None
         self.update_ui()
-        
 
         if ConfigManager.get_conf('hide-on-start'):
             self.hide()
@@ -96,7 +96,10 @@ class TerminalWin(Gtk.Window):
         self.resizer.set_position(self.get_allocation().height)
 
         if not self.is_fullscreen:
-            new_percent = int((self.get_allocation().height * 1.0) / self.screen.get_height() * 100.0)
+            if (self.monitor):
+                new_percent = int((self.get_allocation().height * 1.0) / self.monitor.height * 100.0)
+            else:
+                new_percent = int((self.get_allocation().height * 1.0) / self.screen.get_height() * 100.0)
             ConfigManager.set_conf('height', str(new_percent))
             ConfigManager.save_config()
 
@@ -192,12 +195,20 @@ class TerminalWin(Gtk.Window):
 
         if self.is_fullscreen:
             self.fullscreen()
-            width = self.screen.get_width()
-            height = self.screen.get_height()
+            if (self.monitor):
+                width = self.monitor.width
+                height = self.monitor.height
+            else:
+                width = self.screen.get_width()
+                height = self.screen.get_height()
         else:
             self.unfullscreen()
-            width = ConfigManager.get_conf('width') * self.screen.get_width() / 100
-            height = ConfigManager.get_conf('height') * self.screen.get_height() / 100
+            if (self.monitor):
+                width = ConfigManager.get_conf('width') * self.monitor.width / 100
+                height = ConfigManager.get_conf('height') * self.monitor.height / 100
+            else:
+                width = ConfigManager.get_conf('width') * self.screen.get_width() / 100
+                height = ConfigManager.get_conf('height') * self.screen.get_height() / 100
             self.resize(width, height)
 
         vertical_position = ConfigManager.get_conf('vertical-position') * self.screen.get_height() / 100
@@ -216,6 +227,9 @@ class TerminalWin(Gtk.Window):
         else:
             horizontal_position = horizontal_position - (width / 2)
 
+        if (self.monitor):
+            horizontal_position = self.monitor.x
+            vertical_position = self.monitor.y
         self.move(horizontal_position, vertical_position)
         self.show_all()
 
@@ -356,6 +370,14 @@ class RenameDialog:
 
         self.close()
 
+class Apps():
+    def __init__(self):
+        self.apps = []
+
+    def show_hide(self):
+        for app in self.apps:
+            app.show_hide()
+
 def main():
     GObject.threads_init()
     dm = Gdk.DisplayManager.get()
@@ -370,24 +392,27 @@ def main():
                 monitor = screen.get_monitor_geometry(monitor_num)
                 print("Num: %d, Reso: %dx%d"% (monitor_num, monitor.width, monitor.height))
                 monitors.insert(screen_num + monitor_num, monitor)
-    print(monitors)
-    app = TerminalWin()
 
+    apps = Apps()
     keybinding = GlobalKeyBinding()
-    app.keybinding = keybinding
-    ConfigManager.ref_keybinding = keybinding
-    ConfigManager.ref_show_hide = app.show_hide
-    keybinding.connect('activate', lambda w: app.show_hide())
-    if not keybinding.grab():
-        ConfigManager.set_conf('losefocus-hiding', 'False')
-        ConfigManager.set_conf('hide-on-start', 'False')
+    keybinding.connect('activate', lambda w: apps.show_hide())
+    for monitor in monitors:
+        app = TerminalWin()
+        apps.apps.append(app)
+        app.monitor = monitor
         app.update_ui()
-        msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
-        msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-        msgbox.run()
-        msgbox.destroy()
-    else:
-        keybinding.start()
+        app.keybinding = keybinding
+        ConfigManager.ref_keybinding = keybinding
+        ConfigManager.ref_show_hide = app.show_hide
+        if not keybinding.grab():
+            ConfigManager.set_conf('losefocus-hiding', 'False')
+            ConfigManager.set_conf('hide-on-start', 'False')
+            app.update_ui()
+            msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
+            msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+            msgbox.run()
+            msgbox.destroy()
+    keybinding.start()
     Gtk.main()
 
 if __name__ == "__main__":
