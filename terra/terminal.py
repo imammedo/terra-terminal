@@ -26,9 +26,11 @@ from config import ConfigManager
 
 import os
 
+apps = []
+
 class TerminalWin(Gtk.Window):
 
-    def __init__(self):
+    def __init__(self, monitor):
         super(TerminalWin, self).__init__()
 
         self.keybinding = None
@@ -43,7 +45,7 @@ class TerminalWin(Gtk.Window):
         self.init_transparency()
         self.init_ui()
         self.add_page()
-        self.monitor = None
+        self.monitor = monitor
         self.update_ui()
 
         if ConfigManager.get_conf('hide-on-start'):
@@ -96,10 +98,7 @@ class TerminalWin(Gtk.Window):
         self.resizer.set_position(self.get_allocation().height)
 
         if not self.is_fullscreen:
-            if (self.monitor):
-                new_percent = int((self.get_allocation().height * 1.0) / self.monitor.height * 100.0)
-            else:
-                new_percent = int((self.get_allocation().height * 1.0) / self.screen.get_height() * 100.0)
+            new_percent = int((self.get_allocation().height * 1.0) / self.monitor.height * 100.0)
             ConfigManager.set_conf('height', str(new_percent))
             ConfigManager.save_config()
 
@@ -195,41 +194,16 @@ class TerminalWin(Gtk.Window):
 
         if self.is_fullscreen:
             self.fullscreen()
-            if (self.monitor):
-                width = self.monitor.width
-                height = self.monitor.height
-            else:
-                width = self.screen.get_width()
-                height = self.screen.get_height()
+            width = self.monitor.width
+            height = self.monitor.height
         else:
             self.unfullscreen()
-            if (self.monitor):
-                width = ConfigManager.get_conf('width') * self.monitor.width / 100
-                height = ConfigManager.get_conf('height') * self.monitor.height / 100
-            else:
-                width = ConfigManager.get_conf('width') * self.screen.get_width() / 100
-                height = ConfigManager.get_conf('height') * self.screen.get_height() / 100
+            width = ConfigManager.get_conf('width') * self.monitor.width / 100
+            height = ConfigManager.get_conf('height') * self.monitor.height / 100
             self.resize(width, height)
 
-        vertical_position = ConfigManager.get_conf('vertical-position') * self.screen.get_height() / 100
-        if vertical_position - (height / 2) < 0:
-            vertical_position = 0
-        elif vertical_position + (height / 2) > self.screen.get_height():
-            vertical_position = self.screen.get_height() - (height / 2)
-        else:
-            vertical_position = vertical_position - (height / 2)
-
-        horizontal_position = ConfigManager.get_conf('horizontal-position') * self.screen.get_width() / 100
-        if horizontal_position - (width / 2) < 0:
-            horizontal_position = 0
-        elif horizontal_position + (width / 2) > self.screen.get_width():
-            horizontal_position = self.screen.get_width() - (width / 2)
-        else:
-            horizontal_position = horizontal_position - (width / 2)
-
-        if (self.monitor):
-            horizontal_position = self.monitor.x
-            vertical_position = self.monitor.y
+        horizontal_position = self.monitor.x
+        vertical_position = self.monitor.y
         self.move(horizontal_position, vertical_position)
         self.show_all()
 
@@ -370,20 +344,18 @@ class RenameDialog:
 
         self.close()
 
-class Apps():
-    def __init__(self):
-        self.apps = []
-
-    def show_hide(self):
-        for app in self.apps:
-            app.show_hide()
+def show_hide():
+    for app in apps:
+        app.show_hide()
 
 def main():
+    keybinding = GlobalKeyBinding()
+    keybinding.connect('activate', lambda w: show_hide())
+
     GObject.threads_init()
     dm = Gdk.DisplayManager.get()
     disps = dm.list_displays()
     print("NBDisplays: %d"% len(disps))
-    monitors = []
     for disp in disps:
         print("Name: '%s' NBDisplays: %d"% (disp.get_name(), disp.get_n_screens()))
         for screen_num in range(disp.get_n_screens()):
@@ -391,27 +363,20 @@ def main():
             for monitor_num in range(screen.get_n_monitors()):
                 monitor = screen.get_monitor_geometry(monitor_num)
                 print("Num: %d, Reso: %dx%d"% (monitor_num, monitor.width, monitor.height))
-                monitors.insert(screen_num + monitor_num, monitor)
-
-    apps = Apps()
-    keybinding = GlobalKeyBinding()
-    keybinding.connect('activate', lambda w: apps.show_hide())
-    for monitor in monitors:
-        app = TerminalWin()
-        apps.apps.append(app)
-        app.monitor = monitor
-        app.update_ui()
-        app.keybinding = keybinding
-        ConfigManager.ref_keybinding = keybinding
-        ConfigManager.ref_show_hide = app.show_hide
-        if not keybinding.grab():
-            ConfigManager.set_conf('losefocus-hiding', 'False')
-            ConfigManager.set_conf('hide-on-start', 'False')
-            app.update_ui()
-            msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
-            msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-            msgbox.run()
-            msgbox.destroy()
+                app = TerminalWin(monitor)
+                apps.append(app)
+                app.update_ui()
+                app.keybinding = keybinding
+                ConfigManager.ref_keybinding = keybinding
+                ConfigManager.ref_show_hide = show_hide
+                if not keybinding.grab():
+                    ConfigManager.set_conf('losefocus-hiding', 'False')
+                    ConfigManager.set_conf('hide-on-start', 'False')
+                    app.update_ui()
+                    msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
+                    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+                    msgbox.run()
+                    msgbox.destroy()
     keybinding.start()
     Gtk.main()
 
