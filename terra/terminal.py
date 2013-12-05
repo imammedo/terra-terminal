@@ -194,17 +194,13 @@ class TerminalWin(Gtk.Window):
 
         if self.is_fullscreen:
             self.fullscreen()
-            width = self.monitor.width
-            height = self.monitor.height
         else:
             self.unfullscreen()
             width = ConfigManager.get_conf('width') * self.monitor.width / 100
             height = ConfigManager.get_conf('height') * self.monitor.height / 100
             self.resize(width, height)
 
-        horizontal_position = self.monitor.x
-        vertical_position = self.monitor.y
-        self.move(horizontal_position, vertical_position)
+        self.move(self.monitor.x, self.monitor.y)
         self.show_all()
 
     def on_keypress(self, widget, event):
@@ -301,6 +297,7 @@ class TerminalWin(Gtk.Window):
         else:
             self.update_ui()
             self.present()
+            self.move(self.monitor.x, self.monitor.y)
 
     def quit(self):
         Gtk.main_quit()
@@ -365,7 +362,6 @@ def main():
                 print("Num: %d, Reso: %dx%d"% (monitor_num, monitor.width, monitor.height))
                 app = TerminalWin(monitor)
                 apps.append(app)
-                app.update_ui()
                 app.keybinding = keybinding
                 ConfigManager.ref_keybinding = keybinding
                 ConfigManager.ref_show_hide = show_hide
