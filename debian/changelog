@@ -1,53 +1,56 @@
-terra (0.1.2) precise; urgency=low
+terra (0.1.8); urgency=low
 
-  * New release.
-  * Changed about page
-  * Added resizer to main window
-  * Small bugfixes
+  * Experimental slide effect.
+  * Start fullscreen option.
+  * Advanced multi monitor features.
+  * Change font size with <Control>+mouse scroll
+  * Option to change exit signal behavior
 
- -- Özcan ESEN <ozcanesen@gmail.com>  Sat, 01 Dec 2012 01:54:00 +0200
 
-terra (0.1.1-public1) precise; urgency=low
+terra (0.1.7); urgency=low
 
-  * New release.
+  * Now Terra using 'libkeybinder3.0' instead of pure python and python-xlib based keybinder library.
+  * All XLib related crash and slow opening issues fixed.
+  * Hide on lose focus feature re-enabled.
+  * Select-by-word charachters added.
+  * Change font size with <Control>+/-
+  * TRANSLATORS file added.
+  * "Translate this application" button and "terraterminal.org" link added.
+  * Spanish, French, Catalan, Catalan (Valencian) translations added.
 
- -- Özcan ESEN <ozcanesen@gmail.com>  Fri, 30 Nov 2012 00:39:00 +0200
+  -- Özcan ESEN <ozcanesen@gmail.com> 
 
-terra (0.1-public4) precise; urgency=low
+terra (0.1.6); urgency=low
 
-  [ Özcan ESEN ]
-  * New release.
+  * Switch between terminals with keyboard shortcuts.
+  * Clickable links
+  * Automatically hide resizer bar when fullscreen
+  * Clear assigned keyboard shortcut with double click
+  * Hide tab bar option
+  * Hide tab bar when fullscreen option
+  * Shortcut key to show/hide scrollbars 
+  * Added button for restore default key settings
+  * Prompt on quit option
+  * Ctrl+D or exit signal closes terminal
+  * If there is no terminal left tab closes automatically
+  * If there is no tab left Terra closes automatically
+  * i18n support, now you can translate and use Terra in your language
+  * Turkish translation.
 
-  [ coyote ]
+  -- Özcan ESEN <ozcanesen@gmail.com> 
 
- -- coyote <coyote@coyote-laptop>  Fri, 30 Nov 2012 00:38:37 +0200
+terra (0.1.5); urgency=low
 
-terra (0.1-public3) precise; urgency=low
+  * Multi Monitor support
+  * Remember tab name option
+  * Scrollback options
+  * Copy/Paste shortcuts fixed on context menu 
+  * Transparency problems fixed
 
-  [ Özcan ESEN ]
-  * New release.
+  -- Özcan ESEN <ozcanesen@gmail.com> 
 
-  [ coyote ]
+terra (0.1.4); urgency=low
 
- -- coyote <coyote@coyote-laptop>  Wed, 28 Nov 2012 16:18:27 +0200
+  * First public release with main features.
 
-terra (0.1-public2) luna; urgency=low
-
-  * New release.
-
- -- Özcan ESEN <ozcanesen@gmail.com>  Wed, 28 Nov 2012 00:35:07 +0200
-
-terra (0.1-public1) luna; urgency=low
-
-  [ Ozcan ESEN ]
-  * New release.
-
-  [ coyote ]
-
- -- coyote <coyote@coyote-laptop>  Wed, 28 Nov 2012 00:25:34 +0200
-
-terra (0.1) precise; urgency=low
-
-  * Initial release.
-
- -- coyote <coyote@coyote-laptop>  Tue, 27 Nov 2012 01:26:40 +0200
+  -- Özcan ESEN <ozcanesen@gmail.com> 

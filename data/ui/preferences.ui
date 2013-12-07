@@ -25,15 +25,16 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkWindow" id="preferences_window">
-    <property name="width_request">440</property>
+    <property name="width_request">480</property>
     <property name="height_request">400</property>
-    <property name="can_focus">True</property>
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">Preferences</property>
     <property name="window_position">center</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
     <child>
       <object class="GtkBox" id="box1">
+        <property name="width_request">480</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
@@ -49,17 +50,19 @@
                 <property name="border_width">20</property>
                 <property name="row_spacing">4</property>
                 <property name="column_spacing">4</property>
+                <property name="column_homogeneous">True</property>
                 <child>
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Seperator size:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">3</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -69,12 +72,13 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Hide from taskbar:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">4</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -91,7 +95,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">4</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -108,7 +112,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">3</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -117,12 +121,13 @@
                   <object class="GtkLabel" id="label15">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Startup directory: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">9</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -141,7 +146,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">9</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -161,7 +166,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">6</property>
+                    <property name="top_attach">10</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -205,7 +210,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">7</property>
+                    <property name="top_attach">11</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -214,12 +219,13 @@
                   <object class="GtkLabel" id="label17">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Shell: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">4</property>
+                    <property name="top_attach">8</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -233,7 +239,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">4</property>
+                    <property name="top_attach">8</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -243,12 +249,13 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Hide on start:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">3</property>
+                    <property name="top_attach">5</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -265,7 +272,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">3</property>
+                    <property name="top_attach">5</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -275,12 +282,13 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Run on Startup:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
+                    <property name="top_attach">1</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -297,7 +305,209 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label49">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">General</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label50">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">Tabs</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label41">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Remember tab names:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">13</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_remember_tab_names">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">13</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label51">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Hide tab bar:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_hide_tab_bar">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">14</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label52">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Hide tab bar when fullscreen: </property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">15</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_hide_tab_bar_fullscreen">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">15</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label61">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Prompt on quit:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_prompt_on_quit">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">2</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label63">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Select-by-word charachters:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_select_by_word">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">7</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -307,6 +517,45 @@
                 </child>
                 <child>
                   <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label69">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Start fullscreen:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">6</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_start_fullscreen">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">6</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
                 </child>
               </object>
             </child>
@@ -327,16 +576,18 @@
                 <property name="border_width">20</property>
                 <property name="row_spacing">4</property>
                 <property name="column_spacing">4</property>
+                <property name="column_homogeneous">True</property>
                 <child>
                   <object class="GtkLabel" id="label6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Vertical Aligment: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
+                    <property name="top_attach">2</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -355,7 +606,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
+                    <property name="top_attach">2</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -364,12 +615,13 @@
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Horizontal Aligment:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">3</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -388,7 +640,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">3</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -397,12 +649,13 @@
                   <object class="GtkLabel" id="label9">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Height (percent): </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">4</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -411,12 +664,13 @@
                   <object class="GtkLabel" id="label10">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Width (percent): </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">3</property>
+                    <property name="top_attach">5</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -433,7 +687,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">4</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -450,7 +704,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">3</property>
+                    <property name="top_attach">5</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -459,40 +713,9 @@
                   <object class="GtkLabel" id="label12">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Show window border: </property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">4</property>
-                    <property name="width">1</property>
-                    <property name="height">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="chk_use_border">
-                    <property name="use_action_appearance">False</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="xalign">0</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">4</property>
-                    <property name="width">1</property>
-                    <property name="height">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label21">
-                    <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Hide on lose focus: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -502,10 +725,9 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_losefocus">
+                  <object class="GtkCheckButton" id="chk_use_border">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="use_action_appearance">False</property>
@@ -523,12 +745,13 @@
                   <object class="GtkLabel" id="label40">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Always on top: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">7</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -545,10 +768,208 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">7</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label42">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Monitor:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="monitor_list">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="entry_text_column">0</property>
+                    <property name="id_column">1</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label33">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Hide on lose focus:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_losefocus">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label64">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">General</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label65">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_top">5</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">Animation</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">9</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label66">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Use animation:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label67">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Step count:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label68">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Step time (ms):</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_use_animation">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_step_count">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_step_time">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -574,65 +995,17 @@
                 <property name="row_spacing">4</property>
                 <property name="column_spacing">4</property>
                 <child>
-                  <object class="GtkLabel" id="label13">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="valign">start</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Text color:</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                    <property name="width">1</property>
-                    <property name="height">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="color_text">
-                    <property name="use_action_appearance">False</property>
-                    <property name="width_request">0</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">start</property>
-                    <property name="use_action_appearance">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
-                    <property name="width">1</property>
-                    <property name="height">1</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel" id="label14">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Background color:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">3</property>
-                    <property name="width">1</property>
-                    <property name="height">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="color_background">
-                    <property name="use_action_appearance">False</property>
-                    <property name="width_request">0</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">start</property>
-                    <property name="use_action_appearance">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">3</property>
+                    <property name="top_attach">5</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -642,12 +1015,13 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Background Image: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">4</property>
+                    <property name="top_attach">6</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -693,7 +1067,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">4</property>
+                    <property name="top_attach">6</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -703,12 +1077,13 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Background transparency:</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">7</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -725,7 +1100,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">7</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -735,13 +1110,14 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="margin_top">1</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Font :</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
+                    <property name="top_attach">1</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -760,7 +1136,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
+                    <property name="top_attach">1</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -778,7 +1154,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
+                    <property name="top_attach">2</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -788,12 +1164,13 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">start</property>
+                    <property name="margin_left">10</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Show scrollbar: </property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">6</property>
+                    <property name="top_attach">9</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
@@ -810,10 +1187,253 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">6</property>
+                    <property name="top_attach">9</property>
                     <property name="width">1</property>
                     <property name="height">1</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label43">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">General</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="color_background">
+                    <property name="use_action_appearance">False</property>
+                    <property name="width_request">0</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="use_action_appearance">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">5</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label44">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">Appearance</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label45">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_bottom">10</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">1</property>
+                    <property name="label" translatable="yes">Scrolling</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">8</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="color_text">
+                    <property name="use_action_appearance">False</property>
+                    <property name="width_request">0</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="use_action_appearance">False</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">4</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label13">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Text color:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">4</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label46">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Scrollback lines:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="box5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkEntry" id="entry_scrollback_lines">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">•</property>
+                        <property name="width_chars">6</property>
+                        <property name="text">1024</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="chk_scrollback_unlimited">
+                        <property name="label" translatable="yes">Infinite</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">10</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label47">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Scroll on output:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label48">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="valign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Scroll on key stroke:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_scroll_on_output">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chk_scroll_on_keystroke">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">12</property>
+                    <property name="width">1</property>
+                    <property name="height">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -838,7 +1458,7 @@
               <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="shadow_type">in</property>
+                <property name="hscrollbar_policy">never</property>
                 <child>
                   <object class="GtkViewport" id="viewport1">
                     <property name="visible">True</property>
@@ -861,7 +1481,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">2</property>
+                            <property name="top_attach">3</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -871,13 +1491,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Toggle fullscreen:</property>
+                            <property name="label" translatable="yes">Fullscreen/unfullscreen</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">2</property>
+                            <property name="top_attach">3</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -887,13 +1508,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Quit: </property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">3</property>
+                            <property name="top_attach">5</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -908,7 +1530,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">3</property>
+                            <property name="top_attach">5</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -918,13 +1540,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">New page:</property>
+                            <property name="label" translatable="yes">New tab:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">4</property>
+                            <property name="top_attach">10</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -939,7 +1562,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">4</property>
+                            <property name="top_attach">10</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -949,13 +1572,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Rename page:</property>
+                            <property name="label" translatable="yes">Rename tab:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">5</property>
+                            <property name="top_attach">11</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -965,13 +1589,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Close page:</property>
+                            <property name="label" translatable="yes">Close tab:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">6</property>
+                            <property name="top_attach">12</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -986,7 +1611,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">5</property>
+                            <property name="top_attach">11</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1001,7 +1626,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">6</property>
+                            <property name="top_attach">12</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1011,13 +1636,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Go to next page:</property>
+                            <property name="label" translatable="yes">Go to next tab:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">7</property>
+                            <property name="top_attach">13</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1027,13 +1653,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Go to previous page:</property>
+                            <property name="label" translatable="yes">Go to previous tab:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">8</property>
+                            <property name="top_attach">14</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1048,7 +1675,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">7</property>
+                            <property name="top_attach">13</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1063,7 +1690,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">8</property>
+                            <property name="top_attach">14</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1073,13 +1700,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Toggle Terra visibility:</property>
+                            <property name="label" translatable="yes">Show/hide Terra:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
+                            <property name="top_attach">1</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1094,36 +1722,44 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">0</property>
-                            <property name="width">1</property>
-                            <property name="height">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label33">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">*Needs restart</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
                             <property name="top_attach">1</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label34">
+                          <object class="GtkLabel" id="label53">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
                             <property name="margin_top">1</property>
+                            <property name="margin_bottom">10</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Select All:</property>
+                            <property name="xpad">1</property>
+                            <property name="label" translatable="yes">General</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label54">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_bottom">10</property>
+                            <property name="xalign">0</property>
+                            <property name="xpad">1</property>
+                            <property name="label" translatable="yes">Tabs</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -1133,17 +1769,35 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkLabel" id="label34">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Select All:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">6</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkLabel" id="label35">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Copy text:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">10</property>
+                            <property name="top_attach">7</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1153,61 +1807,14 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="valign">start</property>
+                            <property name="margin_left">10</property>
                             <property name="margin_top">1</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Paste text:</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">11</property>
-                            <property name="width">1</property>
-                            <property name="height">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label37">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="valign">start</property>
-                            <property name="margin_top">1</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Split Vertical:</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">12</property>
-                            <property name="width">1</property>
-                            <property name="height">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label38">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="valign">start</property>
-                            <property name="margin_top">1</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Split Horizontal:</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">13</property>
-                            <property name="width">1</property>
-                            <property name="height">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label39">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="valign">start</property>
-                            <property name="margin_top">1</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Close terminal:</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">14</property>
+                            <property name="top_attach">8</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1222,7 +1829,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">9</property>
+                            <property name="top_attach">6</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1237,7 +1844,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">10</property>
+                            <property name="top_attach">7</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1252,7 +1859,78 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">11</property>
+                            <property name="top_attach">8</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label55">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_bottom">10</property>
+                            <property name="xalign">0</property>
+                            <property name="xpad">1</property>
+                            <property name="label" translatable="yes">Terminal</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">15</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label37">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Split Vertical:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">16</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label38">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Split Horizontal:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">17</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label39">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Close terminal:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">18</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1267,7 +1945,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">12</property>
+                            <property name="top_attach">16</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1282,7 +1960,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">13</property>
+                            <property name="top_attach">17</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1297,10 +1975,228 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">14</property>
+                            <property name="top_attach">18</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label56">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Focus the terminal above:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">19</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="move_up_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">19</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label57">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Focus the terminal below:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">20</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="move_down_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">20</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label58">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Focus the terminal left:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">21</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="move_left_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">21</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label59">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Focus the terminal right:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">22</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="move_right_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">22</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="restore_defaults">
+                            <property name="label" translatable="yes">Restore defaults</property>
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="use_action_appearance">False</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">23</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label21">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">*Double-click on entry to clear</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">23</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label60">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Show/hide scrollbars:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">4</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="toggle_scrollbars_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">4</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label62">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">*Needs restart</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">2</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                       </object>
                     </child>
@@ -1323,87 +2219,59 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box8">
+              <object class="GtkBox" id="box6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="border_width">30</property>
-                <property name="spacing">2</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkImage" id="terra_logo">
-                    <property name="width_request">0</property>
-                    <property name="height_request">0</property>
+                  <object class="GtkBox" id="box8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="yalign">0</property>
-                    <property name="stock">gtk-missing-image</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="box9">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">5</property>
+                    <property name="border_width">30</property>
+                    <property name="spacing">2</property>
                     <child>
-                      <object class="GtkLabel" id="label31">
+                      <object class="GtkImage" id="terra_logo">
                         <property name="width_request">0</property>
                         <property name="height_request">0</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="yalign">0</property>
-                        <property name="label" translatable="yes">Terra Terminal Emulator</property>
-                        <attributes>
-                          <attribute name="font-desc" value="Sans 16"/>
-                        </attributes>
+                        <property name="stock">gtk-missing-image</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="version">
+                      <object class="GtkBox" id="box9">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="yalign">0</property>
-                        <property name="label" translatable="yes">Version: 0.1dev</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="version1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="yalign">0</property>
-                        <property name="label" translatable="yes">License: GPL</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="box10">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
                         <property name="spacing">5</property>
                         <child>
-                          <object class="GtkButton" id="open_project_homepage">
-                            <property name="label" translatable="yes">Project Homepage</property>
+                          <object class="GtkLabel" id="label31">
+                            <property name="width_request">0</property>
+                            <property name="height_request">0</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xalign">0</property>
+                            <property name="yalign">0</property>
+                            <property name="label" translatable="yes">Terra Terminal Emulator</property>
+                            <attributes>
+                              <attribute name="font-desc" value="Sans 16"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="webpage">
+                            <property name="label">terraterminal.org</property>
                             <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -1417,39 +2285,103 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="report_bug">
-                            <property name="label" translatable="yes">Report Bug</property>
-                            <property name="use_action_appearance">False</property>
+                          <object class="GtkLabel" id="version">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
-                            <property name="relief">none</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
+                            <property name="yalign">0</property>
+                            <property name="xpad">6</property>
+                            <property name="label">Version: 0.1dev</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="version1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xalign">0</property>
+                            <property name="yalign">0.0099999997764825821</property>
+                            <property name="xpad">6</property>
+                            <property name="label" translatable="yes">License: GPLv3</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="box10">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkButton" id="open_translation_page">
+                                <property name="label" translatable="yes">Translate This Application</property>
+                                <property name="use_action_appearance">False</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="halign">start</property>
+                                <property name="valign">start</property>
+                                <property name="use_action_appearance">False</property>
+                                <property name="relief">none</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="report_bug">
+                                <property name="label" translatable="yes">Report Bug</property>
+                                <property name="use_action_appearance">False</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="use_action_appearance">False</property>
+                                <property name="relief">none</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">3</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">0</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>

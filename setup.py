@@ -15,17 +15,21 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 ### END LICENSE
 
-###################### DO NOT TOUCH THIS (HEAD TO THE SECOND PART) ######################
-
 import os
 import sys
+import glob
+import subprocess
 
 try:
     import DistUtilsExtra.auto
+    from distutils.extension import Extension
 except ImportError:
     print >> sys.stderr, 'To build terra you need https://launchpad.net/python-distutils-extra'
     sys.exit(1)
 assert DistUtilsExtra.auto.__version__ >= '2.18', 'needs DistUtilsExtra.auto >= 2.18'
+
+PO_DIR = 'po'
+MO_DIR = os.path.join('build', 'mo')
 
 def update_config(values = {}):
 
@@ -79,21 +83,74 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
         DistUtilsExtra.auto.install_auto.run(self)
         update_config(previous_values)
 
+        for po in glob.glob (os.path.join (PO_DIR, '*.po')):
+            lang = os.path.basename(po[:-3])
+            mo = os.path.join(MO_DIR, lang, 'terra.mo')
 
+            directory = os.path.dirname(mo)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            try:
+                rc = subprocess.call(['msgfmt', '-o', mo, po])
+                if rc != 0:
+                    raise Warning, "msgfmt returned %d" % rc
+            except Exception, e:
+                sys.exit(1)
 
-##################################################################################
-###################### YOU SHOULD MODIFY ONLY WHAT IS BELOW ######################
-##################################################################################
+def parse_pkg_config(command, components, options_dict=None):
+    if options_dict is None:
+        options_dict = {
+            'include_dirs': [],
+            'library_dirs': [],
+            'libraries': [],
+            'extra_compile_args': []
+        }
+    commandLine = "%s --cflags --libs %s" % (command, components)
+    output = get_command_output(commandLine).strip()
+    for comp in output.split():
+        prefix, rest = comp[:2], comp[2:]
+        if prefix == '-I':
+            options_dict['include_dirs'].append(rest)
+        elif prefix == '-L':
+            options_dict['library_dirs'].append(rest)
+        elif prefix == '-l':
+            options_dict['libraries'].append(rest)
+        else:
+            options_dict['extra_compile_args'].append(comp)
+
+    commandLine = "%s --variable=libdir %s" % (command, components)
+    output = get_command_output(commandLine).strip()
+
+    return options_dict
+
+def get_command_output(cmd, warnOnStderr=True, warnOnReturnCode=True):
+    """Wait for a command and return its output.  Check for common
+    errors and raise an exception if one of these occurs.
+    """
+    p = subprocess.Popen(cmd, shell=True, close_fds=True,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    if warnOnStderr and stderr != '':
+        raise RuntimeError("%s outputted the following error:\n%s" %
+                           (cmd, stderr))
+    if warnOnReturnCode and p.returncode != 0:
+        raise RuntimeError("%s had non-zero return code %d" %
+                           (cmd, p.returncode))
+    return stdout
+
+gtk_config = parse_pkg_config('pkg-config','gtk+-3.0')
+globalhotkeys = Extension("terra.globalhotkeys", ['terra/globalhotkeys/globalhotkeys.c', 'terra/globalhotkeys/bind.c'], **gtk_config)
 
 DistUtilsExtra.auto.setup(
     name='terra',
-    version='0.2',
+    version='0.1.7',
     license='GPL-3',
     author='Ozcan ESEN',
     author_email='ozcanesen@gmail.com',
     description='Terra Terminal Emulator',
-    long_description='''Terra is GTK+3.0 based terminal emulator with useful user interface, it also supports multiple terminals with splitting screen horizontally or vertically. New features will be added soon. It's very new and experimental project. I'ts written in python with python-gobject, If you want to contribute just checkout and try. I really appreciate the bug reports.''',
+    long_description='''Terra is GTK+3.0 based terminal emulator with useful user interface, it also supports multiple terminals with splitting screen horizontally or vertically. New features will be added soon. It's very new and experimental project. It's written in python with python-gobject, If you want to contribute just checkout and try. I really appreciate the bug reports.''',
     url='https://launchpad.net/terra',
-    cmdclass={'install': InstallAndUpdateDataDirectory}
+    cmdclass={'install': InstallAndUpdateDataDirectory},
+    ext_modules=[globalhotkeys]
     )
 

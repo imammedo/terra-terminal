@@ -18,8 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
+from gi.repository import Gtk, Gdk, GdkPixbuf, GObject, GdkX11
 from config import ConfigManager
+from i18n import _
 import os
 
 class Preferences():
@@ -30,6 +31,7 @@ class Preferences():
 
     def init_ui(self):
         builder = Gtk.Builder()
+        builder.set_translation_domain('terra')
         builder.add_from_file(ConfigManager.data_dir + 'ui/preferences.ui')
 
         self.window = builder.get_object('preferences_window')
@@ -40,7 +42,7 @@ class Preferences():
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.version = builder.get_object('version')
-        self.version.set_label('Version: ' + ConfigManager.version)
+        self.version.set_label(_("Version: ") + ConfigManager.version)
 
         self.btn_cancel = builder.get_object('btn_cancel')
         self.btn_cancel.connect('clicked', self.on_cancel_clicked)
@@ -84,12 +86,15 @@ class Preferences():
         self.entry_shell = builder.get_object('entry_shell')
         self.entry_shell.set_text(ConfigManager.get_conf('shell'))
 
+        self.entry_select_by_word = builder.get_object('entry_select_by_word')
+        self.entry_select_by_word.set_text(ConfigManager.get_conf('select-by-word'))
+
         self.dir_custom = builder.get_object('dir_custom')
 
         self.radio_home = builder.get_object('radio_home')
         self.radio_pwd = builder.get_object('radio_pwd')
         self.radio_dir_custom = builder.get_object('radio_dir_custom')
-        self.radio_dir_custom.connect('toggled', lambda w: self.dir_custom.set_sensitive(self.radio_dir_custom.get_active()))
+        self.radio_dir_custom.connect('toggled', lambda w: self.toggle_sensitive(self.radio_dir_custom, [self.dir_custom]))
 
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
@@ -101,6 +106,23 @@ class Preferences():
             self.dir_custom.set_text(dir_conf)
             self.dir_custom.set_sensitive(True)
 
+        self.monitor_list = builder.get_object('monitor_list')
+        self.monitor_list.append_text(_("Always use primary"))
+        self.monitor_list.append_text(_("Where the mouse pointer at"))
+        self.monitor_list.append_text(_("Most left monitor"))
+        self.monitor_list.append_text(_("Most right monitor"))
+
+
+        screen = self.window.get_screen()
+        for i in range(screen.get_n_monitors()):
+            monitor_size =  screen.get_monitor_geometry(i)
+            self.monitor_list.append_text(_("Monitor %i ( %i x %i )") % (i+1, monitor_size.width, monitor_size.height))
+
+        if ConfigManager.get_conf('monitor') > (3 + screen.get_n_monitors()):
+            self.monitor_list.set_active(0)
+        else:
+            self.monitor_list.set_active(ConfigManager.get_conf('monitor'))
+
         self.background_image = builder.get_object('background_image')
         self.background_image.set_filename(ConfigManager.get_conf('background-image'))
 
@@ -109,9 +131,10 @@ class Preferences():
 
         self.font_name = builder.get_object('font_name')
         self.font_name.set_font_name(ConfigManager.get_conf('font-name'))
+        self.font_name.set_sensitive(not ConfigManager.get_conf('use-default-font'))
 
         self.chk_use_system_font = builder.get_object('chk_use_system_font')
-        self.chk_use_system_font.connect('toggled', lambda w: self.font_name.set_sensitive(not self.chk_use_system_font.get_active()))
+        self.chk_use_system_font.connect('toggled', lambda w: self.toggle_sensitive(self.chk_use_system_font, [self.font_name]))
         self.chk_use_system_font.set_active(ConfigManager.get_conf('use-default-font'))
 
         self.chk_show_scrollbar = builder.get_object('chk_show_scrollbar')
@@ -126,71 +149,170 @@ class Preferences():
         self.chk_hide_on_start = builder.get_object('chk_hide_on_start')
         self.chk_hide_on_start.set_active(ConfigManager.get_conf('hide-on-start'))
 
+        self.chk_remember_tab_names = builder.get_object('chk_remember_tab_names')
+        self.chk_remember_tab_names.set_active(ConfigManager.get_conf('remember-tab-names'))
+
+        # store all keyboard shortcut entry boxes in array for connecting signals together.
+        key_entries = []
+
         self.fullscreen_key = builder.get_object('fullscreen_key')
         self.fullscreen_key.set_text(ConfigManager.get_conf('fullscreen-key'))
-        self.fullscreen_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.fullscreen_key)
 
         self.quit_key = builder.get_object('quit_key')
         self.quit_key.set_text(ConfigManager.get_conf('quit-key'))
-        self.quit_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.quit_key)
 
         self.new_page_key = builder.get_object('new_page_key')
         self.new_page_key.set_text(ConfigManager.get_conf('new-page-key'))
-        self.new_page_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.new_page_key)
 
         self.close_page_key = builder.get_object('close_page_key')
         self.close_page_key.set_text(ConfigManager.get_conf('close-page-key'))
-        self.close_page_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.close_page_key)
 
         self.rename_page_key = builder.get_object('rename_page_key')
         self.rename_page_key.set_text(ConfigManager.get_conf('rename-page-key'))
-        self.rename_page_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.rename_page_key)
 
         self.next_page_key = builder.get_object('next_page_key')
         self.next_page_key.set_text(ConfigManager.get_conf('next-page-key'))
-        self.next_page_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.next_page_key)
 
         self.prev_page_key = builder.get_object('prev_page_key')
         self.prev_page_key.set_text(ConfigManager.get_conf('prev-page-key'))
-        self.prev_page_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.prev_page_key)
 
         self.global_key = builder.get_object('global_key')
         self.global_key.set_text(ConfigManager.get_conf('global-key'))
-        self.global_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.global_key)
 
         self.select_all_key = builder.get_object('select_all_key')
         self.select_all_key.set_text(ConfigManager.get_conf('select-all-key'))
-        self.select_all_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.select_all_key)
 
         self.copy_key = builder.get_object('copy_key')
         self.copy_key.set_text(ConfigManager.get_conf('copy-key'))
-        self.copy_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.copy_key)
 
         self.paste_key = builder.get_object('paste_key')
         self.paste_key.set_text(ConfigManager.get_conf('paste-key'))
-        self.paste_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.paste_key)
 
         self.split_v_key = builder.get_object('split_v_key')
         self.split_v_key.set_text(ConfigManager.get_conf('split-v-key'))
-        self.split_v_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.split_v_key)
 
         self.split_h_key = builder.get_object('split_h_key')
         self.split_h_key.set_text(ConfigManager.get_conf('split-h-key'))
-        self.split_h_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.split_h_key)
 
         self.close_node_key = builder.get_object('close_node_key')
         self.close_node_key.set_text(ConfigManager.get_conf('close-node-key'))
-        self.close_node_key.connect('key-press-event', self.generate_key_string)
+        key_entries.append(self.close_node_key)
+
+        self.move_up_key = builder.get_object('move_up_key')
+        self.move_up_key.set_text(ConfigManager.get_conf('move-up-key'))
+        key_entries.append(self.move_up_key)
+
+        self.move_down_key = builder.get_object('move_down_key')
+        self.move_down_key.set_text(ConfigManager.get_conf('move-down-key'))
+        key_entries.append(self.move_down_key)
+
+        self.restore_defaults = builder.get_object('restore_defaults')
+        self.restore_defaults.connect('clicked', lambda w: self.restore_defaults_cb())
+        
+        self.move_left_key = builder.get_object('move_left_key')
+        self.move_left_key.set_text(ConfigManager.get_conf('move-left-key'))
+        key_entries.append(self.move_left_key)
+
+        self.move_right_key = builder.get_object('move_right_key')
+        self.move_right_key.set_text(ConfigManager.get_conf('move-right-key'))
+        key_entries.append(self.move_right_key)
+
+        self.toggle_scrollbars_key = builder.get_object('toggle_scrollbars_key')
+        self.toggle_scrollbars_key.set_text(ConfigManager.get_conf('toggle-scrollbars-key'))
+        key_entries.append(self.toggle_scrollbars_key)
 
         self.chk_run_on_startup = builder.get_object('chk_run_on_startup')
         self.chk_run_on_startup.set_active(os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop'))
 
-        self.open_project_homepage = builder.get_object('open_project_homepage')
-        self.open_project_homepage.connect('clicked', lambda w: os.system('xdg-open https://launchpad.net/terra'))
+        self.open_translation_page = builder.get_object('open_translation_page')
+        self.open_translation_page.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'https://translations.launchpad.net/terra', GdkX11.x11_get_server_time(self.window.get_window())))
 
         self.report_bug = builder.get_object('report_bug')
-        self.report_bug.connect('clicked', lambda w: os.system('xdg-open https://bugs.launchpad.net/terra/+filebug'))
+        self.report_bug.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'https://bugs.launchpad.net/terra/+filebug', GdkX11.x11_get_server_time(self.window.get_window())))
 
+        self.webpage = builder.get_object('webpage')
+        self.webpage.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'http://terraterminal.org', GdkX11.x11_get_server_time(self.window.get_window())))
+
+        self.entry_scrollback_lines = builder.get_object('entry_scrollback_lines')
+        self.entry_scrollback_lines.set_text(str(ConfigManager.get_conf('scrollback-lines')))
+
+        self.chk_scrollback_unlimited = builder.get_object('chk_scrollback_unlimited')
+        self.chk_scrollback_unlimited.connect('toggled', lambda w: self.toggle_sensitive(self.chk_scrollback_unlimited, [self.entry_scrollback_lines]))
+        self.chk_scrollback_unlimited.set_active(ConfigManager.get_conf('infinite-scrollback'))
+
+        self.chk_scroll_on_output = builder.get_object('chk_scroll_on_output')
+        self.chk_scroll_on_output.set_active(ConfigManager.get_conf('scroll-on-output'))
+
+        self.chk_scroll_on_keystroke = builder.get_object('chk_scroll_on_keystroke')
+        self.chk_scroll_on_keystroke.set_active(ConfigManager.get_conf('scroll-on-keystroke'))
+        
+        self.chk_hide_tab_bar = builder.get_object('chk_hide_tab_bar')
+        self.chk_hide_tab_bar.set_active(ConfigManager.get_conf('hide-tab-bar'))
+        
+        self.chk_hide_tab_bar_fullscreen = builder.get_object('chk_hide_tab_bar_fullscreen')
+        self.chk_hide_tab_bar_fullscreen.set_active(ConfigManager.get_conf('hide-tab-bar-fullscreen'))
+
+        self.chk_start_fullscreen = builder.get_object('chk_start_fullscreen')
+        self.chk_start_fullscreen.set_active(ConfigManager.get_conf('start-fullscreen'))
+
+        self.chk_prompt_on_quit = builder.get_object('chk_prompt_on_quit')
+        self.chk_prompt_on_quit.set_active(ConfigManager.get_conf('prompt-on-quit'))
+
+        self.entry_step_count = builder.get_object('entry_step_count')
+        self.entry_step_count.set_text(str(ConfigManager.get_conf('step-count')))
+
+        self.entry_step_time = builder.get_object('entry_step_time')
+        self.entry_step_time.set_text(str(ConfigManager.get_conf('step-time')))
+
+        self.chk_use_animation = builder.get_object('chk_use_animation')
+        self.chk_use_animation.set_active(ConfigManager.get_conf('use-animation'))
+        self.chk_use_animation.connect('toggled', lambda w: self.toggle_sensitive(self.chk_use_animation, [self.entry_step_time, self.entry_step_count]))
+
+        for key_entry in key_entries:
+            key_entry.connect('button-press-event', self.clear_key_entry)
+            key_entry.connect('key-press-event', self.generate_key_string)
+
+    def clear_key_entry(self, widget, event):
+        if event.type == Gdk.EventType._2BUTTON_PRESS:
+            widget.set_text("")
+
+    def toggle_sensitive(self, source_object, target_objects):
+        for target_object in target_objects:
+            target_object.set_sensitive(not source_object.get_active())
+
+    def restore_defaults_cb(self):
+        self.global_key.set_text('F12')
+        self.quit_key.set_text('<Control>q')
+        self.fullscreen_key.set_text('F11')
+        self.new_page_key.set_text('<Control>N')
+        self.rename_page_key.set_text('F2')
+        self.close_page_key.set_text('<Control>W')
+        self.next_page_key.set_text('<Control>Right')
+        self.prev_page_key.set_text('<Control>Left')
+        self.select_all_key.set_text('<Control>A')
+        self.copy_key.set_text('<Control><Shift>C')
+        self.paste_key.set_text('<Control><Shift>V')
+        self.split_v_key.set_text('<Control><Shift>J')
+        self.split_h_key.set_text('<Control><Shift>H')
+        self.close_node_key.set_text('<Control><Shift>K')
+        self.move_up_key.set_text('<Control><Shift>Up')
+        self.move_down_key.set_text('<Control><Shift>Down')
+        self.move_left_key.set_text('<Control><Shift>Left')
+        self.move_right_key.set_text('<Control><Shift>Right')
+        self.toggle_scrollbars_key.set_text('<Control><Shift>S')
 
 
     def generate_key_string(self, widget, event):
@@ -238,6 +360,8 @@ class Preferences():
 
         ConfigManager.set_conf('shell', self.entry_shell.get_text())
 
+        ConfigManager.set_conf('select-by-word', self.entry_select_by_word.get_text())
+
         if self.radio_home.get_active():
             ConfigManager.set_conf('dir', '$home$')
         elif self.radio_pwd.get_active():
@@ -258,6 +382,8 @@ class Preferences():
         ConfigManager.set_conf('losefocus-hiding', self.chk_losefocus.get_active())
 
         ConfigManager.set_conf('hide-on-start', self.chk_hide_on_start.get_active())
+
+        ConfigManager.set_conf('remember-tab-names', self.chk_remember_tab_names.get_active())
 
         ConfigManager.set_conf('fullscreen-key', self.fullscreen_key.get_text())
 
@@ -286,6 +412,59 @@ class Preferences():
         ConfigManager.set_conf('split-v-key', self.split_v_key.get_text())
 
         ConfigManager.set_conf('close-node-key', self.close_node_key.get_text())
+    
+        ConfigManager.set_conf('move-up-key', self.move_up_key.get_text())
+
+        ConfigManager.set_conf('move-down-key', self.move_down_key.get_text())
+
+        ConfigManager.set_conf('move-left-key', self.move_left_key.get_text())
+
+        ConfigManager.set_conf('move-right-key', self.move_right_key.get_text())
+
+        ConfigManager.set_conf('toggle-scrollbars-key', self.toggle_scrollbars_key.get_text())
+
+        ConfigManager.set_conf('monitor', self.monitor_list.get_active())
+
+        try:
+            scrollback_line = int(self.entry_scrollback_lines.get_text())
+        except ValueError:
+            scrollback_line = 1024
+
+        ConfigManager.set_conf('scrollback-lines', str(scrollback_line))
+
+        ConfigManager.set_conf('scroll-on-output', self.chk_scroll_on_output.get_active())
+
+        ConfigManager.set_conf('scroll-on-keystroke', self.chk_scroll_on_keystroke.get_active())
+
+        ConfigManager.set_conf('infinite-scrollback', self.chk_scrollback_unlimited.get_active())
+
+        ConfigManager.set_conf('hide-tab-bar', self.chk_hide_tab_bar.get_active())
+
+        ConfigManager.set_conf('hide-tab-bar-fullscreen', self.chk_hide_tab_bar_fullscreen.get_active())
+        
+        ConfigManager.set_conf('prompt-on-quit', self.chk_prompt_on_quit.get_active())
+
+        ConfigManager.set_conf('start-fullscreen', self.chk_start_fullscreen.get_active())
+        try:
+            step_time = int(self.entry_step_time.get_text())
+            if not step_time > 0:
+                step_time = 20
+        except ValueError:
+            step_time = 20
+
+        try:
+            step_count = int(self.entry_step_count.get_text())
+            if not step_count > 0:
+                step_count = 20
+        except ValueError:
+            step_count = 20
+
+        ConfigManager.set_conf('use-animation', self.chk_use_animation.get_active())
+
+        ConfigManager.set_conf('step-count', step_count)
+        ConfigManager.set_conf('step-time', step_time)
+
+
 
         if (self.chk_run_on_startup.get_active() and not os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop')):
             os.system('cp /usr/share/applications/terra.desktop ' + os.environ['HOME'] + '/.config/autostart/terra.desktop')

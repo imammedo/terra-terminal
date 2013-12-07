@@ -18,11 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 from gi.repository import Gdk
+from base64 import b64encode, b64decode
 import ConfigParser
 import os
 
 __terra_data_directory__ = '/usr/share/terra/'
-__version__ = '0.2'
+__version__ = '0.1.7'
 
 class ConfigManager():
 
@@ -61,20 +62,40 @@ class ConfigManager():
         'split-v-key': '<Control><Shift>J',
         'split-h-key': '<Control><Shift>H',
         'close-node-key': '<Control><Shift>K',
-        'always-on-top': 'False'
+        'always-on-top': 'False',
+        'remember-tab-names': 'True',
+        'tab-names': 'Terminal 1;;',
+        'monitor': '0',
+        'scrollback-lines': '1024',
+        'scroll-on-output': 'False',
+        'scroll-on-keystroke': 'True',
+        'infinite-scrollback': 'False',
+        'move-up-key': '<Control><Shift>Up',
+        'move-down-key': '<Control><Shift>Down',
+        'move-left-key': '<Control><Shift>Left',
+        'move-right-key': '<Control><Shift>Right',
+        'hide-tab-bar': 'False',
+        'hide-tab-bar-fullscreen': 'False',
+        'toggle-scrollbars-key': '<Control><Shift>S',
+        'prompt-on-quit': 'True',
+        'select-by-word': 'LUEtWmEtejAtOSwuLz8lJiM6Xw==',
+        'use-animation': 'False',
+        'step-count': '20',
+        'step-time': '10',
+        'start-fullscreen': 'False'
         })
 
-    cfg_dir = '/.config/terra/'
+    cfg_dir = os.environ['HOME'] + '/.config/terra/'
     cfg_file = 'main.cfg'
-    cfg_full_path = os.environ['HOME'] + cfg_dir + cfg_file
+    cfg_full_path = cfg_dir + cfg_file
 
     namespace = 'DEFAULT'
     config.read(cfg_full_path)
 
     callback_list = []
 
-    ref_keybinding = None
-    ref_show_hide = None
+    use_fake_transparency = False
+
     disable_losefocus_temporary = False
 
     data_dir = __terra_data_directory__
@@ -98,10 +119,14 @@ class ConfigManager():
             elif value == 'False':
                 return False
             else:
+                if key == 'select-by-word':
+                    value = b64decode(value)
                 return value
 
     @staticmethod
     def set_conf(key, value):
+        if key == 'select-by-word':
+            value = b64encode(value)
         try:
             ConfigManager.config.set(ConfigManager.namespace, key, str(value))
         except ConfigParser.Error:
@@ -111,13 +136,11 @@ class ConfigManager():
 
     @staticmethod
     def save_config():
-        if not os.path.exists(os.environ['HOME'] + ConfigManager.cfg_dir):
-            os.mkdir(os.environ['HOME'] + ConfigManager.cfg_dir)
+        if not os.path.exists(ConfigManager.cfg_dir):
+            os.mkdir(ConfigManager.cfg_dir)
 
         with open(ConfigManager.cfg_full_path, 'wb') as configfile:
             ConfigManager.config.write(configfile)
-
-        ConfigManager.config.read(ConfigManager.cfg_file)
 
     @staticmethod
     def add_callback(method):
@@ -162,9 +185,3 @@ class ConfigManager():
             return False
 
         return True
-
-
-
-
-
-

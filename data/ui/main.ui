@@ -45,7 +45,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box2">
+              <object class="GtkBox" id="tabbar">
                 <property name="height_request">32</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -73,7 +73,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -185,7 +185,7 @@
   <object class="GtkDialog" id="rename_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">10</property>
-    <property name="title" translatable="yes">Rename Page</property>
+    <property name="title" translatable="yes">Rename Tab</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>

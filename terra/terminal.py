@@ -18,13 +18,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject
-from globalkeybinding import GlobalKeyBinding
+from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject, GdkX11
+
+import globalhotkeys
 
 from VteObject import VteObjectContainer
 from config import ConfigManager
+from dialogs import RenameDialog
+from dbusservice import DbusService, DBUS_NAME, DBUS_PATH
+from i18n import _
 
+from math import floor
 import os
+import dbus
+import time
 
 apps = []
 
@@ -33,24 +40,41 @@ class TerminalWin(Gtk.Window):
     def __init__(self, monitor):
         super(TerminalWin, self).__init__()
 
-        self.keybinding = None
         self.builder = Gtk.Builder()
+        self.builder.set_translation_domain('terra')
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
 
+        ConfigManager.add_callback(self.update_ui)
+        
         self.screen = self.get_screen()
         self.monitor = monitor
-        self.losefocus_time = 0
+
         self.init_transparency()
         self.init_ui()
-        self.add_page()
         self.update_ui()
+        
+        # if not bind_success:
+        #     ConfigManager.set_conf('hide-on-start', False)
+        #     ConfigManager.set_conf('losefocus-hiding', False)
+        #     msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
+        #     msgbox = Gtk.MessageDialog(self, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+        #     msgbox.run()
+        #     msgbox.destroy()
 
-        if ConfigManager.get_conf('hide-on-start'):
-            self.hide()
+        if not ConfigManager.get_conf('hide-on-start'):
+            self.show_all()
 
     def init_ui(self):
-        self.set_title('Terra Terminal Emulator')
-        self.is_fullscreen = False
+        self.set_title(_('Terra Terminal Emulator'))
+
+        if ConfigManager.get_conf('start-fullscreen'):
+            self.is_fullscreen = True
+        else:
+            self.is_fullscreen = False
+        
+        self.slide_effect_running = False
+        self.losefocus_time = 0
+        self.set_has_resize_grip(False)
 
         self.resizer = self.builder.get_object('resizer')
         self.resizer.unparent()
@@ -64,9 +88,13 @@ class TerminalWin(Gtk.Window):
         self.set_icon(self.logo_buffer)
 
         self.notebook = self.builder.get_object('notebook')
-        self.notebook_page_counter = 0
         self.notebook.set_name('notebook')
+
+        self.tabbar = self.builder.get_object('tabbar')
         self.buttonbox = self.builder.get_object('buttonbox')
+
+        # radio group leader, first and hidden object of buttonbox
+        # keeps all other radio buttons in a group
         self.radio_group_leader = Gtk.RadioButton()
         self.buttonbox.pack_start(self.radio_group_leader, False, False, 0)
         self.radio_group_leader.set_no_show_all(True)
@@ -78,10 +106,69 @@ class TerminalWin(Gtk.Window):
         self.btn_fullscreen.connect('clicked', lambda w: self.toggle_fullscreen())
 
         self.connect('destroy', lambda w: self.quit())
+        self.connect('delete-event', lambda w, x: self.delete_event_callback())
         self.connect('key-press-event', self.on_keypress)
-        #self.connect('focus-out-event', self.on_losefocus)
-
+        self.connect('focus-out-event', self.on_window_losefocus)
         self.add(self.resizer)
+
+        if ConfigManager.get_conf('remember-tab-names'):
+            tab_names = ConfigManager.get_conf('tab-names').split(';;')
+
+            for tab_name in tab_names:
+                if len(tab_name) > 0:
+                    self.add_page(page_name=tab_name)
+
+            for button in self.buttonbox:
+                if button == self.radio_group_leader:
+                    continue
+                else:
+                    button.set_active(True)
+                    break
+
+        else:
+            self.add_page()
+
+    def delete_event_callback(self):
+        self.hide()
+        return True
+
+    def on_window_losefocus(self, window, event):
+        if self.slide_effect_running:
+            return
+        if ConfigManager.disable_losefocus_temporary:
+            return
+        if not ConfigManager.get_conf('losefocus-hiding'):
+            return
+
+        if self.get_property('visible'):
+            self.losefocus_time = GdkX11.x11_get_server_time(self.get_window())
+            if ConfigManager.get_conf('use-animation'):
+                self.slide_up()
+            self.unrealize()
+            self.hide()
+
+    def quit(self):
+        if ConfigManager.get_conf('prompt-on-quit'):
+            ConfigManager.disable_losefocus_temporary = True
+            msgtext = _("Do you really want to quit?")
+            msgbox = Gtk.MessageDialog(self, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.YES_NO, msgtext)
+            response = msgbox.run()
+            msgbox.destroy()
+            ConfigManager.disable_losefocus_temporary = False
+
+            if response != Gtk.ResponseType.YES:
+                return False
+
+        if ConfigManager.get_conf('remember-tab-names'):
+            tab_names = ""
+            for button in self.buttonbox:
+                if button != self.radio_group_leader:
+                    tab_names = tab_names + button.get_label() + ';;'
+
+            ConfigManager.set_conf('tab-names', tab_names)
+            ConfigManager.save_config()
+
+        Gtk.main_quit()
 
     def on_resize(self, widget, event):
         if Gdk.ModifierType.BUTTON1_MASK & event.get_state() != 0:
@@ -89,34 +176,40 @@ class TerminalWin(Gtk.Window):
             new_height = mouse_y - self.get_position()[1]
             if new_height > 0:
                 self.resize(self.get_allocation().width, new_height)
-                self.show()
+                self.update_events()
 
     def update_resizer(self, widget, event):
         self.resizer.set_position(self.get_allocation().height)
 
         if not self.is_fullscreen:
-            new_percent = int((self.get_allocation().height * 1.0) / self.monitor.height * 100.0)
+            new_percent = int((self.resizer.get_allocation().height * 1.0) / self.get_screen_rectangle().height * 100.0)
             ConfigManager.set_conf('height', str(new_percent))
             ConfigManager.save_config()
 
-    # not working
-    def on_losefocus(self, window, event):
-        if ConfigManager.get_conf('losefocus-hiding') and not ConfigManager.disable_losefocus_temporary:
-            self.hide()
-
-    def add_page(self):
+    def add_page(self, page_name=None):
         self.notebook.append_page(VteObjectContainer(), None)
         self.notebook.set_current_page(-1)
-        self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.grab_focus()
-        self.notebook_page_counter += 1
-        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, "Terminal " + str(self.notebook_page_counter))
+        self.get_active_terminal().grab_focus()
 
+        page_count = 0
+        for button in self.buttonbox:
+            if button != self.radio_group_leader:
+                page_count += 1
+
+        if page_name == None:
+            page_name = _("Terminal ") + str(page_count+1)
+
+        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, page_name)
         new_button.set_property('draw-indicator', False)
         new_button.set_active(True)
         new_button.show()
         new_button.connect('toggled', self.change_page)
         new_button.connect('button-release-event', self.page_button_mouse_event)
+
         self.buttonbox.pack_start(new_button, False, True, 0)
+
+    def get_active_terminal(self):
+        return self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal
 
     def change_page(self, button):
         if button.get_active() == False:
@@ -127,9 +220,9 @@ class TerminalWin(Gtk.Window):
             if i != self.radio_group_leader:
                 if i == button:
                     self.notebook.set_current_page(page_no)
-                    self.notebook.get_nth_page(page_no).active_terminal.vte.grab_focus()
+                    self.get_active_terminal().grab_focus()
                     return
-                page_no = page_no + 1
+                page_no = page_no + 1      
 
     def page_button_mouse_event(self, button, event):
         if event.button != 3:
@@ -155,17 +248,17 @@ class TerminalWin(Gtk.Window):
 
         ConfigManager.disable_losefocus_temporary = True
         self.menu.popup(None, None, None, None, event.button, event.time)
+        self.get_active_terminal().grab_focus()
 
     def page_rename(self, menu, sender):
-        RenameDialog(sender)
+        RenameDialog(sender, self.get_active_terminal())
 
     def page_close(self, menu, sender):
-        button_count = 0
-        for i in self.buttonbox:
-            button_count = button_count + 1
+        button_count = len(self.buttonbox.get_children())
 
+        # don't forget "radio_group_leader"
         if button_count <= 2:
-            return
+            return self.quit()
 
         page_no = 0
         for i in self.buttonbox:
@@ -173,61 +266,193 @@ class TerminalWin(Gtk.Window):
                 if i == sender:
                     self.notebook.remove_page(page_no)
                     self.buttonbox.remove(i)
-                    for j in self.buttonbox:
-                        last_button = j
+                    
+                    last_button = self.buttonbox.get_children()[-1]
                     last_button.set_active(True)
-                    return
+                    return True
                 page_no = page_no + 1
 
-    def update_ui(self):
+    def get_screen_rectangle(self):
+        monitor = ConfigManager.get_conf('monitor')
+        # 0 primary monitor
+        # 1 show on where mouse pointer at
+        # 2 most left
+        # 3 most right
+        # 4 monitor 0
+        # ...
+        if monitor == 0:
+            return self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
+        elif monitor == 1:
+            display = self.screen.get_display()
+            # TO DO: confirm this, could be wrong.
+            device_screen, mouse_x, mouse_y = display.list_devices()[0].get_position()
+            return self.screen.get_monitor_workarea(self.screen.get_monitor_at_point(mouse_x, mouse_y))
+        elif monitor == 2:
+            return self.screen.get_monitor_workarea(0)
+        elif monitor == 3:
+            return self.screen.get_monitor_workarea(self.screen.get_n_monitors()-1)
+        else:
+            monitor_id = monitor - 4 # prev options
+            if monitor_id < self.screen.get_n_monitors():
+                return self.screen.get_monitor_workarea(monitor_id)
+            else:
+                return self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
+
+    def update_ui(self, resize=True):
+        self.unmaximize()
+        self.stick()
+        self.override_gtk_theme()
         self.set_keep_above(ConfigManager.get_conf('always-on-top'))
         self.set_decorated(ConfigManager.get_conf('use-border'))
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
-        css_provider = Gtk.CssProvider()
-        css_provider.load_from_data('''#notebook GtkPaned {-GtkPaned-handle-size: %i;}''' % (ConfigManager.get_conf('seperator-size')))
-        style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-
-        self.reshow_with_initial_size()
+        if ConfigManager.get_conf('hide-tab-bar'):
+            self.tabbar.hide()
+            self.tabbar.set_no_show_all(True)
+        else:
+            self.tabbar.set_no_show_all(False)
+            self.tabbar.show()
+        
         width = self.monitor.width
         height = self.monitor.height
         if self.is_fullscreen:
             self.fullscreen()
+            # hide resizer
+            if self.resizer.get_child2() != None:
+                self.resizer.remove(self.resizer.get_child2())
+
+            # hide tab bar
+            if ConfigManager.get_conf('hide-tab-bar-fullscreen'):
+                self.tabbar.set_no_show_all(True)
+                self.tabbar.hide()
         else:
+            # show resizer
+            if self.resizer.get_child2() == None:
+                self.resizer.add2(Gtk.Box())
+                self.resizer.get_child2().show_all()
+            
+            # show tab bar
+            if ConfigManager.get_conf('hide-tab-bar-fullscreen'):
+                self.tabbar.set_no_show_all(False)
+                self.tabbar.show()
+
             self.unfullscreen()
-            height = ConfigManager.get_conf('height') * self.monitor.height / 100
+
+            screen_rectangle = self.monitor#self.get_screen_rectangle()
+
+            # don't forget -1
+#            width = floor(ConfigManager.get_conf('width') * screen_rectangle.width / 100.0) - 1
+            self.reshow_with_initial_size()
+            width = floor(screen_rectangle.width * screen_rectangle.width / 100.0) - 1
+            height = floor(ConfigManager.get_conf('height') * screen_rectangle.height / 100.0)
+            
+            #if resize:
+            #    self.resize(width, height)
         self.resize(width, height)
-        self.move(self.monitor.x, self.monitor.y)
-        self.show_all()
+
+            # vertical_position = ConfigManager.get_conf('vertical-position') * screen_rectangle.height / 100
+            # if vertical_position - (height / 2) < 0:
+            #     vertical_position = 0
+            # elif vertical_position + (height / 2) > screen_rectangle.height:
+            #     vertical_position = screen_rectangle.height - (height / 2)
+            # else:
+            #     vertical_position = vertical_position - (height / 2)
+
+            # horizontal_position = ConfigManager.get_conf('horizontal-position') * screen_rectangle.width / 100
+            # if horizontal_position - (width / 2) < 0:
+            #     horizontal_position = 0
+            # elif horizontal_position + (width / 2) > screen_rectangle.width:
+            #     horizontal_position = screen_rectangle.width - (width / 2)
+            # else:
+            #     horizontal_position = horizontal_position - (width / 2)
+
+#            self.move(screen_rectangle.x + horizontal_position, screen_rectangle.y + vertical_position)
+        self.move(screen_rectangle.x, screen_rectangle.y)
+
+
+    def override_gtk_theme(self):
+        css_provider = Gtk.CssProvider()
+
+        bg = Gdk.color_parse(ConfigManager.get_conf('color-background'))
+        bg_hex =  '#%02X%02X%02X' % (int((bg.red/65536.0)*256), int((bg.green/65536.0)*256), int((bg.blue/65536.0)*256))
+
+        css_provider.load_from_data('''
+            #notebook GtkPaned 
+            {
+                -GtkPaned-handle-size: %i;
+            }
+            GtkVScrollbar
+            {
+                -GtkRange-slider-width: 5;
+            }
+            GtkVScrollbar.trough {
+                background-image: none;
+                background-color: %s;
+                border-width: 0;
+                border-radius: 0;
+
+            }
+            GtkVScrollbar.slider, GtkVScrollbar.slider:prelight, GtkVScrollbar.button {
+                background-image: none;
+                border-width: 0;
+                background-color: alpha(#FFF, 0.4);
+                border-radius: 10px;
+                box-shadow: none;
+            }
+            ''' % (ConfigManager.get_conf('seperator-size'), bg_hex))
+
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
     def on_keypress(self, widget, event):
+        if ConfigManager.key_event_compare('toggle-scrollbars-key', event):
+            ConfigManager.set_conf('show-scrollbar', not ConfigManager.get_conf('show-scrollbar'))
+            ConfigManager.save_config()
+            ConfigManager.callback()
+            return True
+
+        if ConfigManager.key_event_compare('move-up-key', event):
+            self.get_active_terminal().move(direction=1)
+            return True
+
+        if ConfigManager.key_event_compare('move-down-key', event):
+            self.get_active_terminal().move(direction=2)
+            return True
+
+        if ConfigManager.key_event_compare('move-left-key', event):
+            self.get_active_terminal().move(direction=3)
+            return True
+
+        if ConfigManager.key_event_compare('move-right-key', event):
+            self.get_active_terminal().move(direction=4)
+            return True
+
         if ConfigManager.key_event_compare('quit-key', event):
-            Gtk.main_quit()
+            self.quit()
             return True
 
         if ConfigManager.key_event_compare('select-all-key', event):
-            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.select_all()
+            self.get_active_terminal().select_all()
             return True
 
         if ConfigManager.key_event_compare('copy-key', event):
-            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.copy_clipboard()
+            self.get_active_terminal().copy_clipboard()
             return True
 
         if ConfigManager.key_event_compare('paste-key', event):
-            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.paste_clipboard()
+            self.get_active_terminal().paste_clipboard()
             return True
 
         if ConfigManager.key_event_compare('split-v-key', event):
-            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.split_axis(None, 'v')
+            self.get_active_terminal().split_axis(None, 'v')
             return True
 
         if ConfigManager.key_event_compare('split-h-key', event):
-            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.split_axis(None, 'h')
+            self.get_active_terminal().split_axis(None, 'h')
             return True
 
         if ConfigManager.key_event_compare('close-node-key', event):
-            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.close_node(None)
+            self.get_active_terminal().close_node(None)
             return True
 
         if ConfigManager.key_event_compare('fullscreen-key', event):
@@ -251,10 +476,7 @@ class TerminalWin(Gtk.Window):
                     return True
 
         if ConfigManager.key_event_compare('next-page-key', event):
-            page_button_list = []
-            for button in self.buttonbox:
-                if button != self.radio_group_leader:
-                    page_button_list.append(button)
+            page_button_list = self.buttonbox.get_children()[1:]
 
             for i in range(len(page_button_list)):
                 if (page_button_list[i].get_active() == True):
@@ -266,10 +488,7 @@ class TerminalWin(Gtk.Window):
 
 
         if ConfigManager.key_event_compare('prev-page-key', event):
-            page_button_list = []
-            for button in self.buttonbox:
-                if button != self.radio_group_leader:
-                    page_button_list.append(button)
+            page_button_list = self.buttonbox.get_children()[1:]
 
             for i in range(len(page_button_list)):
                 if page_button_list[i].get_active():
@@ -288,55 +507,82 @@ class TerminalWin(Gtk.Window):
         visual = self.screen.get_rgba_visual()
         if visual != None and self.screen.is_composited():
             self.set_visual(visual)
+        else:
+            ConfigManager.use_fake_transparency = True
+
+    def update_events(self):
+        while Gtk.events_pending():
+            Gtk.main_iteration()
+        Gdk.flush()
+
+    def slide_up(self, i=0):
+        self.slide_effect_running = True
+        step = ConfigManager.get_conf('step-count')
+        win_rect = self.get_allocation()
+        height, width = win_rect.height, win_rect.width
+        if self.get_window() != None:
+            self.get_window().enable_synchronized_configure()
+        if i < step+1:
+            self.resize(width, height - int(((height/step) * i)))
+            self.queue_resize()
+            self.update_events()
+            GObject.timeout_add(ConfigManager.get_conf('step-time'), self.slide_up, i+1)
+        else:
+            self.hide()
+            self.unrealize()
+        if self.get_window() != None:
+            self.get_window().configure_finished()
+        self.slide_effect_running = False
+
+    def slide_down(self, i=1):
+        step = ConfigManager.get_conf('step-count')
+        self.slide_effect_running = True
+        screen_rectangle = self.get_screen_rectangle()
+        width = floor(ConfigManager.get_conf('width') * screen_rectangle.width / 100.0) - 1
+        height = floor(ConfigManager.get_conf('height') * screen_rectangle.height / 100.0)
+        if self.get_window() != None:
+            self.get_window().enable_synchronized_configure()
+        if i < step + 1:
+            self.resize(width, int(((height/step) * i)))
+            self.queue_resize()
+            self.resizer.set_property('position', int(((height/step) * i)))
+            self.resizer.queue_resize()
+            self.update_events()
+            GObject.timeout_add(ConfigManager.get_conf('step-time'), self.slide_down, i+1)
+        if self.get_window() != None:
+            self.get_window().configure_finished()
+        self.slide_effect_running = False
 
     def show_hide(self):
+        if self.slide_effect_running:
+            return
+        event_time = self.hotkey.get_current_event_time()
+        if(self.losefocus_time and self.losefocus_time >= event_time):
+            return
+
         if self.get_visible():
-            self.hide()
+            if ConfigManager.get_conf('use-animation'):
+                self.slide_up()
+            return
         else:
-            self.update_ui()
-            self.present()
+            if ConfigManager.get_conf('use-animation'):
+                self.update_ui(resize=False)
+            else:
+                self.update_ui()
+            self.show()
+            x11_win = self.get_window()
+            x11_time = GdkX11.x11_get_server_time(x11_win)
+            x11_win.focus(x11_time)
+            if ConfigManager.get_conf('use-animation'):
+                self.slide_down()
 
-    def quit(self):
-        Gtk.main_quit()
-
-class RenameDialog:
-    def __init__(self, sender):
-        ConfigManager.disable_losefocus_temporary = True
-        self.sender = sender
-
-        self.builder = Gtk.Builder()
-        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
-        self.dialog = self.builder.get_object('rename_dialog')
-
-        self.dialog.entry_new_name = self.builder.get_object('entry_new_name')
-        self.dialog.entry_new_name.set_text(self.sender.get_label())
-
-        self.dialog.btn_cancel = self.builder.get_object('btn_cancel')
-        self.dialog.btn_ok = self.builder.get_object('btn_ok')
-
-        self.dialog.btn_cancel.connect('clicked', lambda w: self.close())
-        self.dialog.btn_ok.connect('clicked', lambda w: self.rename())
-        self.dialog.entry_new_name.connect('key-press-event', lambda w, x: self.on_keypress(w, x))
-
-        self.dialog.connect('delete-event', lambda w, x: self.close())
-        self.dialog.connect('destroy', lambda w: self.close())
-
-        self.dialog.show_all()
-
-    def on_keypress(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == 'Return':
-            self.rename()
-
-    def close(self):
-        ConfigManager.disable_losefocus_temporary = False
-        self.dialog.destroy()
-        del self
-
-    def rename(self):
-        if len(self.dialog.entry_new_name.get_text()) > 0:
-            self.sender.set_label(self.dialog.entry_new_name.get_text())
-
-        self.close()
+def cannot_bind(app):
+    ConfigManager.set_conf('hide-on-start', False)
+    ConfigManager.set_conf('losefocus-hiding', False)
+    msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
+    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+    msgbox.run()
+    msgbox.destroy()
 
 def show_hide():
     for app in apps:
@@ -346,41 +592,26 @@ def update_ui():
     for app in apps:
         app.update_ui()
 
-def cannot_grab(app):
-    ConfigManager.set_conf('losefocus-hiding', 'False')
-    ConfigManager.set_conf('hide-on-start', 'False')
-    app.update_ui()
-    msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
-    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-    msgbox.run()
-    msgbox.destroy()
-
-def init():
-    keybinding = GlobalKeyBinding()
-    keybinding.connect('activate', lambda w: show_hide())
-
-    ConfigManager.add_callback(update_ui)
-    ConfigManager.show_hide_callback = show_hide
-    ConfigManager.ref_keybinding = keybinding
-    ConfigManager.ref_show_hide = show_hide
-
-    GObject.threads_init()
-    return (keybinding)
-
 def main():
-    keybinding = init()
+    globalhotkeys.init()
+    hotkey = globalhotkeys.GlobalHotkey()
+    bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)
 
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
-                app = TerminalWin(screen.get_monitor_geometry(monitor_num))
-#                app.update_ui()
-                if not keybinding.grab():
-                    cannot_grab(app)
-                else:
-                    apps.append(app)
-    keybinding.start()
+                try:
+                    bus = dbus.SessionBus()
+                    app = bus.get_object(DBUS_NAME, DBUS_PATH)
+                    app.show_hide()
+                except dbus.DBusException:
+                    app = TerminalWin(screen.get_monitor_geometry(monitor_num))
+                    if (not bind_success):
+                        cannot_bind()
+                    app.hotkey = hotkey
+                    DbusService(app)
+                apps.append(app)
     Gtk.main()
 
 if __name__ == "__main__":
