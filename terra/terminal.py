@@ -37,9 +37,6 @@ class TerminalWin(Gtk.Window):
         self.builder = Gtk.Builder()
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
 
-        ConfigManager.add_callback(self.update_ui)
-        ConfigManager.show_hide_callback = self.show_hide
-
         self.screen = self.get_screen()
         self.losefocus_time = 0
         self.init_transparency()
@@ -196,7 +193,8 @@ class TerminalWin(Gtk.Window):
             self.fullscreen()
         else:
             self.unfullscreen()
-            width = ConfigManager.get_conf('width') * self.monitor.width / 100
+#            width = ConfigManager.get_conf('width') * self.monitor.width / 100
+            width = self.monitor.width
             height = ConfigManager.get_conf('height') * self.monitor.height / 100
             self.resize(width, height)
 
@@ -345,34 +343,45 @@ def show_hide():
     for app in apps:
         app.show_hide()
 
-def main():
+def update_ui():
+    for app in apps:
+        app.update_ui()
+
+def cannot_grab(app):
+    ConfigManager.set_conf('losefocus-hiding', 'False')
+    ConfigManager.set_conf('hide-on-start', 'False')
+    app.update_ui()
+    msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
+    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+    msgbox.run()
+    msgbox.destroy()
+
+def init():
     keybinding = GlobalKeyBinding()
     keybinding.connect('activate', lambda w: show_hide())
 
+    ConfigManager.add_callback(update_ui)
+    ConfigManager.show_hide_callback = show_hide
+    ConfigManager.ref_keybinding = keybinding
+    ConfigManager.ref_show_hide = show_hide
+
     GObject.threads_init()
-    dm = Gdk.DisplayManager.get()
-    disps = dm.list_displays()
-    print("NBDisplays: %d"% len(disps))
-    for disp in disps:
-        print("Name: '%s' NBDisplays: %d"% (disp.get_name(), disp.get_n_screens()))
+    return (keybinding)
+
+def main():
+    keybinding = init()
+
+    for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
-            screen = disp.get_screen(screen_num)
-            for monitor_num in range(screen.get_n_monitors()):
+            for monitor_num in range(disp.get_screen(screen_num).get_n_monitors()):
                 monitor = screen.get_monitor_geometry(monitor_num)
                 print("Num: %d, Reso: %dx%d"% (monitor_num, monitor.width, monitor.height))
                 app = TerminalWin(monitor)
-                apps.append(app)
-                app.keybinding = keybinding
-                ConfigManager.ref_keybinding = keybinding
-                ConfigManager.ref_show_hide = show_hide
+    #            app.keybinding = keybinding
                 if not keybinding.grab():
-                    ConfigManager.set_conf('losefocus-hiding', 'False')
-                    ConfigManager.set_conf('hide-on-start', 'False')
-                    app.update_ui()
-                    msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
-                    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-                    msgbox.run()
-                    msgbox.destroy()
+                    cannot_grab(app)
+                else:
+                    apps.append(app)
     keybinding.start()
     Gtk.main()
 
