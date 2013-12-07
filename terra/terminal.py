@@ -24,6 +24,7 @@ from terra import globalhotkeys
 
 from VteObject import VteObjectContainer
 from config import ConfigManager
+from layout import LayoutManager
 from dialogs import RenameDialog
 from dbusservice import DbusService
 from i18n import _
@@ -36,12 +37,13 @@ apps = []
 
 class TerminalWin(Gtk.Window):
 
-    def __init__(self, monitor):
+    def __init__(self, name, monitor):
         super(TerminalWin, self).__init__()
 
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain('terra')
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
+        self.name = name
 
         ConfigManager.add_callback(self.update_ui)
         
@@ -102,12 +104,14 @@ class TerminalWin(Gtk.Window):
         self.connect('focus-out-event', self.on_window_losefocus)
         self.add(self.resizer)
 
-        if ConfigManager.get_conf('remember-tab-names'):
-            tab_names = ConfigManager.get_conf('tab-names').split(';;')
-
-            for tab_name in tab_names:
-                if len(tab_name) > 0:
-                    self.add_page(page_name=tab_name)
+        screen_id = LayoutManager.get_conf(self.name, 'id')
+        tabs = LayoutManager.get_conf(self.name, 'tabs')
+        if (tabs == None or tabs == 0):
+            self.add_page()
+        for tab in range(tabs):
+            print(str("Tabs-%d-%d"% (screen_id, tab)))
+            tab_name =  LayoutManager.get_conf(str("Tabs-%d-%d"% (screen_id, tab)), 'name')
+            self.add_page(page_name=tab_name)
 
             for button in self.buttonbox:
                 if button == self.radio_group_leader:
@@ -115,9 +119,6 @@ class TerminalWin(Gtk.Window):
                 else:
                     button.set_active(True)
                     break
-
-        else:
-            self.add_page()
 
     def delete_event_callback(self):
         self.hide()
@@ -158,7 +159,7 @@ class TerminalWin(Gtk.Window):
 
             ConfigManager.set_conf('tab-names', tab_names)
             ConfigManager.save_config()
-
+            LayoutManager.save_config()
         Gtk.main_quit()
 
     def on_resize(self, widget, event):
@@ -534,24 +535,56 @@ def update_ui():
     for app in apps:
         app.update_ui()
 
+def get_screen(name):
+    posx = LayoutManager.get_conf(name, 'posx')
+    posy = LayoutManager.get_conf(name, 'posy')
+    width = LayoutManager.get_conf(name, 'width')
+    height = LayoutManager.get_conf(name, 'height')
+    if (posx == None or posy == None or width == None or height == None):
+        return (None)
+    rect = Gdk.Rectangle()
+    rect.x = posx
+    rect.y = posy
+    rect.width = width
+    rect.height = height
+    return (rect)
+
 def main():
     globalhotkeys.init()
     hotkey = globalhotkeys.GlobalHotkey()
     bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)
-
     first = True
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
-                app = TerminalWin(screen.get_monitor_geometry(monitor_num))
-                if (not bind_success):
-                    cannot_bind()
-                app.hotkey = hotkey
-                if (first):
-                    DbusService(app)
-                    first = False
-                apps.append(app)
+                rect = screen.get_monitor_geometry(monitor_num)
+                screenName = str("screen%d.%d-%d:%d-%dx%d"% (screen_num, monitor_num, rect.x, rect.y , rect.width, rect.height))
+                monitor = get_screen(screenName)
+                if (monitor != None):
+                    print("Screen: %s"% screenName)
+                    app = TerminalWin(screenName, monitor)
+                    if (not bind_success):
+                        cannot_bind()
+                        app.hotkey = hotkey
+                        if (first):
+                            DbusService(app)
+                            first = False
+                    apps.append(app)
+                else:
+                    print("Cannot find %s"% screenName)
+    if (len(apps) == 0):
+        screenName = 'DEFAULT'
+        monitor = get_screen(screenName)
+        app = TerminalWin(screenName, monitor)
+        if (not bind_success):
+            cannot_bind()
+            app.hotkey = hotkey
+            if (first):
+                DbusService(app)
+                first = False
+        apps.append(app)
+
     update_ui()
     Gtk.main()
 

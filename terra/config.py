@@ -23,7 +23,7 @@ import ConfigParser
 import os
 
 __terra_data_directory__ = '/usr/share/terra/'
-__version__ = '0.1.7'
+__version__ = '0.2.0'
 
 class ConfigManager():
 
