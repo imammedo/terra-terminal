@@ -38,11 +38,11 @@ class TerminalWin(Gtk.Window):
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
 
         self.screen = self.get_screen()
+        self.monitor = monitor
         self.losefocus_time = 0
         self.init_transparency()
         self.init_ui()
         self.add_page()
-        self.monitor = monitor
         self.update_ui()
 
         if ConfigManager.get_conf('hide-on-start'):
@@ -189,15 +189,15 @@ class TerminalWin(Gtk.Window):
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
+        self.reshow_with_initial_size()
+        width = self.monitor.width
+        height = self.monitor.height
         if self.is_fullscreen:
             self.fullscreen()
         else:
             self.unfullscreen()
-#            width = ConfigManager.get_conf('width') * self.monitor.width / 100
-            width = self.monitor.width
             height = ConfigManager.get_conf('height') * self.monitor.height / 100
-            self.resize(width, height)
-
+        self.resize(width, height)
         self.move(self.monitor.x, self.monitor.y)
         self.show_all()
 
@@ -295,7 +295,6 @@ class TerminalWin(Gtk.Window):
         else:
             self.update_ui()
             self.present()
-            self.move(self.monitor.x, self.monitor.y)
 
     def quit(self):
         Gtk.main_quit()
@@ -373,11 +372,10 @@ def main():
 
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
-            for monitor_num in range(disp.get_screen(screen_num).get_n_monitors()):
-                monitor = screen.get_monitor_geometry(monitor_num)
-                print("Num: %d, Reso: %dx%d"% (monitor_num, monitor.width, monitor.height))
-                app = TerminalWin(monitor)
-    #            app.keybinding = keybinding
+            screen = disp.get_screen(screen_num)
+            for monitor_num in range(screen.get_n_monitors()):
+                app = TerminalWin(screen.get_monitor_geometry(monitor_num))
+#                app.update_ui()
                 if not keybinding.grab():
                     cannot_grab(app)
                 else:
