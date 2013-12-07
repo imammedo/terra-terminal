@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject, GdkX11
 
-import globalhotkeys
+from terra import globalhotkeys
 
 from VteObject import VteObjectContainer
 from config import ConfigManager

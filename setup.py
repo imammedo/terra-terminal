@@ -143,13 +143,13 @@ globalhotkeys = Extension("terra.globalhotkeys", ['terra/globalhotkeys/globalhot
 
 DistUtilsExtra.auto.setup(
     name='terra',
-    version='0.1.7',
+    version='0.2.0',
     license='GPL-3',
-    author='Ozcan ESEN',
-    author_email='ozcanesen@gmail.com',
+    author='Arnaud Sourioux',
+    author_email='six.dsn@gmail.com',
     description='Terra Terminal Emulator',
-    long_description='''Terra is GTK+3.0 based terminal emulator with useful user interface, it also supports multiple terminals with splitting screen horizontally or vertically. New features will be added soon. It's very new and experimental project. It's written in python with python-gobject, If you want to contribute just checkout and try. I really appreciate the bug reports.''',
-    url='https://launchpad.net/terra',
+    long_description='''Terra is GTK+3.0 based terminal emulator with useful user interface, it also supports multiple terminals with splitting screen horizontally or vertically. New features will be added soon. It's very new and experimental project. It's written in python with python-gobject, If you want to contribute just checkout and try. Feel free to open issues for bug report or new features.''',
+    url='https://github.com/Sixdsn/terra-terminal',
     cmdclass={'install': InstallAndUpdateDataDirectory},
     ext_modules=[globalhotkeys]
     )
