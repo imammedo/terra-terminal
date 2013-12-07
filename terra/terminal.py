@@ -25,12 +25,11 @@ import globalhotkeys
 from VteObject import VteObjectContainer
 from config import ConfigManager
 from dialogs import RenameDialog
-from dbusservice import DbusService, DBUS_NAME, DBUS_PATH
+from dbusservice import DbusService
 from i18n import _
 
 from math import floor
 import os
-import dbus
 import time
 
 apps = []
@@ -52,14 +51,6 @@ class TerminalWin(Gtk.Window):
         self.init_transparency()
         self.init_ui()
         self.update_ui()
-        
-        # if not bind_success:
-        #     ConfigManager.set_conf('hide-on-start', False)
-        #     ConfigManager.set_conf('losefocus-hiding', False)
-        #     msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
-        #     msgbox = Gtk.MessageDialog(self, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-        #     msgbox.run()
-        #     msgbox.destroy()
 
         if not ConfigManager.get_conf('hide-on-start'):
             self.show_all()
@@ -176,13 +167,14 @@ class TerminalWin(Gtk.Window):
             new_height = mouse_y - self.get_position()[1]
             if new_height > 0:
                 self.resize(self.get_allocation().width, new_height)
-                self.update_events()
+#                self.update_events()
+                self.show()
 
     def update_resizer(self, widget, event):
         self.resizer.set_position(self.get_allocation().height)
 
         if not self.is_fullscreen:
-            new_percent = int((self.resizer.get_allocation().height * 1.0) / self.get_screen_rectangle().height * 100.0)
+            new_percent = int((self.resizer.get_allocation().height * 1.0) / self.monitor.height * 100.0)
             ConfigManager.set_conf('height', str(new_percent))
             ConfigManager.save_config()
 
@@ -272,32 +264,6 @@ class TerminalWin(Gtk.Window):
                     return True
                 page_no = page_no + 1
 
-    def get_screen_rectangle(self):
-        monitor = ConfigManager.get_conf('monitor')
-        # 0 primary monitor
-        # 1 show on where mouse pointer at
-        # 2 most left
-        # 3 most right
-        # 4 monitor 0
-        # ...
-        if monitor == 0:
-            return self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
-        elif monitor == 1:
-            display = self.screen.get_display()
-            # TO DO: confirm this, could be wrong.
-            device_screen, mouse_x, mouse_y = display.list_devices()[0].get_position()
-            return self.screen.get_monitor_workarea(self.screen.get_monitor_at_point(mouse_x, mouse_y))
-        elif monitor == 2:
-            return self.screen.get_monitor_workarea(0)
-        elif monitor == 3:
-            return self.screen.get_monitor_workarea(self.screen.get_n_monitors()-1)
-        else:
-            monitor_id = monitor - 4 # prev options
-            if monitor_id < self.screen.get_n_monitors():
-                return self.screen.get_monitor_workarea(monitor_id)
-            else:
-                return self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
-
     def update_ui(self, resize=True):
         self.unmaximize()
         self.stick()
@@ -338,36 +304,11 @@ class TerminalWin(Gtk.Window):
 
             self.unfullscreen()
 
-            screen_rectangle = self.monitor#self.get_screen_rectangle()
-
-            # don't forget -1
-#            width = floor(ConfigManager.get_conf('width') * screen_rectangle.width / 100.0) - 1
-            self.reshow_with_initial_size()
-            width = floor(screen_rectangle.width * screen_rectangle.width / 100.0) - 1
-            height = floor(ConfigManager.get_conf('height') * screen_rectangle.height / 100.0)
+            height = floor(ConfigManager.get_conf('height') * self.monitor.height / 100.0)
             
-            #if resize:
-            #    self.resize(width, height)
+        self.reshow_with_initial_size()
         self.resize(width, height)
-
-            # vertical_position = ConfigManager.get_conf('vertical-position') * screen_rectangle.height / 100
-            # if vertical_position - (height / 2) < 0:
-            #     vertical_position = 0
-            # elif vertical_position + (height / 2) > screen_rectangle.height:
-            #     vertical_position = screen_rectangle.height - (height / 2)
-            # else:
-            #     vertical_position = vertical_position - (height / 2)
-
-            # horizontal_position = ConfigManager.get_conf('horizontal-position') * screen_rectangle.width / 100
-            # if horizontal_position - (width / 2) < 0:
-            #     horizontal_position = 0
-            # elif horizontal_position + (width / 2) > screen_rectangle.width:
-            #     horizontal_position = screen_rectangle.width - (width / 2)
-            # else:
-            #     horizontal_position = horizontal_position - (width / 2)
-
-#            self.move(screen_rectangle.x + horizontal_position, screen_rectangle.y + vertical_position)
-        self.move(screen_rectangle.x, screen_rectangle.y)
+        self.move(self.monitor.x, self.monitor.y)
 
 
     def override_gtk_theme(self):
@@ -537,9 +478,10 @@ class TerminalWin(Gtk.Window):
     def slide_down(self, i=1):
         step = ConfigManager.get_conf('step-count')
         self.slide_effect_running = True
-        screen_rectangle = self.get_screen_rectangle()
-        width = floor(ConfigManager.get_conf('width') * screen_rectangle.width / 100.0) - 1
-        height = floor(ConfigManager.get_conf('height') * screen_rectangle.height / 100.0)
+        width = self.monitor.width
+        height = self.monitor.height
+        if (not self.is_fullscreen):
+            height = floor(ConfigManager.get_conf('height') * self.monitor.height / 100.0)
         if self.get_window() != None:
             self.get_window().enable_synchronized_configure()
         if i < step + 1:
@@ -597,21 +539,20 @@ def main():
     hotkey = globalhotkeys.GlobalHotkey()
     bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)
 
+    first = True
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
-                try:
-                    bus = dbus.SessionBus()
-                    app = bus.get_object(DBUS_NAME, DBUS_PATH)
-                    app.show_hide()
-                except dbus.DBusException:
-                    app = TerminalWin(screen.get_monitor_geometry(monitor_num))
-                    if (not bind_success):
-                        cannot_bind()
-                    app.hotkey = hotkey
+                app = TerminalWin(screen.get_monitor_geometry(monitor_num))
+                if (not bind_success):
+                    cannot_bind()
+                app.hotkey = hotkey
+                if (first):
                     DbusService(app)
+                    first = False
                 apps.append(app)
+    update_ui()
     Gtk.main()
 
 if __name__ == "__main__":
