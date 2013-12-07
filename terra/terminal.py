@@ -566,10 +566,10 @@ def main():
                     app = TerminalWin(screenName, monitor)
                     if (not bind_success):
                         cannot_bind()
-                        app.hotkey = hotkey
-                        if (first):
-                            DbusService(app)
-                            first = False
+                    app.hotkey = hotkey
+                    if (first):
+                        DbusService(app)
+                        first = False
                     apps.append(app)
                 else:
                     print("Cannot find %s"% screenName)
