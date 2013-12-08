@@ -6,10 +6,18 @@ Terra is GTK+3.0 based terminal emulator with useful user interface, it also sup
 Terra is now able to be displayed on multi-screens at the same time.
 You will get independant windows by screen.
 
+Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/trunk):
+- Use Terra Terminal on a multi-screen configuration
+- USe multiple Terra Terminals on one screen
+- Combine both configurations from above:
+  * Multiple Terra Terminal on Multiple Screens
+- Open a new Terra Terminal
 
 Features to come:
 - Save your layout.
-- Start other program at launch, saved in your layout
+  => Work in Progress
+- Start other program at launch, saved in your layout.
+   => When Layout backup will be fully operationnal
 - Start a graphical program instead of a term program.
 
 
