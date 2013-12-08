@@ -35,6 +35,8 @@ import time
 import sys
 
 apps = []
+hotkey = None
+bind_success = False
 
 class TerminalWin(Gtk.Window):
 
@@ -53,11 +55,11 @@ class TerminalWin(Gtk.Window):
 
         self.init_transparency()
         self.init_ui()
+        self.update_ui()
 
         if not ConfigManager.get_conf('hide-on-start'):
             self.show_all()
 
-        self.update_ui()
     def init_ui(self):
         self.set_title(_('Terra Terminal Emulator'))
 
@@ -99,7 +101,7 @@ class TerminalWin(Gtk.Window):
         self.btn_fullscreen = self.builder.get_object('btn_fullscreen')
         self.btn_fullscreen.connect('clicked', lambda w: self.toggle_fullscreen())
 
-        self.connect('destroy', lambda w: app_quit())
+        self.connect('destroy', lambda w: self.quit())
         self.connect('delete-event', lambda w, x: self.delete_event_callback())
         self.connect('key-press-event', self.on_keypress)
         self.connect('focus-out-event', self.on_window_losefocus)
@@ -161,8 +163,10 @@ class TerminalWin(Gtk.Window):
                     LayoutManager.set_conf(str("Tabs-%d-%d"% (screenid, tabid)), 'name', button.get_label())
                     tabid = tabid + 1
             LayoutManager.set_conf(self.name, 'tabs', tabid)
-            ConfigManager.save_config()
-            LayoutManager.save_config()
+        ConfigManager.save_config()
+        LayoutManager.save_config()
+        remove_app(self)
+        self.destroy()
 
     def on_resize(self, widget, event):
         if Gdk.ModifierType.BUTTON1_MASK & event.get_state() != 0:
@@ -369,7 +373,7 @@ class TerminalWin(Gtk.Window):
             return True
 
         if ConfigManager.key_event_compare('quit-key', event):
-            app_quit()
+            self.quit()
             return True
 
         if ConfigManager.key_event_compare('select-all-key', event):
@@ -531,7 +535,7 @@ def update_ui():
     for app in apps:
         app.update_ui()
 
-def get_screen(name, rect):
+def get_screen(name):
     posx = LayoutManager.get_conf(name, 'posx')
     posy = LayoutManager.get_conf(name, 'posy')
     width = LayoutManager.get_conf(name, 'width')
@@ -556,7 +560,30 @@ def app_quit():
     sys.stderr.flush()
     Gtk.main_quit()
 
+def remove_app(ext):
+    if ext in apps:
+        apps.remove(ext)
+    if (len(apps) == 0):
+        app_quit()
+
+def create_app(screenName ='DEFAULT', first = False):
+    monitor = get_screen(screenName)
+    if (monitor != None):
+        print("Screen: %s"% screenName)
+        app = TerminalWin(screenName, monitor)
+        if (not bind_success):
+            cannot_bind(app)
+        app.hotkey = hotkey
+        if (first):
+            DbusService(app)
+            first = False
+        apps.append(app)
+    else:
+        print("Cannot find %s"% screenName)
+    return first
+
 def main():
+    global bind_success
     globalhotkeys.init()
     hotkey = globalhotkeys.GlobalHotkey()
     bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)
@@ -570,30 +597,10 @@ def main():
                 nb_screens = get_nb_screen(glScreenName)
                 for nb in range(nb_screens):
                     screenName = str("%s-%d"%(glScreenName, nb))
-                    monitor = get_screen(screenName, rect)
-                    if (monitor != None):
-                        print("Screen: %s"% screenName)
-                        app = TerminalWin(screenName, monitor)
-                        if (not bind_success):
-                            cannot_bind()
-                        app.hotkey = hotkey
-                        if (first):
-                            DbusService(app)
-                            first = False
-                        apps.append(app)
-                    else:
-                        print("Cannot find %s"% screenName)
+                    first = create_app(screenName, first)
 
     if (len(apps) == 0):
-        screenName = 'DEFAULT'
-        monitor = get_screen(screenName)
-        app = TerminalWin(screenName, monitor)
-        if (not bind_success):
-            cannot_bind()
-        app.hotkey = hotkey
-        DbusService(app)
-        apps.append(app)
-
+        create_app('DEFAULT', True)
     update_ui()
     Gtk.main()
 

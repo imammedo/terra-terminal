@@ -31,7 +31,8 @@ class LayoutManager():
             'posy': '0',
             'width': '1280',
             'height': '1024',
-            'tabs': '0'
+            'tabs': '0',
+            'fullscreen': 'False'
         })
 
     cfg_dir = os.environ['HOME'] + '/.config/terra/'
@@ -46,7 +47,6 @@ class LayoutManager():
     def get_conf(section, key):
         try:
             value = LayoutManager.config.get(section, key)
-
         except ConfigParser.Error:
             print ("[DEBUG] No option '%s' found in namespace '%s'." %
                     (key, section))

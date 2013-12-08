@@ -24,6 +24,8 @@ from preferences import Preferences
 from config import ConfigManager
 from i18n import _
 
+import terminal
+
 # this regex strings taken from pantheon-terminal
 # thanks munchor and voldyman
 USERCHARS = "-[:alnum:]"
@@ -228,6 +230,10 @@ class VteObject(Gtk.HBox):
             self.menu_h_split.connect("activate", self.split_axis, 'v')
             self.menu.append(self.menu_h_split)
 
+            self.menu_new = Gtk.MenuItem(_("New Terminal"))
+            self.menu_new.connect("activate", self.new_app)
+            self.menu.append(self.menu_new)
+
             self.menu_close = Gtk.MenuItem(_("Close"))
             self.menu_close.connect("activate", self.close_node)
             self.menu.append(self.menu_close)
@@ -248,6 +254,9 @@ class VteObject(Gtk.HBox):
             self.menu.popup(None, None, None, None, event.button, event.time)
         elif value:
             Gtk.show_uri(self.get_screen(), value, GdkX11.x11_get_server_time(self.get_window()))
+
+    def new_app(self, widget):
+        terminal.create_app()
 
     def open_preferences(self, widget):
         ConfigManager.disable_losefocus_temporary = True

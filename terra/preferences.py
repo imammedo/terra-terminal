@@ -149,9 +149,6 @@ class Preferences():
         self.chk_hide_on_start = builder.get_object('chk_hide_on_start')
         self.chk_hide_on_start.set_active(ConfigManager.get_conf('hide-on-start'))
 
-#        self.chk_remember_tab_names = builder.get_object('chk_remember_tab_names')
-#        self.chk_remember_tab_names.set_active(ConfigManager.get_conf('remember-tab-names'))
-
         # store all keyboard shortcut entry boxes in array for connecting signals together.
         key_entries = []
 
@@ -382,8 +379,6 @@ class Preferences():
         ConfigManager.set_conf('losefocus-hiding', self.chk_losefocus.get_active())
 
         ConfigManager.set_conf('hide-on-start', self.chk_hide_on_start.get_active())
-
-#        ConfigManager.set_conf('remember-tab-names', self.chk_remember_tab_names.get_active())
 
         ConfigManager.set_conf('fullscreen-key', self.fullscreen_key.get_text())
 
