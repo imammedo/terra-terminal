@@ -1,9 +1,10 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: terra
-Upstream-Contact: Ozcan ESEN <ozcanesen@gmail.com>
-Source: https://launchpad.net/terra
+Upstream-Contact: Arnaud SOURIOUX <six.dsn@gmail.com>
+Source: https://github.com/Sixdsn/terra-terminal.git
 
 Files: *
+Copyright: (C) 2013 - Arnaud SOURIOUX <six.dsn@gmail.com>
 Copyright: (C) 2012 - Ozcan ESEN <ozcanesen~gmail.com>
 Copyright: (C) 2012 - Ozcan ESEN <ozcanesen~gmail.com>
 Copyright: (C) 2012 Ozcan ESEN <ozcanesen@gmail.com>

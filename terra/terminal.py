@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8; -*-
 """
+Copyright (C) 2013 - Arnaud SOURIOUX <six.dsn@gmail.com>
 Copyright (C) 2012 - Ozcan ESEN <ozcanesen~gmail.com>
 
 This program is free software: you can redistribute it and/or modify

@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 8),
  libgtk-3-dev (>= 3.4),
  python-dev (>= 2.6),
  python-distutils-extra (>= 2.10)
-Maintainer: Ozcan ESEN <ozcanesen@gmail.com>
+Maintainer: Arnaud Sourioux <six.dsn@gmail.com>
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
 

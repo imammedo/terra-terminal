@@ -1,3 +1,9 @@
+terra (0.2.0); urgency=low
+  * Advanced multi monitor fully compliant
+  * Multi Terra-terminal by screen
+
+  -- Arnaud Sourioux <six.dsn@gmail.com>
+
 terra (0.1.8); urgency=low
 
   * Experimental slide effect.
