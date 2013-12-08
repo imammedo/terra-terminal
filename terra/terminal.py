@@ -611,6 +611,8 @@ def main():
                 rect = screen.get_monitor_geometry(monitor_num)
                 glScreenName = str("screen%d.%d-%d:%d-%dx%d"% (screen_num, monitor_num, rect.x, rect.y , rect.width, rect.height))
                 nb_screens = get_nb_screen(glScreenName)
+                if (nb_screens == None):
+                    continue
                 for nb in range(nb_screens):
                     screenName = str("%s-%d"%(glScreenName, nb))
                     first = create_app(screenName, first)

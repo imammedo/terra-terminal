@@ -62,7 +62,7 @@ class VteObjectContainer(Gtk.HBox):
                 return terminalwin.page_close(None, button)
 
 class VteObject(Gtk.HBox):
-    def __init__(self, progname, run_dir=None):
+    def __init__(self, progname=[ConfigManager.get_conf('shell')], run_dir=None):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
@@ -131,10 +131,7 @@ class VteObject(Gtk.HBox):
         self.vte.set_font(current_font)
 
     def on_child_exited(self, event):
-        response = self.close_node(self)
-
-        if response == False:
-            self.fork_process([ConfigManager.get_conf('shell')], run_dir)
+        self.fork_process([ConfigManager.get_conf('shell')])
 
     def update_ui(self):
         if ConfigManager.get_conf('show-scrollbar'):
