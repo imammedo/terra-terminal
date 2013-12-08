@@ -521,6 +521,8 @@ class TerminalWin(Gtk.Window):
         if self.get_visible():
             if ConfigManager.get_conf('use-animation'):
                 self.slide_up()
+            else:
+                self.hide()
             return
         else:
             if ConfigManager.get_conf('use-animation'):
@@ -582,6 +584,8 @@ def remove_app(ext):
         app_quit()
 
 def create_app(screenName ='DEFAULT', first = False):
+    global hotkey
+    global bind_success
     monitor = get_screen(screenName)
     if (monitor != None):
         print("Screen: %s"% screenName)
