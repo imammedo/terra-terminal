@@ -106,6 +106,7 @@ class TerminalWin(Gtk.Window):
         self.connect('delete-event', lambda w, x: self.delete_event_callback())
         self.connect('key-press-event', self.on_keypress)
         self.connect('focus-out-event', self.on_window_losefocus)
+        self.connect('configure-event', self.on_window_move)
         self.add(self.resizer)
 
         screen_id = LayoutManager.get_conf(self.name, 'id')
@@ -140,6 +141,11 @@ class TerminalWin(Gtk.Window):
                 self.slide_up()
             self.unrealize()
             self.hide()
+
+    def on_window_move(self, window, event):
+        winpos = self.get_position()
+        LayoutManager.set_conf(self.name, 'posx', winpos[0])
+        LayoutManager.set_conf(self.name, 'posy', winpos[1])
 
     def exit(self):
         if ConfigManager.get_conf('prompt-on-quit'):
