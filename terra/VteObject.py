@@ -239,7 +239,7 @@ class VteObject(Gtk.HBox):
             self.menu.append(self.menu_preferences)
 
             self.menu_quit = Gtk.MenuItem(_("Quit"))
-            self.menu_quit.connect("activate", lambda w: self.get_toplevel().quit())
+            self.menu_quit.connect("activate", lambda w: self.get_toplevel().exit())
             self.menu.append(self.menu_quit)
 
             self.menu.show_all()

@@ -46,6 +46,7 @@ class LayoutManager():
     def get_conf(section, key):
         try:
             value = LayoutManager.config.get(section, key)
+
         except ConfigParser.Error:
             print ("[DEBUG] No option '%s' found in namespace '%s'." %
                     (key, section))
@@ -68,6 +69,11 @@ class LayoutManager():
         if key == 'select-by-word':
             value = b64encode(value)
         try:
+            LayoutManager.config.set(section, key, str(value))
+        except ConfigParser.NoSectionError:
+            print ("[DEBUG] No section '%s'." %
+                    (section))
+            LayoutManager.config.add_section(section)
             LayoutManager.config.set(section, key, str(value))
         except ConfigParser.Error:
             print ("[DEBUG] No option '%s' found in namespace '%s'." %

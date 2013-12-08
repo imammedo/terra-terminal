@@ -32,6 +32,7 @@ from i18n import _
 from math import floor
 import os
 import time
+import sys
 
 apps = []
 
@@ -52,15 +53,15 @@ class TerminalWin(Gtk.Window):
 
         self.init_transparency()
         self.init_ui()
-        self.update_ui()
 
         if not ConfigManager.get_conf('hide-on-start'):
             self.show_all()
 
+        self.update_ui()
     def init_ui(self):
         self.set_title(_('Terra Terminal Emulator'))
 
-        if ConfigManager.get_conf('start-fullscreen'):
+        if LayoutManager.get_conf(self.name, 'fullscreen'):
             self.is_fullscreen = True
         else:
             self.is_fullscreen = False
@@ -98,7 +99,7 @@ class TerminalWin(Gtk.Window):
         self.btn_fullscreen = self.builder.get_object('btn_fullscreen')
         self.btn_fullscreen.connect('clicked', lambda w: self.toggle_fullscreen())
 
-        self.connect('destroy', lambda w: self.quit())
+        self.connect('destroy', lambda w: app_quit())
         self.connect('delete-event', lambda w, x: self.delete_event_callback())
         self.connect('key-press-event', self.on_keypress)
         self.connect('focus-out-event', self.on_window_losefocus)
@@ -109,7 +110,6 @@ class TerminalWin(Gtk.Window):
         if (tabs == None or tabs == 0):
             self.add_page()
         for tab in range(tabs):
-            print(str("Tabs-%d-%d"% (screen_id, tab)))
             tab_name =  LayoutManager.get_conf(str("Tabs-%d-%d"% (screen_id, tab)), 'name')
             self.add_page(page_name=tab_name)
 
@@ -139,7 +139,7 @@ class TerminalWin(Gtk.Window):
             self.unrealize()
             self.hide()
 
-    def quit(self):
+    def exit(self):
         if ConfigManager.get_conf('prompt-on-quit'):
             ConfigManager.disable_losefocus_temporary = True
             msgtext = _("Do you really want to quit?")
@@ -150,34 +150,36 @@ class TerminalWin(Gtk.Window):
 
             if response != Gtk.ResponseType.YES:
                 return False
+        app_quit()
 
-        if ConfigManager.get_conf('remember-tab-names'):
-            tab_names = ""
+    def quit(self):
+        if LayoutManager.get_conf(self.name, 'tabs'):
+            tabid = 0
+            screenid = LayoutManager.get_conf(self.name, 'id')
             for button in self.buttonbox:
                 if button != self.radio_group_leader:
-                    tab_names = tab_names + button.get_label() + ';;'
-
-            ConfigManager.set_conf('tab-names', tab_names)
+                    LayoutManager.set_conf(str("Tabs-%d-%d"% (screenid, tabid)), 'name', button.get_label())
+                    tabid = tabid + 1
+            LayoutManager.set_conf(self.name, 'tabs', tabid)
             ConfigManager.save_config()
             LayoutManager.save_config()
-        Gtk.main_quit()
 
     def on_resize(self, widget, event):
         if Gdk.ModifierType.BUTTON1_MASK & event.get_state() != 0:
             mouse_y = event.device.get_position()[2]
             new_height = mouse_y - self.get_position()[1]
             if new_height > 0:
-                self.resize(self.get_allocation().width, new_height)
-#                self.update_events()
+                self.monitor.height = new_height
+                self.resize(self.monitor.width, self.monitor.height)
                 self.show()
 
     def update_resizer(self, widget, event):
-        self.resizer.set_position(self.get_allocation().height)
+        self.resizer.set_position(self.monitor.height)
 
         if not self.is_fullscreen:
-            new_percent = int((self.resizer.get_allocation().height * 1.0) / self.monitor.height * 100.0)
-            ConfigManager.set_conf('height', str(new_percent))
-            ConfigManager.save_config()
+            new_percent = self.monitor.height
+            LayoutManager.set_conf(self.name, 'height', str(self.monitor.height))
+            LayoutManager.save_config()
 
     def add_page(self, page_name=None):
         self.notebook.append_page(VteObjectContainer(), None)
@@ -273,15 +275,14 @@ class TerminalWin(Gtk.Window):
         self.set_decorated(ConfigManager.get_conf('use-border'))
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
+        win_rect = self.monitor
         if ConfigManager.get_conf('hide-tab-bar'):
             self.tabbar.hide()
             self.tabbar.set_no_show_all(True)
         else:
             self.tabbar.set_no_show_all(False)
             self.tabbar.show()
-        
-        width = self.monitor.width
-        height = self.monitor.height
+
         if self.is_fullscreen:
             self.fullscreen()
             # hide resizer
@@ -305,11 +306,9 @@ class TerminalWin(Gtk.Window):
 
             self.unfullscreen()
 
-            height = floor(ConfigManager.get_conf('height') * self.monitor.height / 100.0)
-            
-        self.reshow_with_initial_size()
-        self.resize(width, height)
-        self.move(self.monitor.x, self.monitor.y)
+            self.reshow_with_initial_size()
+            self.resize(win_rect.width, win_rect.height)
+            self.move(win_rect.x, win_rect.y)
 
 
     def override_gtk_theme(self):
@@ -370,7 +369,7 @@ class TerminalWin(Gtk.Window):
             return True
 
         if ConfigManager.key_event_compare('quit-key', event):
-            self.quit()
+            app_quit()
             return True
 
         if ConfigManager.key_event_compare('select-all-key', event):
@@ -460,7 +459,7 @@ class TerminalWin(Gtk.Window):
     def slide_up(self, i=0):
         self.slide_effect_running = True
         step = ConfigManager.get_conf('step-count')
-        win_rect = self.get_allocation()
+        win_rect = self.monitor
         height, width = win_rect.height, win_rect.width
         if self.get_window() != None:
             self.get_window().enable_synchronized_configure()
@@ -479,16 +478,13 @@ class TerminalWin(Gtk.Window):
     def slide_down(self, i=1):
         step = ConfigManager.get_conf('step-count')
         self.slide_effect_running = True
-        width = self.monitor.width
-        height = self.monitor.height
-        if (not self.is_fullscreen):
-            height = floor(ConfigManager.get_conf('height') * self.monitor.height / 100.0)
+        win_rect = self.monitor
         if self.get_window() != None:
             self.get_window().enable_synchronized_configure()
         if i < step + 1:
-            self.resize(width, int(((height/step) * i)))
+            self.resize(win_rect.width, int(((win_rect.height/step) * i)))
             self.queue_resize()
-            self.resizer.set_property('position', int(((height/step) * i)))
+            self.resizer.set_property('position', int(((win_rect.height/step) * i)))
             self.resizer.queue_resize()
             self.update_events()
             GObject.timeout_add(ConfigManager.get_conf('step-time'), self.slide_down, i+1)
@@ -535,7 +531,7 @@ def update_ui():
     for app in apps:
         app.update_ui()
 
-def get_screen(name):
+def get_screen(name, rect):
     posx = LayoutManager.get_conf(name, 'posx')
     posy = LayoutManager.get_conf(name, 'posy')
     width = LayoutManager.get_conf(name, 'width')
@@ -549,6 +545,17 @@ def get_screen(name):
     rect.height = height
     return (rect)
 
+def get_nb_screen(name):
+    return (LayoutManager.get_conf(name, 'screens'))
+
+def app_quit():
+    for app in apps:
+        if (app.quit() == False):
+            return
+    sys.stdout.flush()
+    sys.stderr.flush()
+    Gtk.main_quit()
+
 def main():
     globalhotkeys.init()
     hotkey = globalhotkeys.GlobalHotkey()
@@ -559,30 +566,32 @@ def main():
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
                 rect = screen.get_monitor_geometry(monitor_num)
-                screenName = str("screen%d.%d-%d:%d-%dx%d"% (screen_num, monitor_num, rect.x, rect.y , rect.width, rect.height))
-                monitor = get_screen(screenName)
-                if (monitor != None):
-                    print("Screen: %s"% screenName)
-                    app = TerminalWin(screenName, monitor)
-                    if (not bind_success):
-                        cannot_bind()
-                    app.hotkey = hotkey
-                    if (first):
-                        DbusService(app)
-                        first = False
-                    apps.append(app)
-                else:
-                    print("Cannot find %s"% screenName)
+                glScreenName = str("screen%d.%d-%d:%d-%dx%d"% (screen_num, monitor_num, rect.x, rect.y , rect.width, rect.height))
+                nb_screens = get_nb_screen(glScreenName)
+                for nb in range(nb_screens):
+                    screenName = str("%s-%d"%(glScreenName, nb))
+                    monitor = get_screen(screenName, rect)
+                    if (monitor != None):
+                        print("Screen: %s"% screenName)
+                        app = TerminalWin(screenName, monitor)
+                        if (not bind_success):
+                            cannot_bind()
+                        app.hotkey = hotkey
+                        if (first):
+                            DbusService(app)
+                            first = False
+                        apps.append(app)
+                    else:
+                        print("Cannot find %s"% screenName)
+
     if (len(apps) == 0):
         screenName = 'DEFAULT'
         monitor = get_screen(screenName)
         app = TerminalWin(screenName, monitor)
         if (not bind_success):
             cannot_bind()
-            app.hotkey = hotkey
-            if (first):
-                DbusService(app)
-                first = False
+        app.hotkey = hotkey
+        DbusService(app)
         apps.append(app)
 
     update_ui()
