@@ -14,12 +14,12 @@ Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/tr
 - Open a new Terra Terminal
 
 Features to come:
-- Save your layout.
-  => Work in Progress
+- Save your layout configuration.
+  * Work in Progress
 - Start other program at launch, saved in your layout.
-   => When Layout backup will be fully operationnal
+  * When Layout backup will be fully operationnal
 - Start a graphical program instead of a term program.
-
+  * Might need much time if ot's possible
 
 If you want to contribute just checkout and try.
 Feel free to open issues for bug report or new features.
