@@ -192,7 +192,11 @@ class TerminalWin(Gtk.Window):
             LayoutManager.save_config()
 
     def add_page(self, page_name=None):
-        self.notebook.append_page(VteObjectContainer(progname=LayoutManager.get_conf(page_name, 'progname').split()), None)
+        progname = LayoutManager.get_conf(page_name, 'progname')
+        if (progname):
+            self.notebook.append_page(VteObjectContainer(progname=progname.split()), None)
+        else:
+            self.notebook.append_page(VteObjectContainer(), None)
         self.notebook.set_current_page(-1)
         self.get_active_terminal().grab_focus()
 
@@ -201,10 +205,10 @@ class TerminalWin(Gtk.Window):
             if button != self.radio_group_leader:
                 page_count += 1
 
-        if page_name == None:
-            page_name = _("Terminal ") + str(page_count+1)
-
         tab_name = LayoutManager.get_conf(page_name, 'name')
+        if page_name == None or tab_name == None:
+            tab_name = _("Terminal ") + str(page_count+1)
+
         new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, tab_name)
         new_button.set_property('draw-indicator', False)
         new_button.set_active(True)
