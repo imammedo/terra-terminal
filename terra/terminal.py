@@ -178,17 +178,21 @@ class TerminalWin(Gtk.Window):
         if Gdk.ModifierType.BUTTON1_MASK & event.get_state() != 0:
             mouse_y = event.device.get_position()[2]
             new_height = mouse_y - self.get_position()[1]
-            if new_height > 0:
+            mouse_x = event.device.get_position()[1]
+            new_width = mouse_x - self.get_position()[0]
+            if new_height > 0 and new_width > 0:
                 self.monitor.height = new_height
+                self.monitor.width = new_width
                 self.resize(self.monitor.width, self.monitor.height)
                 self.show()
 
     def update_resizer(self, widget, event):
         self.resizer.set_position(self.monitor.height)
+        self.resizer.set_position(self.monitor.width)
 
         if not self.is_fullscreen:
-            new_percent = self.monitor.height
             LayoutManager.set_conf(self.name, 'height', str(self.monitor.height))
+            LayoutManager.set_conf(self.name, 'width', str(self.monitor.width))
             LayoutManager.save_config()
 
     def add_page(self, page_name=None):
