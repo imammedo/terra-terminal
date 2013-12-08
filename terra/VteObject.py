@@ -48,10 +48,10 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, bare=False):
+    def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')]):
         super(VteObjectContainer, self).__init__()
         if not bare:
-            self.active_terminal = VteObject()
+            self.active_terminal = VteObject(progname)
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
 
@@ -62,7 +62,7 @@ class VteObjectContainer(Gtk.HBox):
                 return terminalwin.page_close(None, button)
 
 class VteObject(Gtk.HBox):
-    def __init__(self, run_dir=None):
+    def __init__(self, progname, run_dir=None):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
@@ -72,23 +72,7 @@ class VteObject(Gtk.HBox):
         self.vscroll = Gtk.VScrollbar(self.vte.get_vadjustment())
         self.pack_start(self.vscroll, False, False, 0)
 
-        if run_dir == None:
-            dir_conf = ConfigManager.get_conf('dir')
-            if dir_conf == '$home$':
-                run_dir = os.environ['HOME']
-            elif dir_conf == '$pwd$':
-                run_dir = os.getcwd()
-            else:
-                run_dir = dir_conf
-
-        self.pid = self.vte.fork_command_full(
-            Vte.PtyFlags.DEFAULT,
-            run_dir,
-            [ConfigManager.get_conf('shell')],
-            [],
-            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-            None,
-            None)
+        self.fork_process(progname, run_dir)
 
         for regex_string in regex_strings:
             regex_obj = GLib.Regex.new(regex_string, 0, 0)
@@ -102,6 +86,26 @@ class VteObject(Gtk.HBox):
         self.vte.connect('decrease-font-size', self.change_font_size, -0.1)
 
         self.update_ui()
+
+    def fork_process(self, progname, run_dir=None):
+        if run_dir == None:
+            dir_conf = ConfigManager.get_conf('dir')
+            if dir_conf == '$home$':
+                run_dir = os.environ['HOME']
+            elif dir_conf == '$pwd$':
+                run_dir = os.getcwd()
+            else:
+                run_dir = dir_conf
+
+        self.pid = self.vte.fork_command_full(
+            Vte.PtyFlags.DEFAULT,
+            run_dir,
+            progname,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None)
+
 
     def scroll_event(self, widget, event):
         if (Gdk.ModifierType.CONTROL_MASK & event.state) == Gdk.ModifierType.CONTROL_MASK:
@@ -130,23 +134,7 @@ class VteObject(Gtk.HBox):
         response = self.close_node(self)
 
         if response == False:
-            dir_conf = ConfigManager.get_conf('dir')
-            if dir_conf == '$home$':
-                run_dir = os.environ['HOME']
-            elif dir_conf == '$pwd$':
-                run_dir = os.getcwd()
-            else:
-                run_dir = dir_conf
-
-            self.pid = self.vte.fork_command_full(
-                Vte.PtyFlags.DEFAULT,
-                run_dir,
-                [ConfigManager.get_conf('shell')],
-                [],
-                GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                None,
-                None)
-
+            self.fork_process([ConfigManager.get_conf('shell')], run_dir)
 
     def update_ui(self):
         if ConfigManager.get_conf('show-scrollbar'):

@@ -113,8 +113,7 @@ class TerminalWin(Gtk.Window):
         if (tabs == None or tabs == 0):
             self.add_page()
         for tab in range(tabs):
-            tab_name =  LayoutManager.get_conf(str("Tabs-%d-%d"% (screen_id, tab)), 'name')
-            self.add_page(page_name=tab_name)
+            self.add_page(page_name=str("Tabs-%d-%d"% (screen_id, tab)))
 
             for button in self.buttonbox:
                 if button == self.radio_group_leader:
@@ -187,7 +186,7 @@ class TerminalWin(Gtk.Window):
             LayoutManager.save_config()
 
     def add_page(self, page_name=None):
-        self.notebook.append_page(VteObjectContainer(), None)
+        self.notebook.append_page(VteObjectContainer(progname=LayoutManager.get_conf(page_name, 'progname').split()), None)
         self.notebook.set_current_page(-1)
         self.get_active_terminal().grab_focus()
 
@@ -199,7 +198,8 @@ class TerminalWin(Gtk.Window):
         if page_name == None:
             page_name = _("Terminal ") + str(page_count+1)
 
-        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, page_name)
+        tab_name = LayoutManager.get_conf(page_name, 'name')
+        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, tab_name)
         new_button.set_property('draw-indicator', False)
         new_button.set_active(True)
         new_button.show()
@@ -585,6 +585,7 @@ def create_app(screenName ='DEFAULT', first = False):
 
 def main():
     global bind_success
+    global hotkey
     globalhotkeys.init()
     hotkey = globalhotkeys.GlobalHotkey()
     bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)

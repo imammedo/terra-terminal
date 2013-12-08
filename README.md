@@ -8,7 +8,7 @@ You will get independant windows by screen.
 
 Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/trunk):
 - Use Terra Terminal on a multi-screen configuration
-- USe multiple Terra Terminals on one screen
+- Use multiple Terra Terminals on one screen
 - Combine both configurations from above:
   * Multiple Terra Terminal on Multiple Screens
 - Open a new Terra Terminal
