@@ -149,8 +149,8 @@ class TerminalWin(Gtk.Window):
 
     def on_window_move(self, window, event):
         winpos = self.get_position()
-        self.monitor.x = winpos[0]
-        self.monitor.y = winpos[1]
+        LayoutManager.set_conf(self.name, 'posx', winpos[0])
+        LayoutManager.set_conf(self.name, 'posy', winpos[1])
 
     def exit(self):
         if ConfigManager.get_conf('prompt-on-quit'):
@@ -173,8 +173,6 @@ class TerminalWin(Gtk.Window):
                     LayoutManager.del_conf(section)
             LayoutManager.del_conf(self.name)
         else:
-            LayoutManager.set_conf(self.name, 'posx', self.monitor.x)
-            LayoutManager.set_conf(self.name, 'posy', self.monitor.y)
             LayoutManager.set_conf(self.name, 'width', self.monitor.width)
             LayoutManager.set_conf(self.name, 'height', self.monitor.height)
             LayoutManager.set_conf(self.name, 'fullscreen', self.is_fullscreen)
@@ -624,9 +622,9 @@ def create_app(first = False, screenName='DEFAULT'):
     global bind_success
     global screenid
 
+    monitor = get_screen(screenName)
     if (screenName == 'DEFAULT'):
         screenName = get_screen_name()
-    monitor = get_screen(screenName)
     if (monitor != None):
         app = TerminalWin(screenName, monitor)
         if (not bind_success):
