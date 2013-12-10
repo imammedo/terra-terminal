@@ -220,6 +220,10 @@ class VteObject(Gtk.HBox):
             self.menu_new.connect("activate", self.new_app)
             self.menu.append(self.menu_new)
 
+            self.menu_new = Gtk.MenuItem(_("Save Configuration"))
+            self.menu_new.connect("activate", self.save_conf)
+            self.menu.append(self.menu_new)
+
             self.menu_close = Gtk.MenuItem(_("Close"))
             self.menu_close.connect("activate", self.close_node)
             self.menu.append(self.menu_close)
@@ -243,6 +247,9 @@ class VteObject(Gtk.HBox):
 
     def new_app(self, widget):
         terminal.create_app()
+
+    def save_conf(self, widget):
+        terminal.save_conf()
 
     def open_preferences(self, widget):
         ConfigManager.disable_losefocus_temporary = True

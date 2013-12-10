@@ -34,10 +34,13 @@ from math import floor
 import os
 import time
 import sys
+import ConfigParser
 
 apps = []
+old_apps = []
 hotkey = None
 bind_success = False
+screenid = 0
 
 class TerminalWin(Gtk.Window):
 
@@ -48,7 +51,7 @@ class TerminalWin(Gtk.Window):
         self.builder.set_translation_domain('terra')
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
         self.name = name
-
+        self.screen_id = int(name.split('-')[1])
         ConfigManager.add_callback(self.update_ui)
         
         self.screen = self.get_screen()
@@ -109,19 +112,21 @@ class TerminalWin(Gtk.Window):
         self.connect('configure-event', self.on_window_move)
         self.add(self.resizer)
 
-        screen_id = LayoutManager.get_conf(self.name, 'id')
-        tabs = LayoutManager.get_conf(self.name, 'tabs')
-        if (tabs == None or tabs == 0):
+        added = False
+        for section in LayoutManager.get_sections():
+            tabs = str('Tabs-%d'% self.screen_id)
+            if (section.find(tabs) == 0 and LayoutManager.get_conf(section, 'enabled') == True):
+                self.add_page(page_name=str(section))
+                added = True
+        if (not added):
             self.add_page()
-        for tab in range(tabs):
-            self.add_page(page_name=str("Tabs-%d-%d"% (screen_id, tab)))
 
-            for button in self.buttonbox:
-                if button == self.radio_group_leader:
-                    continue
-                else:
-                    button.set_active(True)
-                    break
+        for button in self.buttonbox:
+            if button == self.radio_group_leader:
+                continue
+            else:
+                button.set_active(True)
+                break
 
     def delete_event_callback(self):
         self.hide()
@@ -144,8 +149,8 @@ class TerminalWin(Gtk.Window):
 
     def on_window_move(self, window, event):
         winpos = self.get_position()
-        LayoutManager.set_conf(self.name, 'posx', winpos[0])
-        LayoutManager.set_conf(self.name, 'posy', winpos[1])
+        self.monitor.x = winpos[0]
+        self.monitor.y = winpos[1]
 
     def exit(self):
         if ConfigManager.get_conf('prompt-on-quit'):
@@ -160,17 +165,38 @@ class TerminalWin(Gtk.Window):
                 return False
         app_quit()
 
-    def quit(self):
-        if LayoutManager.get_conf(self.name, 'tabs'):
-            tabid = 0
-            screenid = LayoutManager.get_conf(self.name, 'id')
-            for button in self.buttonbox:
-                if button != self.radio_group_leader:
-                    LayoutManager.set_conf(str("Tabs-%d-%d"% (screenid, tabid)), 'name', button.get_label())
-                    tabid = tabid + 1
-            LayoutManager.set_conf(self.name, 'tabs', tabid)
-        ConfigManager.save_config()
+    def save_conf(self, keep=True):
+        tabs = str('Tabs-%d'% self.screen_id)
+        if (not keep):
+            for section in LayoutManager.get_conf():
+                if (section.find(tabs) == 0):
+                    LayoutManager.del_conf(section)
+            LayoutManager.del_conf(self.name)
+        else:
+            LayoutManager.set_conf(self.name, 'posx', self.monitor.x)
+            LayoutManager.set_conf(self.name, 'posy', self.monitor.y)
+            LayoutManager.set_conf(self.name, 'width', self.monitor.width)
+            LayoutManager.set_conf(self.name, 'height', self.monitor.height)
+            LayoutManager.set_conf(self.name, 'fullscreen', self.is_fullscreen)
+            LayoutManager.set_conf(self.name, 'enabled', 'True')
+
+            #need to find a good way to update and/or remove tabs
+
+            # for section in LayoutManager.get_conf():
+            #     if (section.find(tabs) == 0):
+            #         for button in self.buttonbox:
+            #             if button != self.radio_group_leader:
+            #                 LayoutManager.set_conf(section, 'name', button.get_label())
+            #                 LayoutManager.set_conf(section, 'enabled', 'True')
+            #     break
+            #     for section in LayoutManager.get_sections():
+            #         if (section.find("Tabs-%d-%d"% (self.screen_id, tabid)) == 0):
+            #             print("Del TabName: %s"% (str("Tabs-%d-%d"% (self.screen_id, tabid))))
+            #              LayoutManager.del_conf(str("Tabs-%d-%d"% (self.screen_id, tabid)))
         LayoutManager.save_config()
+
+    def quit(self):
+        ConfigManager.save_config()
         remove_app(self)
         self.destroy()
 
@@ -189,11 +215,6 @@ class TerminalWin(Gtk.Window):
     def update_resizer(self, widget, event):
         self.resizer.set_position(self.monitor.height)
         self.resizer.set_position(self.monitor.width)
-
-        if not self.is_fullscreen:
-            LayoutManager.set_conf(self.name, 'height', str(self.monitor.height))
-            LayoutManager.set_conf(self.name, 'width', str(self.monitor.width))
-            LayoutManager.save_config()
 
     def add_page(self, page_name=None):
         progname = LayoutManager.get_conf(page_name, 'progname')
@@ -552,13 +573,24 @@ def update_ui():
     for app in apps:
         app.update_ui()
 
+def get_screen_name():
+    global screenid
+
+    name = str("screen-%d"% screenid)
+    return (name)
+
 def get_screen(name):
+    if (LayoutManager.get_conf(name, 'enabled') == False):
+        return None
     posx = LayoutManager.get_conf(name, 'posx')
     posy = LayoutManager.get_conf(name, 'posy')
     width = LayoutManager.get_conf(name, 'width')
     height = LayoutManager.get_conf(name, 'height')
     if (posx == None or posy == None or width == None or height == None):
-        return (None)
+        posx = LayoutManager.get_conf('DEFAULT', 'posx')
+        posy = LayoutManager.get_conf('DEFAULT', 'posy')
+        width = LayoutManager.get_conf('DEFAULT', 'width')
+        height = LayoutManager.get_conf('DEFAULT', 'height')
     rect = Gdk.Rectangle()
     rect.x = posx
     rect.y = posy
@@ -566,8 +598,11 @@ def get_screen(name):
     rect.height = height
     return (rect)
 
-def get_nb_screen(name):
-    return (LayoutManager.get_conf(name, 'screens'))
+def save_conf():
+    for app in apps:
+        app.save_conf()
+    for app in old_apps:
+        app.save_conf(False)
 
 def app_quit():
     for app in apps:
@@ -580,15 +615,19 @@ def app_quit():
 def remove_app(ext):
     if ext in apps:
         apps.remove(ext)
+    old_apps.append(ext)
     if (len(apps) == 0):
         app_quit()
 
-def create_app(screenName ='DEFAULT', first = False):
+def create_app(first = False, screenName='DEFAULT'):
     global hotkey
     global bind_success
+    global screenid
+
+    if (screenName == 'DEFAULT'):
+        screenName = get_screen_name()
     monitor = get_screen(screenName)
     if (monitor != None):
-        print("Screen: %s"% screenName)
         app = TerminalWin(screenName, monitor)
         if (not bind_success):
             cannot_bind(app)
@@ -597,32 +636,33 @@ def create_app(screenName ='DEFAULT', first = False):
             DbusService(app)
             first = False
         apps.append(app)
+        screenid = max(screenid, int(screenName.split('-')[1])) + 1
     else:
         print("Cannot find %s"% screenName)
     return first
 
+
 def main():
     global bind_success
     global hotkey
+
     globalhotkeys.init()
     hotkey = globalhotkeys.GlobalHotkey()
     bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)
     first = True
-    for disp in Gdk.DisplayManager.get().list_displays():
-        for screen_num in range(disp.get_n_screens()):
-            screen = disp.get_screen(screen_num)
-            for monitor_num in range(screen.get_n_monitors()):
-                rect = screen.get_monitor_geometry(monitor_num)
-                glScreenName = str("screen%d.%d-%d:%d-%dx%d"% (screen_num, monitor_num, rect.x, rect.y , rect.width, rect.height))
-                nb_screens = get_nb_screen(glScreenName)
-                if (nb_screens == None):
-                    continue
-                for nb in range(nb_screens):
-                    screenName = str("%s-%d"%(glScreenName, nb))
-                    first = create_app(screenName, first)
 
+    toto = ConfigParser.SafeConfigParser({})
+    toto.read('~/.config/terra/layout.cfg')
+    toto.sections()
+
+    for section in LayoutManager.get_sections():
+        if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
+            first = create_app(first, section)
     if (len(apps) == 0):
-        create_app('DEFAULT', True)
+        create_app(True)
+    if (len(apps) == 0):
+        print("Cannot initiate any screen")
+        return
     update_ui()
     Gtk.main()
 

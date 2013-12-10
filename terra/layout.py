@@ -44,6 +44,10 @@ class LayoutManager():
     callback_list = []
 
     @staticmethod
+    def get_sections():
+        return (LayoutManager.config.sections())
+
+    @staticmethod
     def get_conf(section, key):
         try:
             value = LayoutManager.config.get(section, key)
@@ -78,6 +82,18 @@ class LayoutManager():
         except ConfigParser.Error:
             print ("[DEBUG] No option '%s' found in namespace '%s'." %
                     (key, section))
+            return
+
+    @staticmethod
+    def del_conf(section):
+        try:
+            LayoutManager.config.remove_section(section)
+        except ConfigParser.NoSectionError:
+            print ("[DEBUG] No section '%s'." %
+                    (section))
+        except ConfigParser.Error:
+            print ("[DEBUG] No section '%s'." %
+                    (section))
             return
 
     @staticmethod
