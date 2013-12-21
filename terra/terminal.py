@@ -34,7 +34,6 @@ from math import floor
 import os
 import time
 import sys
-#import ConfigParser
 
 Wins = None
 
