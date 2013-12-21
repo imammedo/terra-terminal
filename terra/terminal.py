@@ -166,7 +166,7 @@ class TerminalWin(Gtk.Window):
     def save_conf(self, keep=True):
         tabs = str('Tabs-%d'% self.screen_id)
         if (not keep):
-            for section in LayoutManager.get_conf():
+            for section in LayoutManager.get_sections():
                 if (section.find(tabs) == 0):
                     LayoutManager.del_conf(section)
             LayoutManager.del_conf(self.name)
@@ -305,7 +305,11 @@ class TerminalWin(Gtk.Window):
                     return True
                 page_no = page_no + 1
 
-    def update_ui(self, resize=True):
+    def get_screen_rectangle(self):
+        display = self.screen.get_display()
+        return self.screen.get_monitor_workarea(self.screen.get_monitor_at_point(self.monitor.x, self.monitor.y))
+
+    def update_ui(self):
         self.unmaximize()
         self.stick()
         self.override_gtk_theme()
@@ -322,7 +326,11 @@ class TerminalWin(Gtk.Window):
             self.tabbar.show()
 
         if self.is_fullscreen:
+            win_rect = self.get_screen_rectangle()
+            self.reshow_with_initial_size()
+            self.move(win_rect.x, win_rect.y)
             self.fullscreen()
+
             # hide resizer
             if self.resizer.get_child2() != None:
                 self.resizer.remove(self.resizer.get_child2())
@@ -497,12 +505,14 @@ class TerminalWin(Gtk.Window):
     def slide_up(self, i=0):
         self.slide_effect_running = True
         step = ConfigManager.get_conf('step-count')
-        win_rect = self.monitor
-        height, width = win_rect.height, win_rect.width
+        if not self.is_fullscreen:
+            win_rect = self.monitor
+        else:
+            win_rect = self.get_allocation()
         if self.get_window() != None:
             self.get_window().enable_synchronized_configure()
         if i < step+1:
-            self.resize(width, height - int(((height/step) * i)))
+            self.resize(win_rect.width, win_rect.height - int(((win_rect.height/step) * i)))
             self.queue_resize()
             self.update_events()
             GObject.timeout_add(ConfigManager.get_conf('step-time'), self.slide_up, i+1)
@@ -516,7 +526,10 @@ class TerminalWin(Gtk.Window):
     def slide_down(self, i=1):
         step = ConfigManager.get_conf('step-count')
         self.slide_effect_running = True
-        win_rect = self.monitor
+        if not self.is_fullscreen:
+            win_rect = self.monitor
+        else:
+            win_rect = self.get_screen_rectangle()
         if self.get_window() != None:
             self.get_window().enable_synchronized_configure()
         if i < step + 1:
@@ -544,10 +557,7 @@ class TerminalWin(Gtk.Window):
                 self.hide()
             return
         else:
-            if ConfigManager.get_conf('use-animation'):
-                self.update_ui(resize=False)
-            else:
-                self.update_ui()
+            self.update_ui()
             self.show()
             x11_win = self.get_window()
             x11_time = GdkX11.x11_get_server_time(x11_win)
@@ -682,7 +692,6 @@ def main():
     if (len(Wins.get_apps()) == 0):
         print("Cannot initiate any screen")
         return
-    Wins.update_ui()
     Gtk.main()
 
 if __name__ == "__main__":
