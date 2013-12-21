@@ -15,9 +15,12 @@ Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/tr
 
 Features to come:
 - Save your layout configuration.
-  * Work in Progress
-- Start other program at launch, saved in your layout.
+  * Almost Complete
+  * At this time it doesn't save correctly tab names so next point can't be done
+
+- Start another program at launch, saved in your layout.
   * When Layout backup will be fully operationnal
+
 - Start a graphical program instead of a term program.
   * Might need much time if ot's possible
 
