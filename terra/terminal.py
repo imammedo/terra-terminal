@@ -24,7 +24,7 @@ from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject, GdkX11
 from terra import globalhotkeys
 
 from VteObject import VteObjectContainer
-from config import ConfigManager
+from config import ConfigManager, ConfigParser
 from layout import LayoutManager
 from dialogs import RenameDialog
 from dbusservice import DbusService
@@ -34,13 +34,9 @@ from math import floor
 import os
 import time
 import sys
-import ConfigParser
+#import ConfigParser
 
-apps = []
-old_apps = []
-hotkey = None
-bind_success = False
-screenid = 0
+Wins = None
 
 class TerminalWin(Gtk.Window):
 
@@ -149,8 +145,11 @@ class TerminalWin(Gtk.Window):
 
     def on_window_move(self, window, event):
         winpos = self.get_position()
-        LayoutManager.set_conf(self.name, 'posx', winpos[0])
-        LayoutManager.set_conf(self.name, 'posy', winpos[1])
+        if not self.is_fullscreen:
+            self.monitor.x = winpos[0]
+            self.monitor.y = winpos[1]
+            LayoutManager.set_conf(self.name, 'posx', winpos[0])
+            LayoutManager.set_conf(self.name, 'posy', winpos[1])
 
     def exit(self):
         if ConfigManager.get_conf('prompt-on-quit'):
@@ -163,7 +162,7 @@ class TerminalWin(Gtk.Window):
 
             if response != Gtk.ResponseType.YES:
                 return False
-        app_quit()
+        quit_prog()
 
     def save_conf(self, keep=True):
         tabs = str('Tabs-%d'% self.screen_id)
@@ -194,8 +193,10 @@ class TerminalWin(Gtk.Window):
         LayoutManager.save_config()
 
     def quit(self):
+        global Wins
+
         ConfigManager.save_config()
-        remove_app(self)
+        Wins.remove_app(self)
         self.destroy()
 
     def on_resize(self, widget, event):
@@ -555,27 +556,6 @@ class TerminalWin(Gtk.Window):
             if ConfigManager.get_conf('use-animation'):
                 self.slide_down()
 
-def cannot_bind(app):
-    ConfigManager.set_conf('hide-on-start', False)
-    ConfigManager.set_conf('losefocus-hiding', False)
-    msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
-    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-    msgbox.run()
-    msgbox.destroy()
-
-def show_hide():
-    for app in apps:
-        app.show_hide()
-
-def update_ui():
-    for app in apps:
-        app.update_ui()
-
-def get_screen_name():
-    global screenid
-
-    name = str("screen-%d"% screenid)
-    return (name)
 
 def get_screen(name):
     if (LayoutManager.get_conf(name, 'enabled') == False):
@@ -596,58 +576,100 @@ def get_screen(name):
     rect.height = height
     return (rect)
 
+def cannot_bind(app):
+    ConfigManager.set_conf('hide-on-start', False)
+    ConfigManager.set_conf('losefocus-hiding', False)
+    msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
+    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+    msgbox.run()
+    msgbox.destroy()
+
+def quit_prog():
+   global Wins
+
+   Wins.app_quit()
+
 def save_conf():
-    for app in apps:
-        app.save_conf()
-    for app in old_apps:
-        app.save_conf(False)
+    global Wins
 
-def app_quit():
-    for app in apps:
-        if (app.quit() == False):
-            return
-    sys.stdout.flush()
-    sys.stderr.flush()
-    Gtk.main_quit()
+    Wins.save_conf()
 
-def remove_app(ext):
-    if ext in apps:
-        apps.remove(ext)
-    old_apps.append(ext)
-    if (len(apps) == 0):
-        app_quit()
+def create_app():
+    global Wins
 
-def create_app(first = False, screenName='DEFAULT'):
-    global hotkey
-    global bind_success
-    global screenid
+    Wins.create_app()
 
-    monitor = get_screen(screenName)
-    if (screenName == 'DEFAULT'):
-        screenName = get_screen_name()
-    if (monitor != None):
-        app = TerminalWin(screenName, monitor)
-        if (not bind_success):
-            cannot_bind(app)
-        app.hotkey = hotkey
-        if (first):
-            DbusService(app)
-            first = False
-        apps.append(app)
-        screenid = max(screenid, int(screenName.split('-')[1])) + 1
-    else:
-        print("Cannot find %s"% screenName)
-    return first
+class TerminalWinContainer():
+    def __init__(self):
+        globalhotkeys.init()
+        self.hotkey = globalhotkeys.GlobalHotkey()
+        self.bind_success = self.hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: self.show_hide(), None)
+        self.apps = []
+        self.old_apps = []
+        self.screenid = 0
+        self.on_doing = False
 
+    def show_hide(self):
+        if self.on_doing == False:
+            self.on_doing = True
+            for app in self.apps:
+                app.show_hide()
+            self.on_doing = False
+
+    def update_ui(self):
+        if self.on_doing == False:
+            self.on_doing = True
+            for app in self.apps:
+                app.update_ui()
+            self.on_doing = False
+
+    def get_screen_name(self):
+        return (str("screen-%d"% self.screenid))
+
+    def save_conf(self):
+        for app in self.apps:
+            app.save_conf()
+        for app in self.old_apps:
+            app.save_conf(False)
+
+    def app_quit(self):
+        for app in self.apps:
+            if (app.quit() == False):
+                return
+        sys.stdout.flush()
+        sys.stderr.flush()
+        Gtk.main_quit()
+
+    def remove_app(self, ext):
+        if ext in self.apps:
+            self.apps.remove(ext)
+        self.old_apps.append(ext)
+        if (len(self.apps) == 0):
+            self.app_quit()
+
+    def create_app(self, screenName='DEFAULT'):
+        monitor = get_screen(screenName)
+        if (screenName == 'DEFAULT'):
+            screenName = self.get_screen_name()
+        if (monitor != None):
+            app = TerminalWin(screenName, monitor)
+            if (not self.bind_success):
+                cannot_bind(app)
+            app.hotkey = self.hotkey
+            if (len(self.apps) == 0):
+                DbusService(app)
+            self.apps.append(app)
+            self.screenid = max(self.screenid, int(screenName.split('-')[1])) + 1
+        else:
+            print("Cannot find %s"% screenName)
+
+    def get_apps(self):
+        return (self.apps)
 
 def main():
-    global bind_success
-    global hotkey
+    global Wins
 
-    globalhotkeys.init()
-    hotkey = globalhotkeys.GlobalHotkey()
-    bind_success = hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: show_hide(), None)
-    first = True
+    Wins = TerminalWinContainer()
 
     toto = ConfigParser.SafeConfigParser({})
     toto.read('~/.config/terra/layout.cfg')
@@ -655,13 +677,13 @@ def main():
 
     for section in LayoutManager.get_sections():
         if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
-            first = create_app(first, section)
-    if (len(apps) == 0):
-        create_app(True)
-    if (len(apps) == 0):
+            Wins.create_app(section)
+    if (len(Wins.get_apps()) == 0):
+        Wins.create_app()
+    if (len(Wins.get_apps()) == 0):
         print("Cannot initiate any screen")
         return
-    update_ui()
+    Wins.update_ui()
     Gtk.main()
 
 if __name__ == "__main__":
