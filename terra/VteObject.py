@@ -47,6 +47,8 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:mailto:)?" + USERCHARS_CLASS + "[" + USERCHARS+ ".]*\\@" + HOSTCHARS_CLASS + "+\\." + HOST,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
+import time
+
 class VteObjectContainer(Gtk.HBox):
     def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')]):
         super(VteObjectContainer, self).__init__()
@@ -329,6 +331,7 @@ class VteObject(Gtk.HBox):
 
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)
+        setattr(paned, 'time', time.time())
         paned.show_all()
 
         if mode == 0:

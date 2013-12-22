@@ -227,8 +227,8 @@ class TerminalWin(Gtk.Window):
         elif (isinstance(child, Gtk.HPaned)):
             pos = 'h'
             print ("H: %d"% child.get_position())
-        if not str(child) in self.paned_childs:
-            self.paned_childs[str(child)] = (childid, pos, child.get_position())
+        if not str(child.time) in self.paned_childs:
+            self.paned_childs[str(child.time)] = (childid, pos, child.get_position())
 
     def print_childs(self, child, childid, first):
         if isinstance(child, Gtk.Paned):
@@ -297,7 +297,6 @@ class TerminalWin(Gtk.Window):
         new_button.connect('button-release-event', self.page_button_mouse_event)
 
         self.buttonbox.pack_start(new_button, False, True, 0)
-
 
         for section in LayoutManager.get_sections():
             child = str('Child-%s'%(page_name[len('Tabs-'):]))
