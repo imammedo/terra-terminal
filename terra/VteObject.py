@@ -300,7 +300,8 @@ class VteObject(Gtk.HBox):
 
         return container
 
-    def split_axis(self, widget, axis='h'):
+    def split_axis(self, widget, axis='h', position=-1):
+        print("Axis: %c"% axis)
         parent = self.get_parent()
 
         if type(parent) != VteObjectContainer:
@@ -313,11 +314,16 @@ class VteObject(Gtk.HBox):
 
         if axis == 'h':
             paned = Gtk.HPaned()
-            paned.set_property('position', self.get_allocation().width / 2)
+            if position == -1:
+                position = self.get_allocation().width / 2
+            paned.set_property('position', position)
         elif axis == 'v':
             paned = Gtk.VPaned()
-            paned.set_property('position', self.get_allocation().height / 2)
+            if position == -1:
+                position = self.get_allocation().height / 2
+            paned.set_property('position', position / 2)
 
+        print("Pos: %d"% position)
         parent.remove(self)
         new_terminal = VteObject()
 

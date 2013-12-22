@@ -58,6 +58,7 @@ class TerminalWin(Gtk.Window):
 
         if not ConfigManager.get_conf('hide-on-start'):
             self.show_all()
+        self.paned_childs = {}
 
     def init_ui(self):
         self.set_title(_('Terra Terminal Emulator'))
@@ -181,22 +182,69 @@ class TerminalWin(Gtk.Window):
                 if (section.find("Tabs-%d"% (self.screen_id)) == 0):
                     # we won't delete those who are set as disabled
                     if LayoutManager.get_conf(section, 'enabled') == True:
-                        print("Del TabName: %s"% (section))
                         LayoutManager.del_conf(section)
+
+            #we delete all layouts first to avoid unused
+            for section in LayoutManager.get_sections():
+                if (section.find("Child-%d"% (self.screen_id)) == 0):
+                    print("Del ChildName: %s"% (section))
+                    LayoutManager.del_conf(section)
 
             #We add them all
             tabid = 0
             for button in self.buttonbox:
                 if button != self.radio_group_leader:
                     section = str('Tabs-%d-%d'% (self.screen_id, tabid))
-                    print("add tab: %s => %s"% (section, button.get_label()))
                     LayoutManager.set_conf(section, 'name', button.get_label())
                     LayoutManager.set_conf(section, 'enabled', 'True')
                     #button.progname is inserted via setattr in add_page
                     if (button.progname):
                         LayoutManager.set_conf(section, 'progname', button.progname)
                     tabid = tabid + 1
+ 
+            tabid = 0
+            self.paned_childs = {}
+            for container in self.notebook.get_children():
+                for child in container.get_children():
+                    self.print_childs(child, tabid, True)
+                    tabid = tabid + 1
+
+            childid = 0
+            print("Len: %d"% (len(self.paned_childs)))
+            for child in self.paned_childs.itervalues():
+                section = str('Child-%d-%d-%d'% (self.screen_id, child[0], childid))
+                print("add child: %s => %c:%d"% (section, child[1], child[2]))
+                LayoutManager.set_conf(section, 'type', child[1])
+                LayoutManager.set_conf(section, 'pos', child[2])
+                childid = childid + 1
+
         LayoutManager.save_config()
+        
+    def print_pos(self, child, childid):
+        if (isinstance(child, Gtk.VPaned)):
+            pos = 'v'
+            print ("V: %d"% child.get_position())
+        elif (isinstance(child, Gtk.HPaned)):
+            pos = 'h'
+            print ("H: %d"% child.get_position())
+        if not str(child) in self.paned_childs:
+            self.paned_childs[str(child)] = (childid, pos, child.get_position())
+
+    def print_childs(self, child, childid, first):
+        if isinstance(child, Gtk.Paned):
+            if (first):
+                print("Child: %s"% str(child))
+                self.print_pos(child, childid)
+            child1 = child.get_child1()
+            child2 = child.get_child2()
+            if (child1 and isinstance(child1, Gtk.Paned)):
+                print("child1: %s"% str(child1))
+                self.print_pos(child1, childid)
+                self.print_childs(child1, childid, False)
+            if (child2 and isinstance(child2, Gtk.Paned)):
+                print("child2: %s"% str(child2))
+                self.print_pos(child2, childid)
+                self.print_childs(child2, childid, False)
 
     def quit(self):
         global Wins
@@ -224,9 +272,10 @@ class TerminalWin(Gtk.Window):
     def add_page(self, page_name=None):
         progname = LayoutManager.get_conf(page_name, 'progname')
         if (progname and len(progname)):
-            self.notebook.append_page(VteObjectContainer(progname=progname.split()), None)
+            container = VteObjectContainer(progname=progname.split())
         else:
-            self.notebook.append_page(VteObjectContainer(), None)
+            container = VteObjectContainer()
+        self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
         self.get_active_terminal().grab_focus()
 
@@ -248,6 +297,15 @@ class TerminalWin(Gtk.Window):
         new_button.connect('button-release-event', self.page_button_mouse_event)
 
         self.buttonbox.pack_start(new_button, False, True, 0)
+
+
+        for section in LayoutManager.get_sections():
+            child = str('Child-%s'%(page_name[len('Tabs-'):]))
+            if (section.find(child) == 0):
+                print("CHILD: %s"% section)
+                val = LayoutManager.get_conf(section, "type")[0]
+                print("val: %c"% val)
+                container.active_terminal.split_axis(container.active_terminal, axis=val, position=LayoutManager.get_conf(section, "pos"))
 
     def get_active_terminal(self):
         return self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal
