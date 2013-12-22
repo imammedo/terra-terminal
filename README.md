@@ -13,12 +13,12 @@ Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/tr
   * Multiple Terra Terminal on Multiple Screens
 - Open a new Terra Terminal
 
-- Start a specific program on each Tab, saved in your layout.
+- Start a specific program on each frame, saved in your layout.
 - Save Tab Names correctly for all Apps.
 
 Features to come:
 - Save your layout configuration.
-  * Need to find a way to save and restore Vertical and Horizontal Splits by App.
+  * Almost Done, just need to save it exactly as it is.
 
 - Start a graphical program instead of a term program.
   * Might need much time if this is possible
