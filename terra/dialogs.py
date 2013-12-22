@@ -36,6 +36,11 @@ class RenameDialog:
         self.dialog.entry_new_name = self.builder.get_object('entry_new_name')
         self.dialog.entry_new_name.set_text(self.sender.get_label())
 
+        self.dialog.entry_new_progname = self.builder.get_object('entry_new_progname')
+        if (self.sender.progname):
+            self.dialog.entry_new_progname.set_text(self.sender.progname)
+        self.dialog.entry_new_progname.set_text("")
+
         self.dialog.btn_cancel = self.builder.get_object('btn_cancel')
         self.dialog.btn_ok = self.builder.get_object('btn_ok')
 
@@ -61,6 +66,7 @@ class RenameDialog:
     def rename(self):
         if len(self.dialog.entry_new_name.get_text()) > 0:
             self.sender.set_label(self.dialog.entry_new_name.get_text())
+        setattr(self.sender, 'progname', self.dialog.entry_new_progname.get_text())
 
         ConfigManager.disable_losefocus_temporary = False
         self.close()

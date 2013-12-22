@@ -176,19 +176,26 @@ class TerminalWin(Gtk.Window):
             LayoutManager.set_conf(self.name, 'fullscreen', self.is_fullscreen)
             LayoutManager.set_conf(self.name, 'enabled', 'True')
 
-            #need to find a good way to update and/or remove tabs
+            #we delete all tabs first to avoid unused
+            for section in LayoutManager.get_sections():
+                if (section.find("Tabs-%d"% (self.screen_id)) == 0):
+                    # we won't delete those who are set as disabled
+                    if LayoutManager.get_conf(section, 'enabled') == True:
+                        print("Del TabName: %s"% (section))
+                        LayoutManager.del_conf(section)
 
-            # for section in LayoutManager.get_conf():
-            #     if (section.find(tabs) == 0):
-            #         for button in self.buttonbox:
-            #             if button != self.radio_group_leader:
-            #                 LayoutManager.set_conf(section, 'name', button.get_label())
-            #                 LayoutManager.set_conf(section, 'enabled', 'True')
-            #     break
-            #     for section in LayoutManager.get_sections():
-            #         if (section.find("Tabs-%d-%d"% (self.screen_id, tabid)) == 0):
-            #             print("Del TabName: %s"% (str("Tabs-%d-%d"% (self.screen_id, tabid))))
-            #              LayoutManager.del_conf(str("Tabs-%d-%d"% (self.screen_id, tabid)))
+            #We add them all
+            tabid = 0
+            for button in self.buttonbox:
+                if button != self.radio_group_leader:
+                    section = str('Tabs-%d-%d'% (self.screen_id, tabid))
+                    print("add tab: %s => %s"% (section, button.get_label()))
+                    LayoutManager.set_conf(section, 'name', button.get_label())
+                    LayoutManager.set_conf(section, 'enabled', 'True')
+                    #button.progname is inserted via setattr in add_page
+                    if (button.progname):
+                        LayoutManager.set_conf(section, 'progname', button.progname)
+                    tabid = tabid + 1
         LayoutManager.save_config()
 
     def quit(self):
@@ -216,7 +223,7 @@ class TerminalWin(Gtk.Window):
 
     def add_page(self, page_name=None):
         progname = LayoutManager.get_conf(page_name, 'progname')
-        if (progname):
+        if (progname and len(progname)):
             self.notebook.append_page(VteObjectContainer(progname=progname.split()), None)
         else:
             self.notebook.append_page(VteObjectContainer(), None)
@@ -233,6 +240,7 @@ class TerminalWin(Gtk.Window):
             tab_name = _("Terminal ") + str(page_count+1)
 
         new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, tab_name)
+        setattr(new_button, 'progname', progname)
         new_button.set_property('draw-indicator', False)
         new_button.set_active(True)
         new_button.show()

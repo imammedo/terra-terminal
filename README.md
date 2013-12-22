@@ -22,7 +22,7 @@ Features to come:
   * When Layout backup will be fully operationnal
 
 - Start a graphical program instead of a term program.
-  * Might need much time if ot's possible
+  * Might need much time if this is possible
 
 If you want to contribute just checkout and try.
 Feel free to open issues for bug report or new features.

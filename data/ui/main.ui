@@ -73,7 +73,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">True</property>
+                    <property name="fill">False</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -240,36 +240,67 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="box1">
+          <object class="GtkVBox" id="box1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkLabel" id="label1">
+	      <object class="GtkLabel" id="label1">
+		<property name="visible">True</property>
+		<property name="can_focus">False</property>
+		<property name="label" translatable="yes">Enter new name:</property>
+	      </object>
+	      <packing>
+		<property name="expand">False</property>
+		<property name="fill">True</property>
+		<property name="position">0</property>
+	      </packing>
+	    </child>
+	    <child>
+	      <object class="GtkEntry" id="entry_new_name">
+		<property name="width_request">80</property>
+		<property name="visible">True</property>
+		<property name="can_focus">True</property>
+		<property name="margin_left">10</property>
+		<property name="margin_right">10</property>
+		<property name="margin_top">10</property>
+		<property name="margin_bottom">10</property>
+		<property name="invisible_char">•</property>
+	      </object>
+	      <packing>
+		<property name="expand">False</property>
+		<property name="fill">True</property>
+		<property name="position">1</property>
+	      </packing>
+	    </child>
+	    <child>
+              <object class="GtkLabel" id="label2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Enter new name:</property>
+                <property name="label" translatable="yes">Enter new Progname:</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="entry_new_name">
+              <object class="GtkEntry" id="entry_new_progname">
                 <property name="width_request">80</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="margin_left">10</property>
-                <property name="margin_right">10</property>
-                <property name="margin_top">10</property>
-                <property name="margin_bottom">10</property>
+                <!-- <property name="margin_left">10</property> -->
+                <!-- <property name="margin_right">10</property> -->
+                <!-- <property name="margin_top">10</property> -->
+                <!-- <property name="margin_bottom">10</property> -->
+		<property name="margin_left">10</property>
+		<property name="xalign">0</property>
                 <property name="invisible_char">•</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
