@@ -23,6 +23,7 @@ import os
 
 from preferences import Preferences
 from config import ConfigManager
+from dialogs import ProgDialog
 from i18n import _
 
 import terminal
@@ -218,9 +219,22 @@ class VteObject(Gtk.HBox):
             self.menu_h_split.connect("activate", self.split_axis, 'v')
             self.menu.append(self.menu_h_split)
 
+            self.term_menu = Gtk.Menu()
+
+            self.term = Gtk.MenuItem(_("Terminals"))
+            self.term.set_submenu(self.term_menu)
+
             self.menu_new = Gtk.MenuItem(_("New Terminal"))
             self.menu_new.connect("activate", self.new_app)
-            self.menu.append(self.menu_new)
+            self.set_new_prog = Gtk.MenuItem(_("Set ProgName"))
+            self.set_new_prog.connect("activate", self.save_progname)
+            self.reset_prog = Gtk.MenuItem(_("Reset Default Progname"))
+            self.reset_prog.connect("activate", self.reset_progname)
+            
+            self.term_menu.append(self.menu_new)
+            self.term_menu.append(self.set_new_prog)
+            self.term_menu.append(self.reset_prog)
+            self.menu.append(self.term)
 
             self.menu_new = Gtk.MenuItem(_("Save Configuration"))
             self.menu_new.connect("activate", self.save_conf)
@@ -246,6 +260,17 @@ class VteObject(Gtk.HBox):
             self.menu.popup(None, None, None, None, event.button, event.time)
         elif value:
             Gtk.show_uri(self.get_screen(), value, GdkX11.x11_get_server_time(self.get_window()))
+
+    def save_progname(self, widget):
+        print("Vte Rename:")
+        print(self)
+        ConfigManager.disable_losefocus_temporary = True
+        ProgDialog(self, self)
+
+    def reset_progname(self, widget):
+        print("Vte Reset:")
+        print(self)
+        setattr(self, 'progname', None)
 
     def new_app(self, widget):
         terminal.create_app()
@@ -302,7 +327,7 @@ class VteObject(Gtk.HBox):
 
         return container
 
-    def split_axis(self, widget, axis='h', position=-1):
+    def split_axis(self, widget, axis='h', position=-1, progname=None):
         print("Axis: %c"% axis)
         parent = self.get_parent()
 
@@ -328,7 +353,10 @@ class VteObject(Gtk.HBox):
 
         print("Pos set: %d"% position)
         parent.remove(self)
-        new_terminal = VteObject()
+        if (progname):
+            new_terminal = VteObject(progname.split())
+        else:
+            new_terminal = VteObject()
 
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)
