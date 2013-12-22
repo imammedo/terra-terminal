@@ -37,6 +37,8 @@ import time
 import sys
 
 Wins = None
+_axis = ''
+_position = -1
 
 class TerminalWin(Gtk.Window):
 
@@ -210,8 +212,7 @@ class TerminalWin(Gtk.Window):
             for child in self.paned_childs:
                 section = str('Child-%d-%d-%d'% (self.screen_id, child[0], childid))
                 LayoutManager.set_conf(section, 'type', child[1])
-#                LayoutManager.set_conf(section, 'pos', child[2])
-                LayoutManager.set_conf(section, 'pos', -1)
+                LayoutManager.set_conf(section, 'pos', child[2])
                 if (child[3]):
                     LayoutManager.set_conf(section, 'prog', child[3])
                 childid = childid + 1
@@ -219,30 +220,39 @@ class TerminalWin(Gtk.Window):
         LayoutManager.save_config()
 
 #the only problem here is that the panned style is stored in the previous object in conf...        
-    def print_pos(self, child, childid, pos, position):
+#looks solved, but i can't get a real heritage in the layout backup...
+
+    def print_pos(self, child, childid, axis, position):
+        global _axis
+        global _position
+
+        print("Axis: %c"% axis)
         prog = None
         if (hasattr(child, 'progname')):
             prog = child.progname
-        self.paned_childs.append([childid, pos, position, prog])
+        self.paned_childs.append([childid, _axis, _position, prog])
+        _axis = axis
+        _position = position
 
     def print_childs(self, child, childid, first):
         if isinstance(child, Gtk.Paned):
             child1 = child.get_child1()
             child2 = child.get_child2()
             if (isinstance(child, Gtk.VPaned)):
-                pos = 'v'
+                axis = 'v'
                 position = child.get_position()
             elif (isinstance(child, Gtk.HPaned)):
-                pos = 'h'
+                axis = 'h'
                 position = child.get_position()
             if (child1 and isinstance(child1, VteObject.VteObject)):
-                self.print_pos(child1, childid, pos, position)
-            if (child2 and isinstance(child2, VteObject.VteObject)):
-                self.print_pos(child2, childid, pos, position)
+                self.print_pos(child1, childid, axis, position)
             if (child1 and isinstance(child1, Gtk.Paned)):
                 self.print_childs(child1, childid, False)
+            if (child2 and isinstance(child2, VteObject.VteObject)):
+                self.print_pos(child2, childid, axis, position)
             if (child2 and isinstance(child2, Gtk.Paned)):
                 self.print_childs(child2, childid, False) 
+
 
            
     def quit(self):
@@ -308,6 +318,8 @@ class TerminalWin(Gtk.Window):
                     val = LayoutManager.get_conf(section, "type")[0]
                     pos = int(LayoutManager.get_conf(section, "pos"))
                     prog = LayoutManager.get_conf(section, "prog")
+                    # there is an issue without spli positionning...
+#                    container.active_terminal.split_axis(container.active_terminal, axis=val, position=pos, progname=prog)
                     container.active_terminal.split_axis(container.active_terminal, axis=val, position=-1, progname=prog)
                     setattr(container.active_terminal, 'progname', prog)
                     self.update_ui()
