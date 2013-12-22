@@ -108,6 +108,13 @@ class TerminalWin(Gtk.Window):
         self.connect('configure-event', self.on_window_move)
         self.add(self.resizer)
 
+        for button in self.buttonbox:
+            if button == self.radio_group_leader:
+                continue
+            else:
+                button.set_active(True)
+                break
+
         added = False
         for section in LayoutManager.get_sections():
             tabs = str('Tabs-%d'% self.screen_id)
@@ -116,13 +123,6 @@ class TerminalWin(Gtk.Window):
                 added = True
         if (not added):
             self.add_page()
-
-        for button in self.buttonbox:
-            if button == self.radio_group_leader:
-                continue
-            else:
-                button.set_active(True)
-                break
 
     def delete_event_callback(self):
         self.hide()
@@ -211,11 +211,17 @@ class TerminalWin(Gtk.Window):
 
             childid = 0
             print("Len: %d"% (len(self.paned_childs)))
-            for child in self.paned_childs.itervalues():
+            keys = self.paned_childs.keys()
+            keys = sorted(keys)  # order them in some way
+            for k in keys:
+                print("Key: %s"% k)
+                child = self.paned_childs[k]
+#            for child in sorted(self.paned_childs.keys(), reverse=True).itervalues():
                 section = str('Child-%d-%d-%d'% (self.screen_id, child[0], childid))
                 print("add child: %s => %c:%d"% (section, child[1], child[2]))
                 LayoutManager.set_conf(section, 'type', child[1])
                 LayoutManager.set_conf(section, 'pos', child[2])
+#                LayoutManager.set_conf(section, 'pos', -1)
                 childid = childid + 1
 
         LayoutManager.save_config()
@@ -298,14 +304,23 @@ class TerminalWin(Gtk.Window):
 
         self.buttonbox.pack_start(new_button, False, True, 0)
 
-        for section in LayoutManager.get_sections():
-            child = str('Child-%s'%(page_name[len('Tabs-'):]))
-            if (section.find(child) == 0):
-                print("CHILD: %s"% section)
-                val = LayoutManager.get_conf(section, "type")[0]
-                print("val: %c"% val)
-                container.active_terminal.split_axis(container.active_terminal, axis=val, position=LayoutManager.get_conf(section, "pos"))
+        self.update_ui()
 
+        print("Add page %s"% page_name)
+        if page_name:
+            for section in LayoutManager.get_sections():
+                child = str('Child-%s'%(page_name[len('Tabs-'):]))
+                if (section.find(child) == 0):
+                    print("CHILD: %s"% section)
+                    val = LayoutManager.get_conf(section, "type")[0]
+                    print("val: %c"% val)
+                    pos = int(LayoutManager.get_conf(section, "pos"))
+                    print("Pos: %d"% pos)
+#                    time.sleep(1)
+                #                container.active_terminal.split_axis(container.active_terminal, axis=val, position=pos)
+#                    container.active_terminal.split_axis(container, axis=val, position=pos)
+                    container.active_terminal.split_axis(container, axis=val, position=-1)
+                    self.update_ui()
     def get_active_terminal(self):
         return self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal
 
@@ -350,6 +365,21 @@ class TerminalWin(Gtk.Window):
 
     def page_rename(self, menu, sender):
         RenameDialog(sender, self.get_active_terminal())
+
+    def fake_close(self):
+        button_count = len(self.buttonbox.get_children())
+
+        # don't forget "radio_group_leader"
+        page_no = 0
+        for i in self.buttonbox:
+            if i != self.radio_group_leader:
+                self.notebook.remove_page(page_no)
+                self.buttonbox.remove(i)
+                
+                last_button = self.buttonbox.get_children()[-1]
+                last_button.set_active(True)
+                return True
+            page_no = page_no + 1
 
     def page_close(self, menu, sender):
         button_count = len(self.buttonbox.get_children())
@@ -740,6 +770,21 @@ class TerminalWinContainer():
     def get_apps(self):
         return (self.apps)
 
+    def do_it(self):
+        print("DOIT")
+        for app in self.apps:
+            added = False
+            for section in LayoutManager.get_sections():
+                tabs = str('Tabs-%d'% app.screen_id)
+                if (section.find(tabs) == 0 and LayoutManager.get_conf(section, 'enabled') == True):
+                    app.add_page(page_name=str(section))
+                    added = True
+            if (not added):
+                app.add_page()
+        for app in self.apps:
+            app.update_ui()
+        return False
+
 def main():
     global Wins
 
@@ -757,6 +802,17 @@ def main():
     if (len(Wins.get_apps()) == 0):
         print("Cannot initiate any screen")
         return
+
+#     first = True
+#     while True:
+#         while Gtk.events_pending():
+# #            print("Loop")
+#             Gtk.main_iteration()
+#         if (first):
+#             Wins.do_it()
+#             first = False
+#         time.sleep(0.5)
+#    GObject.timeout_add_seconds(1, Wins.do_it)
     Gtk.main()
 
 if __name__ == "__main__":

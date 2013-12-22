@@ -314,6 +314,7 @@ class VteObject(Gtk.HBox):
         else:
             mode = 0
 
+        print("HxV: %d:%d"% (self.get_allocation().width, self.get_allocation().height))
         if axis == 'h':
             paned = Gtk.HPaned()
             if position == -1:
@@ -323,9 +324,9 @@ class VteObject(Gtk.HBox):
             paned = Gtk.VPaned()
             if position == -1:
                 position = self.get_allocation().height / 2
-            paned.set_property('position', position / 2)
+            paned.set_property('position', position)
 
-        print("Pos: %d"% position)
+        print("Pos set: %d"% position)
         parent.remove(self)
         new_terminal = VteObject()
 
@@ -341,7 +342,7 @@ class VteObject(Gtk.HBox):
         else:
             parent.pack2(paned, True, True)
         parent.show_all()
-
+        print("HxV: %d:%d"% (self.get_allocation().width, self.get_allocation().height))
         self.get_container().active_terminal = new_terminal
         new_terminal.grab_focus()
 
