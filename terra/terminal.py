@@ -108,13 +108,6 @@ class TerminalWin(Gtk.Window):
         self.connect('configure-event', self.on_window_move)
         self.add(self.resizer)
 
-        for button in self.buttonbox:
-            if button == self.radio_group_leader:
-                continue
-            else:
-                button.set_active(True)
-                break
-
         added = False
         for section in LayoutManager.get_sections():
             tabs = str('Tabs-%d'% self.screen_id)
@@ -123,6 +116,13 @@ class TerminalWin(Gtk.Window):
                 added = True
         if (not added):
             self.add_page()
+
+        for button in self.buttonbox:
+            if button == self.radio_group_leader:
+                continue
+            else:
+                button.set_active(True)
+                break
 
     def delete_event_callback(self):
         self.hide()
