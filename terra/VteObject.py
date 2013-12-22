@@ -69,6 +69,7 @@ class VteObject(Gtk.HBox):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
+        setattr(self, 'progname', ' '.join(progname))
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
 
@@ -262,14 +263,10 @@ class VteObject(Gtk.HBox):
             Gtk.show_uri(self.get_screen(), value, GdkX11.x11_get_server_time(self.get_window()))
 
     def save_progname(self, widget):
-        print("Vte Rename:")
-        print(self)
         ConfigManager.disable_losefocus_temporary = True
         ProgDialog(self, self)
 
     def reset_progname(self, widget):
-        print("Vte Reset:")
-        print(self)
         setattr(self, 'progname', None)
 
     def new_app(self, widget):
@@ -328,7 +325,6 @@ class VteObject(Gtk.HBox):
         return container
 
     def split_axis(self, widget, axis='h', position=-1, progname=None):
-        print("Axis: %c"% axis)
         parent = self.get_parent()
 
         if type(parent) != VteObjectContainer:
@@ -339,7 +335,6 @@ class VteObject(Gtk.HBox):
         else:
             mode = 0
 
-        print("HxV: %d:%d"% (self.get_allocation().width, self.get_allocation().height))
         if axis == 'h':
             paned = Gtk.HPaned()
             if position == -1:
@@ -351,7 +346,6 @@ class VteObject(Gtk.HBox):
                 position = self.get_allocation().height / 2
             paned.set_property('position', position)
 
-        print("Pos set: %d"% position)
         parent.remove(self)
         if (progname):
             new_terminal = VteObject(progname.split())
@@ -360,7 +354,6 @@ class VteObject(Gtk.HBox):
 
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)
-        setattr(paned, 'time', time.time())
         paned.show_all()
 
         if mode == 0:
@@ -370,7 +363,6 @@ class VteObject(Gtk.HBox):
         else:
             parent.pack2(paned, True, True)
         parent.show_all()
-        print("HxV: %d:%d"% (self.get_allocation().width, self.get_allocation().height))
         self.get_container().active_terminal = new_terminal
         new_terminal.grab_focus()
 
