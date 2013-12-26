@@ -105,6 +105,6 @@ class ProgDialog:
         del self
 
     def rename(self):
-        setattr(self.sender, 'progname', self.dialog.entry_new_progname.get_text())
+        self.sender.progname = self.dialog.entry_new_progname.get_text()
         ConfigManager.disable_losefocus_temporary = False
         self.close()

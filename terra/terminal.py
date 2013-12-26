@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject, GdkX11
+from gi.repository import Gio
 
 from terra import globalhotkeys
 
@@ -37,8 +38,6 @@ import time
 import sys
 
 Wins = None
-_axis = ''
-_position = -1
 
 class TerminalWin(Gtk.Window):
 
@@ -205,56 +204,45 @@ class TerminalWin(Gtk.Window):
             self.paned_childs = []
             for container in self.notebook.get_children():
                 for child in container.get_children():
-                    self.print_childs(child, tabid, True)
+                    self.print_childs(child, tabid)
                     tabid = tabid + 1
 
+            self.paned_childs.sort()
             childid = 0
             for child in self.paned_childs:
-                section = str('Child-%d-%d-%d'% (self.screen_id, child[0], childid))
-                LayoutManager.set_conf(section, 'type', child[1])
-                LayoutManager.set_conf(section, 'pos', child[2])
-                if (child[3]):
-                    LayoutManager.set_conf(section, 'prog', child[3])
+                section = str('Child-%d-%d-%d'% (self.screen_id, child[1], childid))
+                LayoutManager.set_conf(section, 'type', child[2])
+                LayoutManager.set_conf(section, 'pos', child[3])
+                if (child[4]):
+                    LayoutManager.set_conf(section, 'prog', child[4])
                 childid = childid + 1
 
         LayoutManager.save_config()
 
 #the only problem here is that the panned style is stored in the previous object in conf...        
 #looks solved, but i can't get a real heritage in the layout backup...
-
-    def print_pos(self, child, childid, axis, position):
-        global _axis
-        global _position
-
-        print("Axis: %c"% axis)
+    def print_pos(self, child, childid):
         prog = None
         if (hasattr(child, 'progname')):
             prog = child.progname
-        self.paned_childs.append([childid, _axis, _position, prog])
-        _axis = axis
-        _position = position
+        #child.time should be removes when heritage will be ok
+        self.paned_childs.append([child.time, childid, child.axis, child.pos, prog])
 
-    def print_childs(self, child, childid, first):
+    def print_childs(self, child, childid):
         if isinstance(child, Gtk.Paned):
             child1 = child.get_child1()
             child2 = child.get_child2()
-            if (isinstance(child, Gtk.VPaned)):
-                axis = 'v'
-                position = child.get_position()
-            elif (isinstance(child, Gtk.HPaned)):
-                axis = 'h'
-                position = child.get_position()
             if (child1 and isinstance(child1, VteObject.VteObject)):
-                self.print_pos(child1, childid, axis, position)
+                self.print_pos(child1, childid)
             if (child1 and isinstance(child1, Gtk.Paned)):
-                self.print_childs(child1, childid, False)
+                self.print_childs(child1, childid)
+
             if (child2 and isinstance(child2, VteObject.VteObject)):
-                self.print_pos(child2, childid, axis, position)
+                self.print_pos(child2, childid)
             if (child2 and isinstance(child2, Gtk.Paned)):
-                self.print_childs(child2, childid, False) 
+                self.print_childs(child2, childid)
 
 
-           
     def quit(self):
         global Wins
 
@@ -321,7 +309,7 @@ class TerminalWin(Gtk.Window):
                     # there is an issue without spli positionning...
 #                    container.active_terminal.split_axis(container.active_terminal, axis=val, position=pos, progname=prog)
                     container.active_terminal.split_axis(container.active_terminal, axis=val, position=-1, progname=prog)
-                    setattr(container.active_terminal, 'progname', prog)
+                    container.active_terminal.progname = prog
                     self.update_ui()
 
     def get_active_terminal(self):

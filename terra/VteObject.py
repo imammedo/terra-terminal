@@ -69,7 +69,11 @@ class VteObject(Gtk.HBox):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
-        setattr(self, 'progname', ' '.join(progname))
+        self.progname = ' '.join(progname)
+        self.axis = 'v'
+        self.pos = -1
+        #should be removed when heritage will be fone
+        setattr(self, 'time', time.time())
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
 
@@ -267,7 +271,7 @@ class VteObject(Gtk.HBox):
         ProgDialog(self, self)
 
     def reset_progname(self, widget):
-        setattr(self, 'progname', None)
+        self.progname = [ConfigManager.get_conf('shell')]
 
     def new_app(self, widget):
         terminal.create_app()
@@ -351,7 +355,8 @@ class VteObject(Gtk.HBox):
             new_terminal = VteObject(progname.split())
         else:
             new_terminal = VteObject()
-
+        new_terminal.axis = axis
+        new_terminal.pos = position
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)
         paned.show_all()
