@@ -51,11 +51,12 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
 import time
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')]):
+    def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')], term_id=-1):
         super(VteObjectContainer, self).__init__()
         if not bare:
             self.vte_list = {}
-            self.active_terminal = VteObject(progname)
+            handle_id(term_id)
+            self.active_terminal = VteObject(progname, None, term_id)
             self.vte_list[self.active_terminal.id] = self.active_terminal
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
@@ -66,22 +67,28 @@ class VteObjectContainer(Gtk.HBox):
             if button != terminalwin.radio_group_leader and button.get_active():
                 return terminalwin.page_close(None, button)
 
-def handle_id():
+def handle_id(setter=0):
   if not hasattr(handle_id, "counter"):
      handle_id.counter = 0
   else:
-      handle_id.counter += 1
+      if (setter > 0):
+          handle_id.counter = setter + 1
+      else:
+          handle_id.counter += 1
   return(handle_id.counter)
 
 class VteObject(Gtk.HBox):
-    def __init__(self, progname=[ConfigManager.get_conf('shell')], run_dir=None):
+    def __init__(self, progname=[ConfigManager.get_conf('shell')], run_dir=None, term_id=-1):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
         self.progname = ' '.join(progname)
         self.axis = 'v'
-        self.pos = -1
-        self.id = handle_id()
+        if (term_id == -1):
+            self.id = handle_id()
+        else:
+            self.id = term_id
+            handle_id()
         self.parent = 0
 
         self.vte = Vte.Terminal()
@@ -300,6 +307,16 @@ class VteObject(Gtk.HBox):
     def close_node(self, widget):
         parent = self.get_parent()
 
+        self.get_container().vte_list.pop(self.id)
+        if (hasattr(parent, 'id')):
+            new_parent_id = parent.id
+        else:
+            new_parent_id = 0
+
+        for child in self.get_container().vte_list.values():
+            if (child.parent == self.id):
+                child.parent = new_parent_id
+
         if type(parent) == VteObjectContainer:
             return self.get_container().close_page()
 
@@ -338,9 +355,13 @@ class VteObject(Gtk.HBox):
         container = self.get_parent()
         while type(container) != VteObjectContainer:
             container = container.get_parent()
-
         return container
 
+    #need to find a way to get the actual paned separator position
+    def get_paned_position(self):
+#        return (self.get_parent().get_position())
+        return (-1)
+    
     def split_axis(self, widget, axis='h', position=-1, progname=None):
         parent = self.get_parent()
 
@@ -361,7 +382,7 @@ class VteObject(Gtk.HBox):
             paned = Gtk.VPaned()
             if position == -1:
                 position = self.get_allocation().height / 2
-            paned.set_property('position', position)
+        paned.set_property('position', position)
 
         parent.remove(self)
         if (progname):
@@ -369,12 +390,10 @@ class VteObject(Gtk.HBox):
         else:
             new_terminal = VteObject()
         new_terminal.axis = axis
-        new_terminal.pos = position
         new_terminal.id = handle_id()
         if (hasattr(self, 'id')):
             new_terminal.parent = self.id
         else:
-            print(type(parent))
             new_terminal.parent = -1
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)

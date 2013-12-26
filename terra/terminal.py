@@ -199,45 +199,22 @@ class TerminalWin(Gtk.Window):
                     LayoutManager.set_conf(section, 'name', button.get_label())
                     LayoutManager.set_conf(section, 'enabled', 'True')
                     tabid = tabid + 1
- 
-            tabid = 0
-            self.paned_childs = []
-            for container in self.notebook.get_children():
-                for child in container.get_children():
-                    self.print_childs(child, tabid)
-                    tabid = tabid + 1
 
-            self.paned_childs.sort()
-            childid = 0
-            for child in self.paned_childs:
-                section = str('Child-%d-%d-%d'% (self.screen_id, child[1], childid))
-                LayoutManager.set_conf(section, 'id', child[2])
-                LayoutManager.set_conf(section, 'parent', child[0])
-                LayoutManager.set_conf(section, 'axis', child[3])
-                LayoutManager.set_conf(section, 'pos', child[4])
-                if (child[4]):
-                    LayoutManager.set_conf(section, 'prog', child[5])
-                childid = childid + 1
+            tabid = 0
+            for container in self.notebook.get_children():
+                childid = 0
+                container.vte_list.items()[0][1].id = 0
+                for key, child in sorted(container.vte_list.items()):
+                    section = str('Child-%d-%d-%d'% (self.screen_id, tabid, childid))
+                    LayoutManager.set_conf(section, 'id', child.id)
+                    LayoutManager.set_conf(section, 'parent', child.parent)
+                    LayoutManager.set_conf(section, 'axis', child.axis)
+                    LayoutManager.set_conf(section, 'pos', child.get_paned_position())
+                    LayoutManager.set_conf(section, 'prog', child.progname)
+                    childid = childid + 1
+                tabid = tabid + 1
 
         LayoutManager.save_config()
-
-    def print_pos(self, child, tabid):
-        self.paned_childs.append([child.parent, tabid, child.id, child.axis, child.pos, child.progname])
-
-    def print_childs(self, child, tabid):
-        if isinstance(child, Gtk.Paned):
-            child1 = child.get_child1()
-            child2 = child.get_child2()
-            if (child1 and isinstance(child1, VteObject.VteObject)):
-                self.print_pos(child1, tabid)
-            if (child1 and isinstance(child1, Gtk.Paned)):
-                self.print_childs(child1, tabid)
-
-            if (child2 and isinstance(child2, VteObject.VteObject)):
-                self.print_pos(child2, tabid)
-            if (child2 and isinstance(child2, Gtk.Paned)):
-                self.print_childs(child2, tabid)
-
 
     def quit(self):
         global Wins
@@ -265,9 +242,10 @@ class TerminalWin(Gtk.Window):
     def add_page(self, page_name=None):
         container = None
         if (page_name):
-            progname = LayoutManager.get_conf(str('Child-%s-0'%(page_name[len('Tabs-'):])), 'prog')
+            section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
+            progname = LayoutManager.get_conf(section, 'prog')
             if (progname and len(progname)):
-                container = VteObjectContainer(progname=progname.split())
+                container = VteObjectContainer(progname=progname.split(), term_id=int(LayoutManager.get_conf(section, "id")))
         if (not container):
             container = VteObjectContainer()
 
@@ -303,7 +281,7 @@ class TerminalWin(Gtk.Window):
                     pos = int(LayoutManager.get_conf(section, "pos"))
                     prog = LayoutManager.get_conf(section, "prog")
                     parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
-                    parent_vte.split_axis(parent_vte, axis=val, position=-1, progname=prog)
+                    parent_vte.split_axis(parent_vte, axis=val, position=pos, progname=prog)
                     self.update_ui()
 
     def get_active_terminal(self):
