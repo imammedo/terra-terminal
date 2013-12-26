@@ -54,7 +54,9 @@ class VteObjectContainer(Gtk.HBox):
     def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')]):
         super(VteObjectContainer, self).__init__()
         if not bare:
+            self.vte_list = {}
             self.active_terminal = VteObject(progname)
+            self.vte_list[self.active_terminal.id] = self.active_terminal
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
 
@@ -64,6 +66,13 @@ class VteObjectContainer(Gtk.HBox):
             if button != terminalwin.radio_group_leader and button.get_active():
                 return terminalwin.page_close(None, button)
 
+def handle_id():
+  if not hasattr(handle_id, "counter"):
+     handle_id.counter = 0
+  else:
+      handle_id.counter += 1
+  return(handle_id.counter)
+
 class VteObject(Gtk.HBox):
     def __init__(self, progname=[ConfigManager.get_conf('shell')], run_dir=None):
         super(Gtk.HBox, self).__init__()
@@ -72,8 +81,9 @@ class VteObject(Gtk.HBox):
         self.progname = ' '.join(progname)
         self.axis = 'v'
         self.pos = -1
-        #should be removed when heritage will be fone
-        setattr(self, 'time', time.time())
+        self.id = handle_id()
+        self.parent = 0
+
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
 
@@ -157,11 +167,16 @@ class VteObject(Gtk.HBox):
 
         self.vte.set_scroll_on_keystroke(ConfigManager.get_conf('scroll-on-keystroke'))
 
+#should be allowed if libvte version contains thoses deprecated symbols
 #        self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+
+#        self.vte.set_background_transparent(ConfigManager.use_fake_transparency)
+
+#        self.vte.set_background_image_file(
+#            ConfigManager.get_conf('background-image'))
 
         self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
 
-#        self.vte.set_background_transparent(ConfigManager.use_fake_transparency)
 
         self.vte.set_word_chars(ConfigManager.get_conf('select-by-word'))
 
@@ -170,8 +185,6 @@ class VteObject(Gtk.HBox):
             Gdk.color_parse(ConfigManager.get_conf('color-background')),
             [])
 
-#        self.vte.set_background_image_file(
-#            ConfigManager.get_conf('background-image'))
 
         if not ConfigManager.get_conf('use-default-font'):
             self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
@@ -357,6 +370,12 @@ class VteObject(Gtk.HBox):
             new_terminal = VteObject()
         new_terminal.axis = axis
         new_terminal.pos = position
+        new_terminal.id = handle_id()
+        if (hasattr(self, 'id')):
+            new_terminal.parent = self.id
+        else:
+            print(type(parent))
+            new_terminal.parent = -1
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)
         paned.show_all()
@@ -369,6 +388,7 @@ class VteObject(Gtk.HBox):
             parent.pack2(paned, True, True)
         parent.show_all()
         self.get_container().active_terminal = new_terminal
+        self.get_container().vte_list[new_terminal.id] = new_terminal
         new_terminal.grab_focus()
 
 

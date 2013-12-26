@@ -211,36 +211,32 @@ class TerminalWin(Gtk.Window):
             childid = 0
             for child in self.paned_childs:
                 section = str('Child-%d-%d-%d'% (self.screen_id, child[1], childid))
-                LayoutManager.set_conf(section, 'type', child[2])
-                LayoutManager.set_conf(section, 'pos', child[3])
+                LayoutManager.set_conf(section, 'id', child[2])
+                LayoutManager.set_conf(section, 'parent', child[0])
+                LayoutManager.set_conf(section, 'axis', child[3])
+                LayoutManager.set_conf(section, 'pos', child[4])
                 if (child[4]):
-                    LayoutManager.set_conf(section, 'prog', child[4])
+                    LayoutManager.set_conf(section, 'prog', child[5])
                 childid = childid + 1
 
         LayoutManager.save_config()
 
-#the only problem here is that the panned style is stored in the previous object in conf...        
-#looks solved, but i can't get a real heritage in the layout backup...
-    def print_pos(self, child, childid):
-        prog = None
-        if (hasattr(child, 'progname')):
-            prog = child.progname
-        #child.time should be removes when heritage will be ok
-        self.paned_childs.append([child.time, childid, child.axis, child.pos, prog])
+    def print_pos(self, child, tabid):
+        self.paned_childs.append([child.parent, tabid, child.id, child.axis, child.pos, child.progname])
 
-    def print_childs(self, child, childid):
+    def print_childs(self, child, tabid):
         if isinstance(child, Gtk.Paned):
             child1 = child.get_child1()
             child2 = child.get_child2()
             if (child1 and isinstance(child1, VteObject.VteObject)):
-                self.print_pos(child1, childid)
+                self.print_pos(child1, tabid)
             if (child1 and isinstance(child1, Gtk.Paned)):
-                self.print_childs(child1, childid)
+                self.print_childs(child1, tabid)
 
             if (child2 and isinstance(child2, VteObject.VteObject)):
-                self.print_pos(child2, childid)
+                self.print_pos(child2, tabid)
             if (child2 and isinstance(child2, Gtk.Paned)):
-                self.print_childs(child2, childid)
+                self.print_childs(child2, tabid)
 
 
     def quit(self):
@@ -303,13 +299,11 @@ class TerminalWin(Gtk.Window):
             for section in LayoutManager.get_sections():
                 child = str('Child-%s'%(page_name[len('Tabs-'):]))
                 if (section.find(child) == 0 and section[-1:] != '0'):
-                    val = LayoutManager.get_conf(section, "type")[0]
+                    val = LayoutManager.get_conf(section, "axis")[0]
                     pos = int(LayoutManager.get_conf(section, "pos"))
                     prog = LayoutManager.get_conf(section, "prog")
-                    # there is an issue without spli positionning...
-#                    container.active_terminal.split_axis(container.active_terminal, axis=val, position=pos, progname=prog)
-                    container.active_terminal.split_axis(container.active_terminal, axis=val, position=-1, progname=prog)
-                    container.active_terminal.progname = prog
+                    parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
+                    parent_vte.split_axis(parent_vte, axis=val, position=-1, progname=prog)
                     self.update_ui()
 
     def get_active_terminal(self):
