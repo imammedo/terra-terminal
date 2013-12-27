@@ -203,7 +203,6 @@ class TerminalWin(Gtk.Window):
             tabid = 0
             for container in self.notebook.get_children():
                 childid = 0
-                container.vte_list.items()[0][1].id = 0
                 for key, child in sorted(container.vte_list.items()):
                     section = str('Child-%d-%d-%d'% (self.screen_id, tabid, childid))
                     LayoutManager.set_conf(section, 'id', child.id)
@@ -244,10 +243,15 @@ class TerminalWin(Gtk.Window):
         if (page_name):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
             progname = LayoutManager.get_conf(section, 'prog')
+            ret_id = LayoutManager.get_conf(section, 'id')
+            if (ret_id):
+                term_id = int(ret_id)
+            else:
+                term_id = 0
             if (progname and len(progname)):
-                container = VteObjectContainer(progname=progname.split(), term_id=int(LayoutManager.get_conf(section, "id")))
+                container = VteObjectContainer(progname=progname.split(), term_id=term_id)
         if (not container):
-            container = VteObjectContainer()
+            container = VteObjectContainer(term_id=term_id)
 
         self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
@@ -281,7 +285,7 @@ class TerminalWin(Gtk.Window):
                     pos = int(LayoutManager.get_conf(section, "pos"))
                     prog = LayoutManager.get_conf(section, "prog")
                     parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
-                    parent_vte.split_axis(parent_vte, axis=val, position=pos, progname=prog)
+                    parent_vte.split_axis(parent_vte, axis=val, position=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")))
                     self.update_ui()
 
     def get_active_terminal(self):
