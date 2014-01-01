@@ -22,49 +22,6 @@ from gi.repository import Gtk, Gdk
 
 from config import ConfigManager
 
-class RenameDialog:
-    def __init__(self, sender, active_terminal):
-        ConfigManager.disable_losefocus_temporary = True
-        self.sender = sender
-        self.active_terminal = active_terminal
-
-        self.builder = Gtk.Builder()
-        self.builder.set_translation_domain('terra')
-        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
-        self.dialog = self.builder.get_object('rename_dialog')
-
-        self.dialog.entry_new_name = self.builder.get_object('entry_new_name')
-        self.dialog.entry_new_name.set_text(self.sender.get_label())
-
-        self.dialog.btn_cancel = self.builder.get_object('btn_cancel')
-        self.dialog.btn_ok = self.builder.get_object('btn_ok')
-
-        self.dialog.btn_cancel.connect('clicked', lambda w: self.close())
-        self.dialog.btn_ok.connect('clicked', lambda w: self.rename())
-        self.dialog.entry_new_name.connect('key-press-event', lambda w, x: self.on_keypress(w, x))
-
-        self.dialog.connect('delete-event', lambda w, x: self.close())
-        self.dialog.connect('destroy', lambda w: self.close())
-
-        self.dialog.show_all()
-
-    def on_keypress(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == 'Return':
-            self.rename()
-
-    def close(self):
-        self.dialog.destroy()
-        self.active_terminal.grab_focus()
-        ConfigManager.disable_losefocus_temporary = False
-        del self
-
-    def rename(self):
-        if len(self.dialog.entry_new_name.get_text()) > 0:
-            self.sender.set_label(self.dialog.entry_new_name.get_text())
-
-        ConfigManager.disable_losefocus_temporary = False
-        self.close()
-
 class ProgDialog:
     def __init__(self, sender, active_terminal):
         ConfigManager.disable_losefocus_temporary = True
@@ -73,7 +30,7 @@ class ProgDialog:
 
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain('terra')
-        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
+        self.builder.add_from_file(ConfigManager.data_dir + 'ui/terminal.ui')
         self.dialog = self.builder.get_object('progname_dialog')
 
         self.dialog.entry_new_progname = self.builder.get_object('progname-entry_new_name')

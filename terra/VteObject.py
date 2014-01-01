@@ -23,7 +23,7 @@ import os
 
 from preferences import Preferences
 from config import ConfigManager
-from dialogs import ProgDialog
+from terminal_dialog import ProgDialog
 from i18n import _
 
 import terminal
