@@ -40,6 +40,8 @@ import sys
 Wins = None
 
 #we need to sort correctly the dict and stop using this
+#must important is to order by id first for the same parent id
+#to be able to save layout in the real creation order
 def pouet(child1, child2):
     if (child1.id < child2.id):
         if (child1.parent < child2.id):
@@ -244,20 +246,23 @@ class TerminalWin(Gtk.Window):
 
     def rec_parents(self, tree, parent = None):
         if not tree:
-            TerminalWin.rec_parents.im_func._parent = parent
+            TerminalWin.rec_parents.im_func._parent = None
             TerminalWin.rec_parents.im_func._first_child = None
+            TerminalWin.rec_parents.im_func._axis = 'v'
             return None
 
         if (not hasattr(TerminalWin.rec_parents.im_func, '_parent')):
             TerminalWin.rec_parents.im_func._parent = parent
         if not hasattr(TerminalWin.rec_parents.im_func, '_first_child'):
             TerminalWin.rec_parents.im_func._first_child = None
-            axis = 'v'
+        if not hasattr(TerminalWin.rec_parents.im_func, '_axis'):
+            TerminalWin.rec_parents.im_func._axis = 'v'
+
         if isinstance(tree, Gtk.Paned):
             child1 = tree.get_child1()
             child2 = tree.get_child2()
             if (child1):
-                self.use_child(child1, parent, axis)
+                self.use_child(child1, parent, TerminalWin.rec_parents.im_func._axis)
                 if isinstance(child1, VteObject.VteObjectContainer):
                     TerminalWin.rec_parents.im_func._parent = child1
                 if isinstance(child1, VteObject.VteObject):
@@ -266,21 +271,19 @@ class TerminalWin(Gtk.Window):
                         child1.parent = 0
                         TerminalWin.rec_parents.im_func._first_child = child1
                     TerminalWin.rec_parents.im_func._parent = child1
-                parent = TerminalWin.rec_parents.im_func._parent
                 if (isinstance(child1, Gtk.Paned)):
                     self.rec_parents(child1, parent)
             parent = TerminalWin.rec_parents.im_func._parent
             if (child2):
                 if isinstance(tree, Gtk.HPaned):
-                    axis = 'h'
-                self.use_child(child2, parent, axis)
+                    TerminalWin.rec_parents.im_func._axis = 'h'
+                else:
+                    TerminalWin.rec_parents.im_func._axis = 'v'
+                self.use_child(child2, parent, TerminalWin.rec_parents.im_func._axis)
                 if isinstance(child2, VteObject.VteObjectContainer):
                     TerminalWin.rec_parents.im_func._parent = child2
-                if isinstance(child2, VteObject.VteObject):
-                    TerminalWin.rec_parents.im_func._parent = child2
-                #parent = TerminalWin.rec_parents.im_func._parent
                 if isinstance(child2, Gtk.Paned):
-                    self.rec_parents(child2, parent)
+                    self.rec_parents(child2, TerminalWin.rec_parents.im_func._parent)
         else:
             if not TerminalWin.rec_parents.im_func._first_child:
                 tree.id = 0
@@ -366,7 +369,7 @@ class TerminalWin(Gtk.Window):
                     pos = int(LayoutManager.get_conf(section, "pos"))
                     prog = LayoutManager.get_conf(section, "prog")
                     parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
-                    print("ParId: %d Axis: %c"% (parent_vte.id, axis))
+                    print("Id: %d Axis: %c"% (parent_vte.id, axis))
                     parent_vte.split_axis(parent_vte, axis=axis, position=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")))
                     self.update_ui()
 
