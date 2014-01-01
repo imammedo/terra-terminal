@@ -18,7 +18,7 @@ Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/tr
 
 Features to come:
 - Save your layout configuration.
-  * Almost Done, just need to save it exactly as it is.
+  * Working correctly but needs some adjustements
 
 - Start a graphical program instead of a term program.
   * Might need much time if this is possible
