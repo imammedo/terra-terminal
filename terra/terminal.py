@@ -252,12 +252,12 @@ class TerminalWin(Gtk.Window):
             TerminalWin.rec_parents.im_func._parent = parent
         if not hasattr(TerminalWin.rec_parents.im_func, '_first_child'):
             TerminalWin.rec_parents.im_func._first_child = None
-
+            axis = 'v'
         if isinstance(tree, Gtk.Paned):
             child1 = tree.get_child1()
             child2 = tree.get_child2()
             if (child1):
-                self.use_child(child1, parent, TerminalWin.rec_parents.im_func._axis)
+                self.use_child(child1, parent, axis)
                 if isinstance(child1, VteObject.VteObjectContainer):
                     TerminalWin.rec_parents.im_func._parent = child1
                 if isinstance(child1, VteObject.VteObject):
@@ -273,8 +273,6 @@ class TerminalWin(Gtk.Window):
             if (child2):
                 if isinstance(tree, Gtk.HPaned):
                     axis = 'h'
-                else:
-                    axis = 'v'             
                 self.use_child(child2, parent, axis)
                 if isinstance(child2, VteObject.VteObjectContainer):
                     TerminalWin.rec_parents.im_func._parent = child2
