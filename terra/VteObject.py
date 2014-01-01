@@ -27,6 +27,7 @@ from dialogs import ProgDialog
 from i18n import _
 
 import terminal
+import pkg_resources
 
 # this regex strings taken from pantheon-terminal
 # thanks munchor and voldyman
@@ -169,13 +170,13 @@ class VteObject(Gtk.HBox):
 
         self.vte.set_scroll_on_keystroke(ConfigManager.get_conf('scroll-on-keystroke'))
 
-#should be allowed if libvte version contains thoses deprecated symbols
-#        self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
-
-#        self.vte.set_background_transparent(ConfigManager.use_fake_transparency)
-
-#        self.vte.set_background_image_file(
-#            ConfigManager.get_conf('background-image'))
+        if hasattr(self.vte, 'set_background_saturation'):
+            self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+        if hasattr(self.vte, 'set_background_transparent'):
+            self.vte.set_background_transparent(ConfigManager.use_fake_transparency)
+        if hasattr(self.vte, 'set_background_image_file'):
+            self.vte.set_background_image_file(
+                ConfigManager.get_conf('background-image'))
 
         self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
 
