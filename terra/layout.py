@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
-from gi.repository import Gdk
 from base64 import b64encode, b64decode
 import ConfigParser
 import os
@@ -32,8 +31,8 @@ class LayoutManager():
             'width': '1280',
             'height': '1024',
             'tabs': '0',
-            'fullscreen': 'False'
-        })
+            'fullscreen': 'False',
+            })
 
     cfg_dir = os.environ['HOME'] + '/.config/terra/'
     cfg_file = 'layout.cfg'
@@ -41,7 +40,9 @@ class LayoutManager():
 
     config.read(cfg_full_path)
 
-    callback_list = []
+    @staticmethod
+    def init():
+        ConfigParser.SafeConfigParser({})
 
     @staticmethod
     def get_sections():

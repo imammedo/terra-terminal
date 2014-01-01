@@ -26,7 +26,7 @@ from terra import globalhotkeys
 
 import VteObject
 from VteObject import VteObjectContainer
-from config import ConfigManager, ConfigParser
+from config import ConfigManager#, ConfigParser
 from layout import LayoutManager
 from dialogs import RenameDialog
 from dbusservice import DbusService
@@ -843,21 +843,18 @@ def main():
     global Wins
 
     Wins = TerminalWinContainer()
-
-    toto = ConfigParser.SafeConfigParser({})
-    toto.read('~/.config/terra/layout.cfg')
-    toto.sections()
-
     try:
+        LayoutManager.init()        
         for section in LayoutManager.get_sections():
             if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
                 Wins.create_app(section)
             if (len(Wins.get_apps()) == 0):
                 Wins.create_app()
-            if (len(Wins.get_apps()) == 0):
-                print("Cannot initiate any screen")
-                return
+        if (len(Wins.get_apps()) == 0):
+            print("Cannot initiate any screen")
+            return
     except Exception as excep:
+        print("Exception Catched:")
         for mess in excep.args:
             print(mess)
         Wins.app_quit()
