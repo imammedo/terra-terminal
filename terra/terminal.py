@@ -773,6 +773,7 @@ class TerminalWinContainer():
         self.old_apps = []
         self.screenid = 0
         self.on_doing = False
+        self.is_running = False
 
     def show_hide(self):
         if self.on_doing == False:
@@ -803,7 +804,8 @@ class TerminalWinContainer():
                 return
         sys.stdout.flush()
         sys.stderr.flush()
-        Gtk.main_quit()
+        if (self.is_running):
+            Gtk.main_quit()
 
     def remove_app(self, ext):
         if ext in self.apps:
@@ -820,6 +822,7 @@ class TerminalWinContainer():
             app = TerminalWin(screenName, monitor)
             if (not self.bind_success):
                 cannot_bind(app)
+                raise Exception("Can't bind Global Keys")
             app.hotkey = self.hotkey
             if (len(self.apps) == 0):
                 DbusService(app)
@@ -831,6 +834,10 @@ class TerminalWinContainer():
     def get_apps(self):
         return (self.apps)
 
+    def start(self):
+        self.is_running = True
+        Gtk.main()
+
 def main():
     global Wins
 
@@ -840,15 +847,24 @@ def main():
     toto.read('~/.config/terra/layout.cfg')
     toto.sections()
 
-    for section in LayoutManager.get_sections():
-        if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
-            Wins.create_app(section)
-    if (len(Wins.get_apps()) == 0):
-        Wins.create_app()
-    if (len(Wins.get_apps()) == 0):
-        print("Cannot initiate any screen")
-        return
-    Gtk.main()
+    try:
+        for section in LayoutManager.get_sections():
+            if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
+                Wins.create_app(section)
+            if (len(Wins.get_apps()) == 0):
+                Wins.create_app()
+            if (len(Wins.get_apps()) == 0):
+                print("Cannot initiate any screen")
+                return
+    except Exception as excep:
+        for mess in excep.args:
+            print(mess)
+        Wins.app_quit()
+    except:
+        print("Unknow Exception Catched")
+        Wins.app_quit()
+    else:
+        Wins.start()
 
 if __name__ == "__main__":
     main()
