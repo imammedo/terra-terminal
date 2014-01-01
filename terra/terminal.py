@@ -842,6 +842,10 @@ class TerminalWinContainer():
 def main():
     global Wins
 
+    if (len(sys.argv) > 1):
+        print("Terra Doesn't support any argument")
+        return 1
+
     Wins = TerminalWinContainer()
     try:
         LayoutManager.init()        
