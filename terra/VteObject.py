@@ -52,11 +52,11 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
 import time
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, axis, bare=False, progname=[ConfigManager.get_conf('shell')], term_id=0):
+    def __init__(self, axis, bare=False, progname=[ConfigManager.get_conf('shell')], term_id=0, position=-1):
         super(VteObjectContainer, self).__init__()
         if not bare:
             self.vte_list = {}
-            self.active_terminal = VteObject(axis, progname, None, term_id)
+            self.active_terminal = VteObject(axis, progname, None, term_id, position)
             self.vte_list[self.active_terminal.id] = self.active_terminal
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
@@ -79,7 +79,7 @@ class VteObjectContainer(Gtk.HBox):
         return (ret_id)
 
 class VteObject(Gtk.HBox):
-    def __init__(self, axis, progname=[ConfigManager.get_conf('shell')], run_dir=None, term_id=0):
+    def __init__(self, axis, progname=[ConfigManager.get_conf('shell')], run_dir=None, term_id=0, position=-1):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
@@ -87,6 +87,7 @@ class VteObject(Gtk.HBox):
         self.axis = axis
         self.id = VteObjectContainer.handle_id(term_id)
         self.parent = 0
+        self.pos = position
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
 
@@ -344,13 +345,8 @@ class VteObject(Gtk.HBox):
         while type(container) != VteObjectContainer:
             container = container.get_parent()
         return container
-
-    #need to find a way to get the actual paned separator position
-    def get_paned_position(self):
-#        return (self.get_parent().get_position())
-        return (-1)
     
-    def split_axis(self, widget, axis='h', position=-1, progname=None, term_id=0):
+    def split_axis(self, widget, axis='h', split=-1, progname=None, term_id=0, orig=-1):
         parent = self.get_parent()
 
         if type(parent) != VteObjectContainer:
@@ -361,22 +357,29 @@ class VteObject(Gtk.HBox):
         else:
             mode = 0
 
+        display = self.get_allocation()
         if axis == 'h':
             paned = Gtk.HPaned()
-            if position == -1:
-                position = self.get_allocation().width / 2
-            paned.set_property('position', position)
+            size = display.width
+            if split == -1:
+                split = self.get_allocation().width / 2
+            else:
+                split = size * split / 10000
         elif axis == 'v':
             paned = Gtk.VPaned()
-            if position == -1:
-                position = self.get_allocation().height / 2
-        paned.set_property('position', position)
+            size = display.height
+            if split == -1:
+                split = self.get_allocation().height / 2
+            else:
+                split = size * split / 10000
+        paned.set_position(split)
+        
 
         parent.remove(self)
         if (progname):
-            new_terminal = VteObject(axis, progname.split(), term_id=term_id)
+            new_terminal = VteObject(axis, progname.split(), term_id=term_id, position=orig)
         else:
-            new_terminal = VteObject(axis, term_id=term_id)
+            new_terminal = VteObject(axis, term_id=term_id, position=orig)
         new_terminal.axis = axis
         new_terminal.parent = self.id
         paned.pack1(self, True, True)
@@ -389,6 +392,7 @@ class VteObject(Gtk.HBox):
             parent.pack1(paned, True, True)
         else:
             parent.pack2(paned, True, True)
+
         parent.show_all()
         self.get_container().active_terminal = new_terminal
         self.get_container().vte_list[new_terminal.id] = new_terminal
