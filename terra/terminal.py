@@ -588,11 +588,11 @@ class TerminalWin(Gtk.Window):
             return True
 
         if ConfigManager.key_event_compare('split-v-key', event):
-            self.get_active_terminal().split_axis(None, 'v')
+            self.get_active_terminal().split_axis(None, 'h')
             return True
 
         if ConfigManager.key_event_compare('split-h-key', event):
-            self.get_active_terminal().split_axis(None, 'h')
+            self.get_active_terminal().split_axis(None, 'v')
             return True
 
         if ConfigManager.key_event_compare('close-node-key', event):
