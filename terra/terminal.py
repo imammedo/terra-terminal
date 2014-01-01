@@ -348,6 +348,7 @@ class TerminalWin(Gtk.Window):
 
     def add_page(self, page_name=None):
         container = None
+        term_id = 0
         if (page_name):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
             axis = LayoutManager.get_conf(section, 'axis')
@@ -356,8 +357,6 @@ class TerminalWin(Gtk.Window):
             ret_id = LayoutManager.get_conf(section, 'id')
             if (ret_id):
                 term_id = int(ret_id)
-            else:
-                term_id = 0
             if (progname and len(progname)):
                 container = VteObjectContainer(axis, progname=progname.split(), term_id=term_id, position=pos)
         if (not container):

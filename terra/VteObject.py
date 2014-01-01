@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Vte, GLib, Gdk, GdkX11
+from gi.repository import Gtk, Vte, GLib, Gdk, GdkX11, GObject
 import os
 
 from preferences import Preferences
@@ -27,7 +27,8 @@ from terminal_dialog import ProgDialog
 from i18n import _
 
 import terminal
-import pkg_resources
+import time
+import threading
 
 # this regex strings taken from pantheon-terminal
 # thanks munchor and voldyman
@@ -48,8 +49,6 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:callto:|h323:|sip:)" + USERCHARS_CLASS + "[" + USERCHARS + ".]*(?:" + PORT + "/[a-z0-9]+)?\\@" + HOST,
     "(?:mailto:)?" + USERCHARS_CLASS + "[" + USERCHARS+ ".]*\\@" + HOSTCHARS_CLASS + "+\\." + HOST,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
-
-import time
 
 class VteObjectContainer(Gtk.HBox):
     def __init__(self, axis, bare=False, progname=[ConfigManager.get_conf('shell')], term_id=0, position=-1):
@@ -195,6 +194,17 @@ class VteObject(Gtk.HBox):
 
         self.show_all()
 
+    def submenu_item_connect_hack(self, menu_item, callback, *args_for_callback):
+        only_once = threading.Semaphore(1)
+
+        def handle_event(menu_item, event=None):
+            if only_once.acquire(False):
+                GObject.idle_add(callback, *args_for_callback)
+
+        menu_item.connect('button-press-event', handle_event)
+        menu_item.connect('activate', handle_event)
+
+
     def on_button_release(self, widget, event):
         self.get_container().active_terminal = self
 
@@ -247,11 +257,13 @@ class VteObject(Gtk.HBox):
             self.term.set_submenu(self.term_menu)
 
             self.menu_new = Gtk.MenuItem(_("New Terminal"))
-            self.menu_new.connect("activate", self.new_app)
+            self.submenu_item_connect_hack(self.menu_new, self.new_app, self.menu_new)
+
             self.set_new_prog = Gtk.MenuItem(_("Set ProgName"))
-            self.set_new_prog.connect("activate", self.save_progname)
+            self.submenu_item_connect_hack(self.set_new_prog, self.save_progname, self.set_new_prog)
+
             self.reset_prog = Gtk.MenuItem(_("Reset Default Progname"))
-            self.reset_prog.connect("activate", self.reset_progname)
+            self.submenu_item_connect_hack(self.reset_prog, self.reset_progname, self.reset_prog)
             
             self.term_menu.append(self.menu_new)
             self.term_menu.append(self.set_new_prog)
@@ -288,7 +300,7 @@ class VteObject(Gtk.HBox):
         ProgDialog(self, self)
 
     def reset_progname(self, widget):
-        self.progname = [ConfigManager.get_conf('shell')]
+        self.progname = ConfigManager.get_conf('shell')
 
     def new_app(self, widget):
         terminal.create_app()
