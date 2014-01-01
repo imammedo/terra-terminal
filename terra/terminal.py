@@ -280,7 +280,7 @@ class TerminalWin(Gtk.Window):
                     TerminalWin.rec_parents.im_func._parent = child2
                 if isinstance(child2, VteObject.VteObject):
                     TerminalWin.rec_parents.im_func._parent = child2
-                parent = TerminalWin.rec_parents.im_func._parent
+                #parent = TerminalWin.rec_parents.im_func._parent
                 if isinstance(child2, Gtk.Paned):
                     self.rec_parents(child2, parent)
         else:
