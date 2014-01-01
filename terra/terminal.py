@@ -39,8 +39,21 @@ import sys
 
 Wins = None
 
-class TerminalWin(Gtk.Window):
+#we need to sort correctly the dict and stop using this
+def pouet(child1, child2):
+    if (child1.id < child2.id):
+        if (child1.parent < child2.id):
+            return (-1)
+        else:
+            return (1)
+    else:
+        if (child2.parent < child1.id):
+            return (1)
+        else:
+            return (-1)
+    return (-1)
 
+class TerminalWin(Gtk.Window):
     def __init__(self, name, monitor):
         super(TerminalWin, self).__init__()
 
@@ -200,21 +213,90 @@ class TerminalWin(Gtk.Window):
                     LayoutManager.set_conf(section, 'enabled', 'True')
                     tabid = tabid + 1
 
-            tabid = 0
             for container in self.notebook.get_children():
-                childid = 0
-                for key, child in sorted(container.vte_list.items()):
-                    section = str('Child-%d-%d-%d'% (self.screen_id, tabid, childid))
+                self.set_paned_parents(container)
+            
+            tabid = 0
+            #still not correctly sorted
+            for container in self.notebook.get_children():
+                for key, child in sorted(container.vte_list.items(), key=lambda child: child[1], cmp=pouet):
+                    section = str('Child-%d-%d-%d'% (self.screen_id, tabid, child.id))
                     LayoutManager.set_conf(section, 'id', child.id)
+                    print("Check Axis: %c"% child.axis)
+                    print("Check Id: %d/%d"% (child.id, child.parent))
+
                     LayoutManager.set_conf(section, 'parent', child.parent)
                     LayoutManager.set_conf(section, 'axis', child.axis)
                     LayoutManager.set_conf(section, 'pos', child.get_paned_position())
                     LayoutManager.set_conf(section, 'prog', child.progname)
-                    childid = childid + 1
                 tabid = tabid + 1
 
         LayoutManager.save_config()
 
+    def use_child(self, child, parent, axis):
+        if (isinstance(child, VteObject.VteObject)):
+            child.axis = axis
+            if (parent):
+                child.parent = parent.id
+            else:
+                child.id = 0
+                child.parent = 0
+
+    def rec_parents(self, tree, parent = None):
+        if not tree:
+            TerminalWin.rec_parents.im_func._parent = parent
+            TerminalWin.rec_parents.im_func._first_child = None
+            return None
+
+        if (not hasattr(TerminalWin.rec_parents.im_func, '_parent')):
+            TerminalWin.rec_parents.im_func._parent = parent
+        if not hasattr(TerminalWin.rec_parents.im_func, '_first_child'):
+            TerminalWin.rec_parents.im_func._first_child = None
+
+        if isinstance(tree, Gtk.Paned):
+            child1 = tree.get_child1()
+            child2 = tree.get_child2()
+            if (child1):
+                self.use_child(child1, parent, TerminalWin.rec_parents.im_func._axis)
+                if isinstance(child1, VteObject.VteObjectContainer):
+                    TerminalWin.rec_parents.im_func._parent = child1
+                if isinstance(child1, VteObject.VteObject):
+                    if not TerminalWin.rec_parents.im_func._first_child:
+                        child1.id = 0
+                        child1.parent = 0
+                        TerminalWin.rec_parents.im_func._first_child = child1
+                    TerminalWin.rec_parents.im_func._parent = child1
+                parent = TerminalWin.rec_parents.im_func._parent
+                if (isinstance(child1, Gtk.Paned)):
+                    self.rec_parents(child1, parent)
+            parent = TerminalWin.rec_parents.im_func._parent
+            if (child2):
+                if isinstance(tree, Gtk.HPaned):
+                    axis = 'h'
+                else:
+                    axis = 'v'             
+                self.use_child(child2, parent, axis)
+                if isinstance(child2, VteObject.VteObjectContainer):
+                    TerminalWin.rec_parents.im_func._parent = child2
+                if isinstance(child2, VteObject.VteObject):
+                    TerminalWin.rec_parents.im_func._parent = child2
+                parent = TerminalWin.rec_parents.im_func._parent
+                if isinstance(child2, Gtk.Paned):
+                    self.rec_parents(child2, parent)
+        else:
+            if not TerminalWin.rec_parents.im_func._first_child:
+                tree.id = 0
+                tree.parent = 0
+                TerminalWin.rec_parents.im_func._first_child = tree
+        return (TerminalWin.rec_parents.im_func._first_child)
+
+    def set_paned_parents(self, container):
+        self.rec_parents(None)
+        for tree in container.get_children():
+            first = self.rec_parents(tree)
+            if (first):
+                container.vte_list[first.id] = first
+                
     def quit(self):
         global Wins
 
@@ -242,6 +324,7 @@ class TerminalWin(Gtk.Window):
         container = None
         if (page_name):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
+            axis = LayoutManager.get_conf(section, 'axis')
             progname = LayoutManager.get_conf(section, 'prog')
             ret_id = LayoutManager.get_conf(section, 'id')
             if (ret_id):
@@ -249,9 +332,9 @@ class TerminalWin(Gtk.Window):
             else:
                 term_id = 0
             if (progname and len(progname)):
-                container = VteObjectContainer(progname=progname.split(), term_id=term_id)
+                container = VteObjectContainer(axis, progname=progname.split(), term_id=term_id)
         if (not container):
-            container = VteObjectContainer(term_id=term_id)
+            container = VteObjectContainer('v', term_id=term_id)
 
         self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
@@ -281,11 +364,12 @@ class TerminalWin(Gtk.Window):
             for section in LayoutManager.get_sections():
                 child = str('Child-%s'%(page_name[len('Tabs-'):]))
                 if (section.find(child) == 0 and section[-1:] != '0'):
-                    val = LayoutManager.get_conf(section, "axis")[0]
+                    axis = LayoutManager.get_conf(section, "axis")[0]
                     pos = int(LayoutManager.get_conf(section, "pos"))
                     prog = LayoutManager.get_conf(section, "prog")
                     parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
-                    parent_vte.split_axis(parent_vte, axis=val, position=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")))
+                    print("ParId: %d Axis: %c"% (parent_vte.id, axis))
+                    parent_vte.split_axis(parent_vte, axis=axis, position=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")))
                     self.update_ui()
 
     def get_active_terminal(self):
