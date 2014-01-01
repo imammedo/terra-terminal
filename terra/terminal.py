@@ -343,6 +343,8 @@ class TerminalWin(Gtk.Window):
     def update_resizer(self, widget, event):
         self.resizer.set_position(self.monitor.height)
         self.resizer.set_position(self.monitor.width)
+        self.resizer.set_property('position', int(self.monitor.height))
+        self.resizer.queue_resize()
 
     def add_page(self, page_name=None):
         container = None
