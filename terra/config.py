@@ -34,10 +34,6 @@ class ConfigManager():
         'use-border': 'False',
         'skip-taskbar': 'False',
         'skip-pager': 'False',
-        'height': '40',
-        'width': '100',
-        'horizontal-position': '50',
-        'vertical-position': '0',
         'color-text': '#ffffffffffff',
         'color-background': '#000000000000',
         'transparency': '50',
@@ -64,9 +60,6 @@ class ConfigManager():
         'split-h-key': '<Control><Shift>H',
         'close-node-key': '<Control><Shift>K',
         'always-on-top': 'False',
-        'remember-tab-names': 'True',
-        'tab-names': 'Terminal 1;;',
-        'monitor': '0',
         'scrollback-lines': '1024',
         'scroll-on-output': 'False',
         'scroll-on-keystroke': 'True',
@@ -83,7 +76,6 @@ class ConfigManager():
         'use-animation': 'False',
         'step-count': '20',
         'step-time': '10',
-        'start-fullscreen': 'False'
         })
 
     cfg_dir = os.environ['HOME'] + '/.config/terra/'

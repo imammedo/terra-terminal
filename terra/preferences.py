@@ -56,20 +56,8 @@ class Preferences():
         self.adj_seperator = builder.get_object('adjustment_seperator')
         self.adj_seperator.set_value(int(ConfigManager.get_conf('seperator-size')) * 1.0)
 
-        self.adj_width = builder.get_object('adjustment_width')
-        self.adj_width.set_value(int(ConfigManager.get_conf('width')) * 1.0)
-
-        self.adj_height = builder.get_object('adjustment_height')
-        self.adj_height.set_value(int(ConfigManager.get_conf('height')) * 1.0)
-
         self.adj_transparency = builder.get_object('adjustment_transparency')
         self.adj_transparency.set_value(int(ConfigManager.get_conf('transparency')) * 1.0)
-
-        self.v_alig = builder.get_object('v_alig')
-        self.v_alig.set_active(int(ConfigManager.get_conf('vertical-position')) / 50)
-
-        self.h_alig = builder.get_object('h_alig')
-        self.h_alig.set_active(int(ConfigManager.get_conf('horizontal-position')) / 50)
 
         self.chk_hide_from_taskbar = builder.get_object('chk_hide_from_taskbar')
         self.chk_hide_from_taskbar.set_active(ConfigManager.get_conf('skip-taskbar'))
@@ -105,23 +93,6 @@ class Preferences():
             self.radio_dir_custom.set_active(True)
             self.dir_custom.set_text(dir_conf)
             self.dir_custom.set_sensitive(True)
-
-        self.monitor_list = builder.get_object('monitor_list')
-        self.monitor_list.append_text(_("Always use primary"))
-        self.monitor_list.append_text(_("Where the mouse pointer at"))
-        self.monitor_list.append_text(_("Most left monitor"))
-        self.monitor_list.append_text(_("Most right monitor"))
-
-
-        screen = self.window.get_screen()
-        for i in range(screen.get_n_monitors()):
-            monitor_size =  screen.get_monitor_geometry(i)
-            self.monitor_list.append_text(_("Monitor %i ( %i x %i )") % (i+1, monitor_size.width, monitor_size.height))
-
-        if ConfigManager.get_conf('monitor') > (3 + screen.get_n_monitors()):
-            self.monitor_list.set_active(0)
-        else:
-            self.monitor_list.set_active(ConfigManager.get_conf('monitor'))
 
         self.background_image = builder.get_object('background_image')
         self.background_image.set_filename(ConfigManager.get_conf('background-image'))
@@ -238,7 +209,7 @@ class Preferences():
         self.open_translation_page.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'https://translations.launchpad.net/terra', GdkX11.x11_get_server_time(self.window.get_window())))
 
         self.report_bug = builder.get_object('report_bug')
-        self.report_bug.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'https://bugs.launchpad.net/terra/+filebug', GdkX11.x11_get_server_time(self.window.get_window())))
+        self.report_bug.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'https://github.com/Sixdsn/terra-terminal/issues', GdkX11.x11_get_server_time(self.window.get_window())))
 
         self.webpage = builder.get_object('webpage')
         self.webpage.connect('clicked', lambda w: Gtk.show_uri(self.window.get_screen(), 'http://terraterminal.org', GdkX11.x11_get_server_time(self.window.get_window())))
@@ -261,9 +232,6 @@ class Preferences():
         
         self.chk_hide_tab_bar_fullscreen = builder.get_object('chk_hide_tab_bar_fullscreen')
         self.chk_hide_tab_bar_fullscreen.set_active(ConfigManager.get_conf('hide-tab-bar-fullscreen'))
-
-        self.chk_start_fullscreen = builder.get_object('chk_start_fullscreen')
-        self.chk_start_fullscreen.set_active(ConfigManager.get_conf('start-fullscreen'))
 
         self.chk_prompt_on_quit = builder.get_object('chk_prompt_on_quit')
         self.chk_prompt_on_quit.set_active(ConfigManager.get_conf('prompt-on-quit'))
@@ -337,15 +305,7 @@ class Preferences():
     def on_apply_clicked(self, widget):
         ConfigManager.set_conf('seperator-size', int(self.adj_seperator.get_value()))
 
-        ConfigManager.set_conf('width', int(self.adj_width.get_value()))
-
-        ConfigManager.set_conf('height', int(self.adj_height.get_value()))
-
         ConfigManager.set_conf('transparency', int(self.adj_transparency.get_value()))
-
-        ConfigManager.set_conf('vertical-position', self.v_alig.get_active() * 50)
-
-        ConfigManager.set_conf('horizontal-position', self.h_alig.get_active() * 50)
 
         ConfigManager.set_conf('skip-taskbar', self.chk_hide_from_taskbar.get_active())
 
@@ -418,8 +378,6 @@ class Preferences():
 
         ConfigManager.set_conf('toggle-scrollbars-key', self.toggle_scrollbars_key.get_text())
 
-        ConfigManager.set_conf('monitor', self.monitor_list.get_active())
-
         try:
             scrollback_line = int(self.entry_scrollback_lines.get_text())
         except ValueError:
@@ -439,7 +397,6 @@ class Preferences():
         
         ConfigManager.set_conf('prompt-on-quit', self.chk_prompt_on_quit.get_active())
 
-        ConfigManager.set_conf('start-fullscreen', self.chk_start_fullscreen.get_active())
         try:
             step_time = int(self.entry_step_time.get_text())
             if not step_time > 0:
