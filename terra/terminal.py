@@ -853,8 +853,8 @@ def main():
         for section in LayoutManager.get_sections():
             if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
                 Wins.create_app(section)
-            if (len(Wins.get_apps()) == 0):
-                Wins.create_app()
+        if (len(Wins.get_apps()) == 0):
+            Wins.create_app()
         if (len(Wins.get_apps()) == 0):
             print("Cannot initiate any screen")
             return

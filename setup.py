@@ -19,6 +19,7 @@ import os
 import sys
 import glob
 import subprocess
+import shutil
 
 try:
     import DistUtilsExtra.auto
@@ -31,11 +32,11 @@ assert DistUtilsExtra.auto.__version__ >= '2.18', 'needs DistUtilsExtra.auto >= 
 PO_DIR = 'po'
 MO_DIR = os.path.join('build', 'mo')
 
-def update_config(values = {}):
+def update_config(file_orig, values = {}):
 
     oldvalues = {}
     try:
-        fin = file('terra/config.py', 'r')
+        fin = file(file_orig, 'r')
         fout = file(fin.name + '.new', 'w')
 
         for line in fin:
@@ -50,10 +51,9 @@ def update_config(values = {}):
         fin.close()
         os.rename(fout.name, fin.name)
     except (OSError, IOError), e:
-        print ("ERROR: Can't find terra/config.py")
+        print ("ERROR: Can't find %s"% (file_orig))
         sys.exit(1)
     return oldvalues
-
 
 def update_desktop_file(datadir):
 
@@ -73,16 +73,20 @@ def update_desktop_file(datadir):
         print ("ERROR: Can't find terra.desktop.in")
         sys.exit(1)
 
+def move_data_files(datadir):
+    if os.path.exists(datadir):
+        shutil.rmtree(datadir)
+    shutil.copytree('data/', datadir)
 
 class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
     def run(self):
         values = {'__terra_data_directory__': "'%s'" % (self.prefix + '/share/terra/'),
                   '__version__': "'%s'" % self.distribution.get_version()}
-        previous_values = update_config(values)
+        previous_values = update_config('terra/config.py', values)
         update_desktop_file(self.prefix + '/share/terra/')
         DistUtilsExtra.auto.install_auto.run(self)
-        update_config(previous_values)
-
+        update_config('terra/config.py', previous_values)
+        move_data_files(self.prefix + '/share/terra/')
         for po in glob.glob (os.path.join (PO_DIR, '*.po')):
             lang = os.path.basename(po[:-3])
             mo = os.path.join(MO_DIR, lang, 'terra.mo')

@@ -43,6 +43,7 @@ class LayoutManager():
     @staticmethod
     def init():
         ConfigParser.SafeConfigParser({})
+        LayoutManager.save_config()
 
     @staticmethod
     def get_sections():
