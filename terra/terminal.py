@@ -26,7 +26,7 @@ from terra import globalhotkeys
 
 import VteObject
 from VteObject import VteObjectContainer
-from config import ConfigManager#, ConfigParser
+from config import ConfigManager
 from layout import LayoutManager
 from dialogs import RenameDialog
 from dbusservice import DbusService
@@ -226,12 +226,10 @@ class TerminalWin(Gtk.Window):
                     LayoutManager.set_conf(section, 'enabled', 'True')
                     tabid = tabid + 1
 
-            for container in self.notebook.get_children():
-                self.set_paned_parents(container)
-            
             tabid = 0
             for container in self.notebook.get_children():
                 childid = 0
+                self.set_paned_parents(container)
                 for child in my_sorted(container.vte_list):
                     section = str('Child-%d-%d-%d'% (self.screen_id, tabid, childid))
                     LayoutManager.set_conf(section, 'id', child.id)
@@ -251,76 +249,78 @@ class TerminalWin(Gtk.Window):
             if (parent):
                 child.parent = parent.id
 
+    #there is a very small issue if the tabbar is visible
     def get_paned_pos(self, tree):
         pos = tree.get_position()
         if isinstance(tree, Gtk.HPaned):
-            size = self.monitor.width
+            size = tree.get_allocation().width
         else:
-            size = self.monitor.height
+            size = tree.get_allocation().height
         percentage = int(float(pos) / float(size) * float(10000))
         return (percentage)
 
-    def rec_parents(self, tree, container, parent = None):
+    def rec_parents(self, tree, container):
         if not tree:
             TerminalWin.rec_parents.im_func._parent = None
             TerminalWin.rec_parents.im_func._first_child = None
             TerminalWin.rec_parents.im_func._axis = 'v'
+            TerminalWin.rec_parents.im_func._pos = -1
             return None
-
-        if (not hasattr(TerminalWin.rec_parents.im_func, '_parent')):
-            TerminalWin.rec_parents.im_func._parent = parent
-        if not hasattr(TerminalWin.rec_parents.im_func, '_first_child'):
-            TerminalWin.rec_parents.im_func._first_child = None
-        if not hasattr(TerminalWin.rec_parents.im_func, '_axis'):
-            TerminalWin.rec_parents.im_func._axis = 'v'
 
         if isinstance(tree, Gtk.Paned):
             child1 = tree.get_child1()
             child2 = tree.get_child2()
             if (child1):
-                if isinstance(child1, VteObject.VteObjectContainer):
-                    TerminalWin.rec_parents.im_func._parent = child1
                 if isinstance(child1, VteObject.VteObject):
-                    self.use_child(child1, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
+                    child1.pos = self.get_paned_pos(tree)
                     if not TerminalWin.rec_parents.im_func._first_child:
                         if child1.id in container.vte_list:
                             container.vte_list.pop(child1.id)
                         if 0 in container.vte_list:
                             container.vte_list.pop(0)
+                            for k in container.vte_list.keys():
+                                if (container.vte_list[k].parent == child1.id):
+                                    container.vte_list[k].parent = 0
                         child1.id = 0
                         child1.parent = 0
                         container.vte_list[child1.id] = child1
                         TerminalWin.rec_parents.im_func._first_child = child1
                     TerminalWin.rec_parents.im_func._parent = child1
                 if (isinstance(child1, Gtk.Paned)):
-                    self.rec_parents(child1, container, TerminalWin.rec_parents.im_func._parent)
+                    TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(child1)
+                    self.rec_parents(child1, container)
             if (child2):
                 if isinstance(tree, Gtk.HPaned):
                     TerminalWin.rec_parents.im_func._axis = 'h'
                 else:
                     TerminalWin.rec_parents.im_func._axis = 'v'
                 if isinstance(child2, VteObject.VteObject):
-                    self.use_child(child2, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis)#, None)#, self.get_paned_pos(tree))
-                if isinstance(child2, Gtk.Paned):
-                    self.rec_parents(child2, container, TerminalWin.rec_parents.im_func._parent)
-                    return
-        else:
-            if not TerminalWin.rec_parents.im_func._first_child:
-                if tree.id in container.vte_list:
-                    container.vte_list.pop(tree.id)
-                if 0 in container.vte_list:
-                    container.vte_list.pop(0)
-                tree.id = 0
-                tree.parent = 0
-                container.vte_list[tree.id] = tree
-                TerminalWin.rec_parents.im_func._first_child = tree
+                    child2.pos = self.get_paned_pos(tree)
+            if (child2 and isinstance(child2, Gtk.Paned)):
+                TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(child2)
+                pchild1 = tree.get_child1()
+                pchild2 = tree.get_child2()
+                if (pchild1 and isinstance(pchild1, VteObject.VteObject)):
+                    TerminalWin.rec_parents.im_func._parent = pchild1
+                if (pchild2 and isinstance(pchild2, VteObject.VteObject)):
+                    TerminalWin.rec_parents.im_func._parent = pchild2
+                self.rec_parents(child2, container)
+
+        elif not TerminalWin.rec_parents.im_func._first_child and isinstance(tree, VteObject.VteObject):
+            if tree.id in container.vte_list:
+                container.vte_list.pop(tree.id)
+            if 0 in container.vte_list:
+                container.vte_list.pop(0)
+            tree.id = 0
+            tree.parent = 0
+            container.vte_list[tree.id] = tree
+            TerminalWin.rec_parents.im_func._first_child = tree
 
     def set_paned_parents(self, container):
         self.rec_parents(None, None)
-
         for tree in container.get_children():
             self.rec_parents(tree, container)
-                
+
     def quit(self):
         global Wins
 
@@ -394,8 +394,7 @@ class TerminalWin(Gtk.Window):
                     prog = LayoutManager.get_conf(section, "prog")
                     pos = LayoutManager.get_conf(section, "pos")
                     parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
-                    split = parent_vte.pos
-                    parent_vte.split_axis(parent_vte, axis=axis, split=split, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")), orig=pos)
+                    parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")), orig=pos)
                     self.update_ui()
 
     def get_active_terminal(self):

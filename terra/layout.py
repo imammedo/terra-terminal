@@ -53,8 +53,7 @@ class LayoutManager():
         try:
             value = LayoutManager.config.get(section, key)
         except ConfigParser.Error:
-            print ("[DEBUG] No option '%s' found in namespace '%s'." %
-                    (key, section))
+#            print ("[DEBUG] No option '%s' found in namespace '%s'."% (key, section))
             return None
 
         try:
@@ -65,8 +64,7 @@ class LayoutManager():
             elif value == 'False':
                 return False
             else:
-                if key == 'select-by-word':
-                    value = b64decode(value)
+                if key == 'select-by-word': value = b64decode(value)
                 return value
 
     @staticmethod
@@ -76,13 +74,11 @@ class LayoutManager():
         try:
             LayoutManager.config.set(section, key, str(value))
         except ConfigParser.NoSectionError:
-            print ("[DEBUG] No section '%s'." %
-                    (section))
+#            print ("[DEBUG] No section '%s'."% (section))
             LayoutManager.config.add_section(section)
             LayoutManager.config.set(section, key, str(value))
         except ConfigParser.Error:
-            print ("[DEBUG] No option '%s' found in namespace '%s'." %
-                    (key, section))
+#            print ("[DEBUG] No option '%s' found in namespace '%s'."% (key, section))
             return
 
     @staticmethod
@@ -90,11 +86,9 @@ class LayoutManager():
         try:
             LayoutManager.config.remove_section(section)
         except ConfigParser.NoSectionError:
-            print ("[DEBUG] No section '%s'." %
-                    (section))
+            print ("[DEBUG] No section '%s'."% (section))
         except ConfigParser.Error:
-            print ("[DEBUG] No section '%s'." %
-                    (section))
+            print ("[DEBUG] No section '%s'."% (section))
             return
 
     @staticmethod
