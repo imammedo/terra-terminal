@@ -51,11 +51,11 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, axis, bare=False, progname=[ConfigManager.get_conf('shell')], term_id=0, position=-1):
+    def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')]):
         super(VteObjectContainer, self).__init__()
         if not bare:
             self.vte_list = []
-            self.active_terminal = VteObject(axis, progname, None, term_id, position)
+            self.active_terminal = VteObject(progname, None, 0)
             self.vte_list.append(self.active_terminal)
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
@@ -78,15 +78,13 @@ class VteObjectContainer(Gtk.HBox):
         return (ret_id)
 
 class VteObject(Gtk.HBox):
-    def __init__(self, axis, progname=[ConfigManager.get_conf('shell')], run_dir=None, term_id=0, position=-1):
+    def __init__(self, progname=[ConfigManager.get_conf('shell')], run_dir=None, term_id=0):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
         self.progname = ' '.join(progname)
-        self.axis = axis
         self.id = VteObjectContainer.handle_id(term_id)
         self.parent = 0
-        self.pos = position
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
 
@@ -361,7 +359,7 @@ class VteObject(Gtk.HBox):
             container = container.get_parent()
         return container
 
-    def split_axis(self, widget, axis='h', split=-1, progname=None, term_id=0, orig=-1):
+    def split_axis(self, widget, axis='h', split=-1, progname=None, term_id=0):
         parent = self.get_parent()
 
         if type(parent) != VteObjectContainer:
@@ -391,10 +389,9 @@ class VteObject(Gtk.HBox):
 
         parent.remove(self)
         if (progname):
-            new_terminal = VteObject(axis, progname.split(), term_id=term_id, position=orig)
+            new_terminal = VteObject(progname.split(), term_id=term_id)
         else:
-            new_terminal = VteObject(axis, term_id=term_id, position=orig)
-        new_terminal.axis = axis
+            new_terminal = VteObject(term_id=term_id)
         new_terminal.parent = self.id
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)

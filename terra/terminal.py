@@ -301,11 +301,11 @@ class TerminalWin(Gtk.Window):
                         TerminalWin.rec_parents.im_func._first_child = child1
                     TerminalWin.rec_parents.im_func._parent = child1
             if (child2):
+                if isinstance(tree, Gtk.HPaned):
+                    TerminalWin.rec_parents.im_func._axis = 'h'
+                else:
+                    TerminalWin.rec_parents.im_func._axis = 'v'
                 if (isinstance(child2, Gtk.Paned)):
-                    if isinstance(tree, Gtk.HPaned):
-                        TerminalWin.rec_parents.im_func._axis = 'h'
-                    else:
-                        TerminalWin.rec_parents.im_func._axis = 'v'
                     TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(tree)
                     self.rec_parents(child2, container)
                 if isinstance(child2, VteObject.VteObject):
@@ -356,19 +356,13 @@ class TerminalWin(Gtk.Window):
 
     def add_page(self, page_name=None):
         container = None
-        term_id = 0
         if (page_name):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
-            axis = LayoutManager.get_conf(section, 'axis')
-            pos = LayoutManager.get_conf(section, 'pos')
             progname = LayoutManager.get_conf(section, 'prog')
-            ret_id = LayoutManager.get_conf(section, 'id')
-            if (ret_id):
-                term_id = int(ret_id)
             if (progname and len(progname)):
-                container = VteObjectContainer(axis, progname=progname.split(), term_id=term_id, position=pos)
+                container = VteObjectContainer(progname=progname.split())
         if (not container):
-            container = VteObjectContainer('v', term_id=term_id)
+            container = VteObjectContainer()
 
         self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
@@ -402,7 +396,7 @@ class TerminalWin(Gtk.Window):
                     prog = LayoutManager.get_conf(section, "prog")
                     pos = LayoutManager.get_conf(section, "pos")
                     parent_vte = get_paned_parent(container.vte_list, int(LayoutManager.get_conf(section, "parent")))
-                    parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")), orig=pos)
+                    parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")))
                     self.update_ui()
 
     def get_active_terminal(self):
