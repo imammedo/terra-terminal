@@ -316,7 +316,10 @@ class VteObject(Gtk.HBox):
     def close_node(self, widget):
         parent = self.get_parent()
 
-        self.get_container().vte_list.remove(self)
+        if (self in self.get_container().vte_list):
+            self.get_container().vte_list.remove(self)
+        else:
+            print("Issue Close Node")
 
         if type(parent) == VteObjectContainer:
             return self.get_container().close_page()
@@ -357,7 +360,7 @@ class VteObject(Gtk.HBox):
         while type(container) != VteObjectContainer:
             container = container.get_parent()
         return container
-    
+
     def split_axis(self, widget, axis='h', split=-1, progname=None, term_id=0, orig=-1):
         parent = self.get_parent()
 
@@ -385,7 +388,6 @@ class VteObject(Gtk.HBox):
             else:
                 split = size * split / 10000
         paned.set_position(split)
-        
 
         parent.remove(self)
         if (progname):

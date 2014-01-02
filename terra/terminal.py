@@ -47,14 +47,14 @@ def check_heritage(val, elems, _elems, liste):
         if (val in liste):
             liste.remove(val)
         for vale in liste:
-            if vale.parent == val.parent and vale.id <= min(liste, key=lambda a: attrgetter('id')(a)):
+            if vale.parent == val.parent and vale.id <= min(liste, key=lambda a: attrgetter('id')(a)).id:
                 return check_heritage(vale, elems, _elems, liste)
         return 1
     return 0
 
 def my_sorted(elems):
     _elems = []
-    liste = elems
+    liste = list(elems)
     while (len(liste)):
         liste.sort(key=lambda a: attrgetter('id')(a))
         for val in liste:
@@ -273,7 +273,7 @@ class TerminalWin(Gtk.Window):
             child2 = tree.get_child2()
             if (child1):
                 if isinstance(child1, VteObject.VteObject):
-                    child1.pos = self.get_paned_pos(tree)
+                    self.use_child(child1, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
                     if not TerminalWin.rec_parents.im_func._first_child:
                         if child1 in container.vte_list:
                             container.vte_list.remove(child1)
@@ -296,17 +296,17 @@ class TerminalWin(Gtk.Window):
                 else:
                     TerminalWin.rec_parents.im_func._axis = 'v'
                 if isinstance(child2, VteObject.VteObject):
-                    child2.pos = self.get_paned_pos(tree)
-            if (child2 and isinstance(child2, Gtk.Paned)):
-                TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(child2)
-                pchild1 = tree.get_child1()
-                pchild2 = tree.get_child2()
-                if (pchild1 and isinstance(pchild1, VteObject.VteObject)):
-                    TerminalWin.rec_parents.im_func._parent = pchild1
-                if (pchild2 and isinstance(pchild2, VteObject.VteObject)):
-                    TerminalWin.rec_parents.im_func._parent = pchild2
-                self.rec_parents(child2, container)
-
+                    self.use_child(child2, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
+                if (isinstance(child2, Gtk.Paned)):
+                    TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(child2)
+                    pchild1 = tree.get_child1()
+                    pchild2 = tree.get_child2()
+                    if (pchild1 and isinstance(pchild1, VteObject.VteObject)):
+                        TerminalWin.rec_parents.im_func._parent = pchild1
+                    if (pchild2 and isinstance(pchild2, VteObject.VteObject)):
+                        TerminalWin.rec_parents.im_func._parent = pchild2
+                    self.rec_parents(child2, container)
+                
         elif not TerminalWin.rec_parents.im_func._first_child and isinstance(tree, VteObject.VteObject):
             if tree in container.vte_list:
                 container.vte_list.remove(tree)
