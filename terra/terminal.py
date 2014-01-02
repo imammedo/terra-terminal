@@ -41,7 +41,8 @@ from operator import attrgetter
 Wins = None
 
 def check_heritage(val, elems, _elems, liste):
-    if elems[val.parent] in _elems:
+    parent = [item for item in _elems if item.id == val.parent]
+    if len (parent) and parent[0] in _elems:
         _elems.append(val)
         if (val in liste):
             liste.remove(val)
@@ -53,7 +54,7 @@ def check_heritage(val, elems, _elems, liste):
 
 def my_sorted(elems):
     _elems = []
-    liste = elems.values()
+    liste = elems
     while (len(liste)):
         liste.sort(key=lambda a: attrgetter('id')(a))
         for val in liste:
@@ -274,16 +275,16 @@ class TerminalWin(Gtk.Window):
                 if isinstance(child1, VteObject.VteObject):
                     child1.pos = self.get_paned_pos(tree)
                     if not TerminalWin.rec_parents.im_func._first_child:
-                        if child1.id in container.vte_list:
-                            container.vte_list.pop(child1.id)
-                        if 0 in container.vte_list:
+                        if child1 in container.vte_list:
+                            container.vte_list.remove(child1)
+                        if len(container.vte_list) and container.vte_list[0].id == 0:
                             container.vte_list.pop(0)
-                            for k in container.vte_list.keys():
-                                if (container.vte_list[k].parent == child1.id):
-                                    container.vte_list[k].parent = 0
+                            for item in container.vte_list:
+                                if (item.parent == child1.id):
+                                    item.parent = 0
                         child1.id = 0
                         child1.parent = 0
-                        container.vte_list[child1.id] = child1
+                        container.vte_list.append(child1)
                         TerminalWin.rec_parents.im_func._first_child = child1
                     TerminalWin.rec_parents.im_func._parent = child1
                 if (isinstance(child1, Gtk.Paned)):
@@ -307,13 +308,13 @@ class TerminalWin(Gtk.Window):
                 self.rec_parents(child2, container)
 
         elif not TerminalWin.rec_parents.im_func._first_child and isinstance(tree, VteObject.VteObject):
-            if tree.id in container.vte_list:
-                container.vte_list.pop(tree.id)
-            if 0 in container.vte_list:
+            if tree in container.vte_list:
+                container.vte_list.remove(tree)
+            if len(container.vte_list) and container.vte_list[0].id == 0:
                 container.vte_list.pop(0)
             tree.id = 0
             tree.parent = 0
-            container.vte_list[tree.id] = tree
+            container.vte_list.append(tree)
             TerminalWin.rec_parents.im_func._first_child = tree
 
     def set_paned_parents(self, container):
@@ -393,7 +394,7 @@ class TerminalWin(Gtk.Window):
                     axis = LayoutManager.get_conf(section, "axis")[0]
                     prog = LayoutManager.get_conf(section, "prog")
                     pos = LayoutManager.get_conf(section, "pos")
-                    parent_vte = container.vte_list[int(LayoutManager.get_conf(section, "parent"))]
+                    parent_vte = [item for item in container.vte_list if item.id == int(LayoutManager.get_conf(section, "parent"))][0]
                     parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")), orig=pos)
                     self.update_ui()
 

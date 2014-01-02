@@ -54,9 +54,9 @@ class VteObjectContainer(Gtk.HBox):
     def __init__(self, axis, bare=False, progname=[ConfigManager.get_conf('shell')], term_id=0, position=-1):
         super(VteObjectContainer, self).__init__()
         if not bare:
-            self.vte_list = {}
+            self.vte_list = []
             self.active_terminal = VteObject(axis, progname, None, term_id, position)
-            self.vte_list[self.active_terminal.id] = self.active_terminal
+            self.vte_list.append(self.active_terminal)
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
 
@@ -316,7 +316,7 @@ class VteObject(Gtk.HBox):
     def close_node(self, widget):
         parent = self.get_parent()
 
-        self.get_container().vte_list.pop(self.id)
+        self.get_container().vte_list.remove(self)
 
         if type(parent) == VteObjectContainer:
             return self.get_container().close_page()
@@ -407,7 +407,7 @@ class VteObject(Gtk.HBox):
 
         parent.show_all()
         self.get_container().active_terminal = new_terminal
-        self.get_container().vte_list[new_terminal.id] = new_terminal
+        self.get_container().vte_list.append(new_terminal)
         new_terminal.grab_focus()
 
 
