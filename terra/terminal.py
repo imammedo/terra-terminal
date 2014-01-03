@@ -648,6 +648,30 @@ class TerminalWin(Gtk.Window):
                         page_button_list[-1].set_active(True)
                     return True
 
+        if ConfigManager.key_event_compare('move-page-left', event):
+            i = 0
+            for button in self.buttonbox:
+                if button != self.radio_group_leader and button.get_active():
+                    if (i - 1) > 0:
+                        self.notebook.reorder_child(self.notebook.get_nth_page(i - 1), i - 2)
+                        self.buttonbox.reorder_child(button, i - 1)
+                        return True
+                    else:
+                        return False
+                i += 1
+
+        if ConfigManager.key_event_compare('move-page-right', event):
+            i = 0
+            for button in self.buttonbox:
+                if button != self.radio_group_leader and button.get_active():
+                    if (i + 1) < len(self.buttonbox):
+                        self.notebook.reorder_child(self.notebook.get_nth_page(i - 1), i)
+                        self.buttonbox.reorder_child(button, i + 1)
+                        return True
+                    else:
+                        return False
+                i += 1
+
     def toggle_fullscreen(self):
         self.is_fullscreen = not self.is_fullscreen
         self.update_ui()

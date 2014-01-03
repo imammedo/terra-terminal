@@ -53,6 +53,8 @@ class ConfigManager():
         'close-page-key': '<Control>W',
         'next-page-key': '<Control>Right',
         'prev-page-key': '<Control>Left',
+        'move-page-right': '<Super>Right',
+        'move-page-left': '<Super>Left',
         'select-all-key': '<Control>A',
         'copy-key': '<Control><Shift>C',
         'paste-key': '<Control><Shift>V',

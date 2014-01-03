@@ -151,6 +151,14 @@ class Preferences():
         self.prev_page_key.set_text(ConfigManager.get_conf('prev-page-key'))
         key_entries.append(self.prev_page_key)
 
+        self.move_page_left = builder.get_object('move_page_left')
+        self.move_page_left.set_text(ConfigManager.get_conf('move-page-left'))
+        key_entries.append(self.move_page_left)
+
+        self.move_page_right = builder.get_object('move_page_right')
+        self.move_page_right.set_text(ConfigManager.get_conf('move-page-right'))
+        key_entries.append(self.move_page_right)
+
         self.global_key = builder.get_object('global_key')
         self.global_key.set_text(ConfigManager.get_conf('global-key'))
         key_entries.append(self.global_key)
