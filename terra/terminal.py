@@ -28,7 +28,7 @@ import VteObject
 from VteObject import VteObjectContainer
 from config import ConfigManager
 from layout import LayoutManager
-from dialogs import RenameDialog
+from rename_dialog import RenameDialog
 from dbusservice import DbusService
 from i18n import _
 
@@ -860,8 +860,7 @@ def main():
             return
     except Exception as excep:
         print("Exception Catched:")
-        for mess in excep.args:
-            print(mess)
+        print(excep)
         Wins.app_quit()
     except:
         print("Unknow Exception Catched")
