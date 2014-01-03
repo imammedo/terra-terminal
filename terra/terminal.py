@@ -321,6 +321,8 @@ class TerminalWin(Gtk.Window):
                 container.vte_list.pop(0)
             tree.id = 0
             tree.parent = 0
+            tree.pos = -1
+            tree.axis = 'v'
             container.vte_list.append(tree)
             TerminalWin.rec_parents.im_func._first_child = tree
 
@@ -449,7 +451,10 @@ class TerminalWin(Gtk.Window):
 
         # don't forget "radio_group_leader"
         if button_count <= 2:
-            return self.quit()
+            if (ConfigManager.get_conf('spawn-term-on-last-close')):
+                self.add_page()
+            else:
+                return self.quit()
 
         page_no = 0
         for i in self.buttonbox:

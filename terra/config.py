@@ -76,6 +76,7 @@ class ConfigManager():
         'use-animation': 'False',
         'step-count': '20',
         'step-time': '10',
+        'spawn-term-on-last-close': 'False',
         })
 
     cfg_dir = os.environ['HOME'] + '/.config/terra/'

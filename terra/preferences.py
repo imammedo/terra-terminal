@@ -236,6 +236,9 @@ class Preferences():
         self.chk_prompt_on_quit = builder.get_object('chk_prompt_on_quit')
         self.chk_prompt_on_quit.set_active(ConfigManager.get_conf('prompt-on-quit'))
 
+        self.spawn_term_on_last_close = builder.get_object('spawn-term-on-last-close')
+        self.spawn_term_on_last_close.set_active(ConfigManager.get_conf('spawn-term-on-last-close'))
+
         self.entry_step_count = builder.get_object('entry_step_count')
         self.entry_step_count.set_text(str(ConfigManager.get_conf('step-count')))
 
@@ -396,6 +399,8 @@ class Preferences():
         ConfigManager.set_conf('hide-tab-bar-fullscreen', self.chk_hide_tab_bar_fullscreen.get_active())
         
         ConfigManager.set_conf('prompt-on-quit', self.chk_prompt_on_quit.get_active())
+
+        ConfigManager.set_conf('spawn-term-on-last-close', self.spawn_term_on_last_close.get_active())
 
         try:
             step_time = int(self.entry_step_time.get_text())
