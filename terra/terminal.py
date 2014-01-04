@@ -362,7 +362,7 @@ class TerminalWin(Gtk.Window):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
             progname = LayoutManager.get_conf(section, 'prog')
             if (progname and len(progname)):
-                container = VteObjectContainer(progname=progname.split())
+                container = VteObjectContainer(progname=progname)
         if (not container):
             container = VteObjectContainer()
 
