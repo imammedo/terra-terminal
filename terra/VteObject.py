@@ -51,12 +51,12 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, bare=False, progname=ConfigManager.get_conf('shell')):
+    def __init__(self, bare=False, progname=ConfigManager.get_conf('shell'), pwd=None):
         super(VteObjectContainer, self).__init__()
         if not bare:
             self.vte_list = []
             self.active_terminal = None
-            self.append_terminal(VteObject(), progname)
+            self.append_terminal(VteObject(), progname, pwd=pwd)
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
 
@@ -66,8 +66,8 @@ class VteObjectContainer(Gtk.HBox):
             if button != terminalwin.radio_group_leader and button.get_active():
                 return terminalwin.page_close(None, button)
 
-    def append_terminal(self, term, progname):
-        term.fork_process(progname, self.active_terminal)
+    def append_terminal(self, term, progname, pwd=None):
+        term.fork_process(progname, self.active_terminal, pwd)
         self.active_terminal = term
         self.vte_list.append(self.active_terminal)
 
@@ -108,12 +108,14 @@ class VteObject(Gtk.HBox):
 
         self.update_ui()
 
-    def fork_process(self, progname, parent=None):
+    def fork_process(self, progname, parent=None, pwd=None):
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
             run_dir = os.environ['HOME']
         elif dir_conf == '$pwd$':
-            if (parent and parent != self):
+            if (pwd):
+                run_dir = pwd
+            elif parent and parent != self:
                 try:
                     run_dir = os.popen2("pwdx " + str(parent.pid[1]))[1].read().split(' ')[1].split()[0]
                 except:
@@ -369,7 +371,7 @@ class VteObject(Gtk.HBox):
             container = container.get_parent()
         return container
 
-    def split_axis(self, widget, axis='h', split=-1, progname=None, term_id=0):
+    def split_axis(self, widget, axis='h', split=-1, progname=None, term_id=0, pwd=None):
         parent = self.get_parent()
 
         if type(parent) != VteObjectContainer:
@@ -411,7 +413,7 @@ class VteObject(Gtk.HBox):
         else:
             parent.pack2(paned, True, True)
 
-        self.get_container().append_terminal(new_terminal, progname)
+        self.get_container().append_terminal(new_terminal, progname, pwd)
         parent.show_all()
         new_terminal.grab_focus()
 

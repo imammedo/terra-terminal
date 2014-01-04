@@ -245,6 +245,7 @@ class TerminalWin(Gtk.Window):
                     LayoutManager.set_conf(section, 'axis', child.axis)
                     LayoutManager.set_conf(section, 'pos', child.pos)
                     LayoutManager.set_conf(section, 'prog', child.progname)
+                    LayoutManager.set_conf(section, 'pwd', child.pwd)
                     childid += 1
                 tabid = tabid + 1
 
@@ -253,6 +254,7 @@ class TerminalWin(Gtk.Window):
     def use_child(self, child, parent, axis, pos):
         child.pos = -1
         child.axis = axis
+        child.pwd = os.popen2("pwdx " + str(child.pid[1]))[1].read().split(' ')[1].split()[0]
         if (parent):
             child.pos = pos
             child.parent = parent.id
@@ -361,10 +363,8 @@ class TerminalWin(Gtk.Window):
         if (page_name):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
             progname = LayoutManager.get_conf(section, 'prog')
-            if (progname and len(progname)):
-                container = VteObjectContainer(progname=progname)
-        if (not container):
-            container = VteObjectContainer()
+            pwd = LayoutManager.get_conf(section, 'pwd')
+            container = VteObjectContainer(progname=progname, pwd=pwd)
 
         self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
@@ -397,8 +397,10 @@ class TerminalWin(Gtk.Window):
                     axis = LayoutManager.get_conf(section, "axis")[0]
                     prog = LayoutManager.get_conf(section, "prog")
                     pos = LayoutManager.get_conf(section, "pos")
+                    pwd = LayoutManager.get_conf(section, "pwd")
+                    term_id = int(LayoutManager.get_conf(section, "id"))
                     parent_vte = get_paned_parent(container.vte_list, int(LayoutManager.get_conf(section, "parent")))
-                    parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=int(LayoutManager.get_conf(section, "id")))
+                    parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=term_id, pwd=pwd)
                     self.update_ui()
 
     def get_active_terminal(self):
