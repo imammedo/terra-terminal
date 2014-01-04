@@ -51,12 +51,12 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, bare=False, progname=[ConfigManager.get_conf('shell')]):
+    def __init__(self, bare=False, progname=ConfigManager.get_conf('shell')):
         super(VteObjectContainer, self).__init__()
         if not bare:
             self.vte_list = []
-            self.active_terminal = VteObject(progname, None, 0)
-            self.vte_list.append(self.active_terminal)
+            self.active_terminal = None
+            self.append_terminal(VteObject(), progname)
             self.pack_start(self.active_terminal , True, True, 0)
             self.show_all()
 
@@ -65,6 +65,11 @@ class VteObjectContainer(Gtk.HBox):
         for button in terminalwin.buttonbox:
             if button != terminalwin.radio_group_leader and button.get_active():
                 return terminalwin.page_close(None, button)
+
+    def append_terminal(self, term, progname):
+        term.fork_process(progname, self.active_terminal)
+        self.active_terminal = term
+        self.vte_list.append(self.active_terminal)
 
     @staticmethod
     def handle_id(setter=0):
@@ -78,11 +83,10 @@ class VteObjectContainer(Gtk.HBox):
         return (ret_id)
 
 class VteObject(Gtk.HBox):
-    def __init__(self, progname=[ConfigManager.get_conf('shell')], run_dir=None, term_id=0):
+    def __init__(self, term_id=0):
         super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
-        self.progname = ' '.join(progname)
         self.id = VteObjectContainer.handle_id(term_id)
         self.parent = 0
         self.vte = Vte.Terminal()
@@ -90,8 +94,6 @@ class VteObject(Gtk.HBox):
 
         self.vscroll = Gtk.VScrollbar(self.vte.get_vadjustment())
         self.pack_start(self.vscroll, False, False, 0)
-
-        self.fork_process(progname, run_dir)
 
         for regex_string in regex_strings:
             regex_obj = GLib.Regex.new(regex_string, 0, 0)
@@ -106,25 +108,33 @@ class VteObject(Gtk.HBox):
 
         self.update_ui()
 
-    def fork_process(self, progname, run_dir=None):
-        if run_dir == None:
-            dir_conf = ConfigManager.get_conf('dir')
-            if dir_conf == '$home$':
-                run_dir = os.environ['HOME']
-            elif dir_conf == '$pwd$':
-                run_dir = os.getcwd()
+    def fork_process(self, progname, parent=None):
+        dir_conf = ConfigManager.get_conf('dir')
+        if dir_conf == '$home$':
+            run_dir = os.environ['HOME']
+        elif dir_conf == '$pwd$':
+            if (parent and parent != self):
+                try:
+                    run_dir = os.popen2("pwdx " + str(parent.pid[1]))[1].read().split(' ')[1].split()[0]
+                except:
+                    print("Can't get parent CWD")
+                    run_dir = os.getcwd()
             else:
-                run_dir = dir_conf
+                run_dir = os.getcwd()
+        else:
+            run_dir = dir_conf
 
+        if (not progname):
+            progname = ConfigManager.get_conf('shell')
+        self.progname = progname
         self.pid = self.vte.fork_command_full(
             Vte.PtyFlags.DEFAULT,
             run_dir,
-            progname,
+            self.progname.split(),
             [],
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
             None,
             None)
-
 
     def scroll_event(self, widget, event):
         if (Gdk.ModifierType.CONTROL_MASK & event.state) == Gdk.ModifierType.CONTROL_MASK:
@@ -150,7 +160,7 @@ class VteObject(Gtk.HBox):
         self.vte.set_font(current_font)
 
     def on_child_exited(self, event):
-        self.fork_process([ConfigManager.get_conf('shell')])
+        self.fork_process(ConfigManager.get_conf('shell'))
 
     def update_ui(self):
         if ConfigManager.get_conf('show-scrollbar'):
@@ -388,10 +398,7 @@ class VteObject(Gtk.HBox):
         paned.set_position(split)
 
         parent.remove(self)
-        if (progname):
-            new_terminal = VteObject(progname.split(), term_id=term_id)
-        else:
-            new_terminal = VteObject(term_id=term_id)
+        new_terminal = VteObject(term_id=term_id)
         new_terminal.parent = self.id
         paned.pack1(self, True, True)
         paned.pack2(new_terminal, True, True)
@@ -404,9 +411,8 @@ class VteObject(Gtk.HBox):
         else:
             parent.pack2(paned, True, True)
 
+        self.get_container().append_terminal(new_terminal, progname)
         parent.show_all()
-        self.get_container().active_terminal = new_terminal
-        self.get_container().vte_list.append(new_terminal)
         new_terminal.grab_focus()
 
 
