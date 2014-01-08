@@ -24,6 +24,8 @@ from layout import LayoutManager
 from config import ConfigManager
 from operator import attrgetter
 
+import os
+
 def get_paned_parent(vte_list, ParId):
     parent = [item for item in vte_list if item.id == ParId]
     if len(parent):

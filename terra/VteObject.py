@@ -114,6 +114,8 @@ class VteObject(Gtk.HBox):
         self.update_ui()
 
     def set_pwd(self, parent=None, pwd=None):
+        if (parent):
+            self.parent = parent.id
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
             run_dir = os.environ['HOME']
