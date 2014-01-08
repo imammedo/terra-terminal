@@ -67,7 +67,8 @@ class VteObjectContainer(Gtk.HBox):
                 return terminalwin.page_close(None, button)
 
     def append_terminal(self, term, progname, pwd=None):
-        term.fork_process(progname, self.active_terminal, pwd)
+        term.set_pwd(self.active_terminal, pwd)
+        term.fork_process(progname)
         self.active_terminal = term
         self.vte_list.append(self.active_terminal)
 
@@ -89,6 +90,7 @@ class VteObject(Gtk.HBox):
 
         self.id = VteObjectContainer.handle_id(term_id)
         self.parent = 0
+        self.pwd = None
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
 
@@ -108,13 +110,7 @@ class VteObject(Gtk.HBox):
 
         self.update_ui()
 
-    def fork_process(self, progname, parent=None, pwd=None):
-        pid = None
-        if (parent):
-            pid = parent.pid[1]
-        elif (self.get_container()):
-            pid = terminal.get_paned_parent(self.get_container().vte_list, self.parent).pid[1]
-
+    def set_pwd(self, parent=None, pwd=None):
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
             run_dir = os.environ['HOME']
@@ -123,19 +119,28 @@ class VteObject(Gtk.HBox):
                 run_dir = pwd
             else:
                 try:
+                    pid = None
+                    if (parent):
+                        pid = parent.pid[1]
+                    elif (self.get_container()):
+                        pid = terminal.get_paned_parent(self.get_container().vte_list, self.parent).pid[1]
                     run_dir = os.popen2("pwdx " + str(pid))[1].read().split(' ')[1].split()[0]
                 except:
                     print("Can't get parent CWD")
                     run_dir = os.getcwd()
         else:
             run_dir = dir_conf
+        self.pwd = run_dir
 
+    def fork_process(self, progname):
+        if (not self.pwd):
+            self.set_pwd()
         if (not progname):
             progname = ConfigManager.get_conf('shell')
         self.progname = progname
         self.pid = self.vte.fork_command_full(
             Vte.PtyFlags.DEFAULT,
-            run_dir,
+            self.pwd,
             self.progname.split(),
             [],
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
