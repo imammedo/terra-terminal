@@ -57,7 +57,7 @@ class VteObjectContainer(Gtk.HBox):
             self.vte_list = []
             self.active_terminal = None
             self.append_terminal(VteObject(), progname, pwd=pwd)
-            self.pack_start(self.active_terminal , True, True, 0)
+            self.pack_start(self.active_terminal, True, True, 0)
             self.show_all()
 
     def close_page(self):
@@ -109,20 +109,24 @@ class VteObject(Gtk.HBox):
         self.update_ui()
 
     def fork_process(self, progname, parent=None, pwd=None):
+        pid = None
+        if (parent):
+            pid = parent.pid[1]
+        elif (self.get_container()):
+            pid = terminal.get_paned_parent(self.get_container().vte_list, self.parent).pid[1]
+
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
             run_dir = os.environ['HOME']
         elif dir_conf == '$pwd$':
             if (pwd):
                 run_dir = pwd
-            elif parent and parent != self:
+            else:
                 try:
-                    run_dir = os.popen2("pwdx " + str(parent.pid[1]))[1].read().split(' ')[1].split()[0]
+                    run_dir = os.popen2("pwdx " + str(pid))[1].read().split(' ')[1].split()[0]
                 except:
                     print("Can't get parent CWD")
                     run_dir = os.getcwd()
-            else:
-                run_dir = os.getcwd()
         else:
             run_dir = dir_conf
 
@@ -367,7 +371,7 @@ class VteObject(Gtk.HBox):
 
     def get_container(self):
         container = self.get_parent()
-        while type(container) != VteObjectContainer:
+        while type(container) != VteObjectContainer and container:
             container = container.get_parent()
         return container
 

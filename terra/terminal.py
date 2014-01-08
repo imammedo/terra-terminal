@@ -365,6 +365,8 @@ class TerminalWin(Gtk.Window):
             progname = LayoutManager.get_conf(section, 'prog')
             pwd = LayoutManager.get_conf(section, 'pwd')
             container = VteObjectContainer(progname=progname, pwd=pwd)
+        if (not container):
+            container = VteObjectContainer()
 
         self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
@@ -880,7 +882,7 @@ def main():
 
     Wins = TerminalWinContainer()
     try:
-        LayoutManager.init()        
+        LayoutManager.init()
         for section in LayoutManager.get_sections():
             if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
                 Wins.create_app(section)
