@@ -30,6 +30,9 @@ import terminal
 import time
 import threading
 
+import terra_utils
+
+
 # this regex strings taken from pantheon-terminal
 # thanks munchor and voldyman
 USERCHARS = "-[:alnum:]"
@@ -118,15 +121,13 @@ class VteObject(Gtk.HBox):
             if (pwd):
                 run_dir = pwd
             else:
-                try:
-                    pid = None
-                    if (parent):
-                        pid = parent.pid[1]
-                    elif (self.get_container()):
-                        pid = terminal.get_paned_parent(self.get_container().vte_list, self.parent).pid[1]
-                    run_dir = os.popen2("pwdx " + str(pid))[1].read().split(' ')[1].split()[0]
-                except:
-                    print("Can't get parent CWD")
+                pid = None
+                if (parent):
+                    pid = parent.pid[1]
+                elif (self.get_container()):
+                    pid = terra_utils.get_paned_parent(self.get_container().vte_list, self.parent).pid[1]
+                run_dir = terra_utils.get_pwd(pid)
+                if (not run_dir):
                     run_dir = os.getcwd()
         else:
             run_dir = dir_conf

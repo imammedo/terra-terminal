@@ -36,42 +36,10 @@ from math import floor
 import os
 import time
 import sys
-from operator import attrgetter
+
+import terra_utils
 
 Wins = None
-
-def get_paned_parent(vte_list, ParId):
-    parent = [item for item in vte_list if item.id == ParId]
-    if len(parent):
-        return parent[0]
-    return None
-
-def check_heritage(val, elems, _elems, liste):
-    parent = get_paned_parent(_elems, val.parent)
-    if parent and parent in _elems:
-        _elems.append(val)
-        if (val in liste):
-            liste.remove(val)
-        for vale in liste:
-            if vale.parent == val.parent and vale.id <= min(liste, key=lambda a: attrgetter('id')(a)).id:
-                return check_heritage(vale, elems, _elems, liste)
-        return 1
-    return 0
-
-def my_sorted(elems):
-    _elems = []
-    liste = list(elems)
-    while (len(liste)):
-        liste.sort(key=lambda a: attrgetter('id')(a))
-        for val in liste:
-            if val.id == 0:
-                _elems.append(val)
-                if (val in liste):
-                    liste.remove(val)
-                break
-            if check_heritage(val, elems, _elems, liste):
-                break
-    return (_elems)
 
 class TerminalWin(Gtk.Window):
     def __init__(self, name, monitor):
@@ -237,7 +205,7 @@ class TerminalWin(Gtk.Window):
             for container in self.notebook.get_children():
                 childid = 0
                 self.set_paned_parents(container)
-                for child in my_sorted(container.vte_list):
+                for child in terra_utils.my_sorted(container.vte_list):
                     section = str('Child-%d-%d-%d'% (self.screen_id, tabid, childid))
                     print("Id: %d ParId: %d Pos: %d"% (child.id, child.parent, child.pos))
                     LayoutManager.set_conf(section, 'id', child.id)
@@ -254,7 +222,7 @@ class TerminalWin(Gtk.Window):
     def use_child(self, child, parent, axis, pos):
         child.pos = -1
         child.axis = axis
-        child.pwd = os.popen2("pwdx " + str(child.pid[1]))[1].read().split(' ')[1].split()[0]
+        child.pwd = terra_utils.get_pwd(child.pid[1])
         if (parent):
             child.pos = pos
             child.parent = parent.id
@@ -285,10 +253,10 @@ class TerminalWin(Gtk.Window):
                     TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(tree)
                     self.rec_parents(child1, container)
                 if isinstance(child1, VteObject.VteObject):
-                    if not get_paned_parent(container.vte_list, child1.parent):
+                    if not terra_utils.get_paned_parent(container.vte_list, child1.parent):
                         self.use_child(child1, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, TerminalWin.rec_parents.im_func._pos)
                     else:
-                        self.use_child(child1, get_paned_parent(container.vte_list, child1.parent), TerminalWin.rec_parents.im_func._axis, TerminalWin.rec_parents.im_func._pos)
+                        self.use_child(child1, terra_utils.get_paned_parent(container.vte_list, child1.parent), TerminalWin.rec_parents.im_func._axis, TerminalWin.rec_parents.im_func._pos)
                     if not TerminalWin.rec_parents.im_func._first_child:
                         if child1 in container.vte_list:
                             container.vte_list.remove(child1)
@@ -311,10 +279,10 @@ class TerminalWin(Gtk.Window):
                     TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(tree)
                     self.rec_parents(child2, container)
                 if isinstance(child2, VteObject.VteObject):
-                    if not get_paned_parent(container.vte_list, child2.parent):
+                    if not terra_utils.get_paned_parent(container.vte_list, child2.parent):
                         self.use_child(child2, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
                     else:
-                        self.use_child(child2, get_paned_parent(container.vte_list, child2.parent), TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
+                        self.use_child(child2, terra_utils.get_paned_parent(container.vte_list, child2.parent), TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
 
         elif not TerminalWin.rec_parents.im_func._first_child and isinstance(tree, VteObject.VteObject):
             if tree in container.vte_list:
@@ -401,7 +369,7 @@ class TerminalWin(Gtk.Window):
                     pos = LayoutManager.get_conf(section, "pos")
                     pwd = LayoutManager.get_conf(section, "pwd")
                     term_id = int(LayoutManager.get_conf(section, "id"))
-                    parent_vte = get_paned_parent(container.vte_list, int(LayoutManager.get_conf(section, "parent")))
+                    parent_vte = terra_utils.get_paned_parent(container.vte_list, int(LayoutManager.get_conf(section, "parent")))
                     parent_vte.split_axis(parent_vte, axis=axis, split=pos, progname=prog, term_id=term_id, pwd=pwd)
                     self.update_ui()
 
@@ -756,34 +724,6 @@ class TerminalWin(Gtk.Window):
             if ConfigManager.get_conf('use-animation'):
                 self.slide_down()
 
-
-def get_screen(name):
-    if (LayoutManager.get_conf(name, 'enabled') == False):
-        return None
-    posx = LayoutManager.get_conf(name, 'posx')
-    posy = LayoutManager.get_conf(name, 'posy')
-    width = LayoutManager.get_conf(name, 'width')
-    height = LayoutManager.get_conf(name, 'height')
-    if (posx == None or posy == None or width == None or height == None):
-        posx = LayoutManager.get_conf('DEFAULT', 'posx')
-        posy = LayoutManager.get_conf('DEFAULT', 'posy')
-        width = LayoutManager.get_conf('DEFAULT', 'width')
-        height = LayoutManager.get_conf('DEFAULT', 'height')
-    rect = Gdk.Rectangle()
-    rect.x = posx
-    rect.y = posy
-    rect.width = width
-    rect.height = height
-    return (rect)
-
-def cannot_bind(app):
-    ConfigManager.set_conf('hide-on-start', False)
-    ConfigManager.set_conf('losefocus-hiding', False)
-    msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
-    msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-    msgbox.run()
-    msgbox.destroy()
-
 def quit_prog():
    global Wins
 
@@ -850,13 +790,13 @@ class TerminalWinContainer():
             self.app_quit()
 
     def create_app(self, screenName='DEFAULT'):
-        monitor = get_screen(screenName)
+        monitor = terra_utils.get_screen(screenName)
         if (screenName == 'DEFAULT'):
             screenName = self.get_screen_name()
         if (monitor != None):
             app = TerminalWin(screenName, monitor)
             if (not self.bind_success):
-                cannot_bind(app)
+                terra_utils.cannot_bind(app)
                 raise Exception("Can't bind Global Keys")
             app.hotkey = self.hotkey
             if (len(self.apps) == 0):
