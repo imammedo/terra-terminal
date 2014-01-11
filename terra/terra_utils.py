@@ -25,6 +25,7 @@ from config import ConfigManager
 from operator import attrgetter
 
 import os
+import commands
 
 def get_paned_parent(vte_list, ParId):
     parent = [item for item in vte_list if item.id == ParId]
@@ -92,3 +93,8 @@ def get_pwd(pid):
         return pwd
     except:
         return None
+
+def get_running_cmd(ppid):
+    pid = commands.getstatusoutput("ps -o pid= --ppid " + str(ppid))[1]
+    value = " ".join(commands.getstatusoutput("ps -p " + str(pid) + " o user=,cmd=,etime=")[1].split()).split(' ')
+    return(str("%s@%s $>%s %s"% (value[0], os.uname()[1], value[1], value[-1])))
