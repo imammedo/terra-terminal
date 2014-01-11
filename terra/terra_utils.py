@@ -95,6 +95,9 @@ def get_pwd(pid):
         return None
 
 def get_running_cmd(ppid):
-    pid = commands.getstatusoutput("ps -o pid= --ppid " + str(ppid))[1]
-    value = " ".join(commands.getstatusoutput("ps -p " + str(pid) + " o user=,cmd=,etime=")[1].split()).split(' ')
-    return(str("%s@%s $>%s %s"% (value[0], os.uname()[1], value[1], value[-1])))
+    try:
+        pid = int(commands.getstatusoutput("ps -o pid= --ppid " + str(ppid))[1])
+        value = " ".join(commands.getstatusoutput("ps -p " + str(pid) + " o user=,cmd=,etime=")[1].split()).split(' ')
+        return(str("%s@%s $>%s %s"% (value[0], os.uname()[1], str(" ".join(value[1:-1])), value[-1])))
+    except:
+        return(str("%s@%s $>%s"% (os.environ['USER'], os.uname()[1], "Terra Terminal")))

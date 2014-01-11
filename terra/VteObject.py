@@ -86,19 +86,26 @@ class VteObjectContainer(Gtk.HBox):
         VteObjectContainer.handle_id.counter = max(VteObjectContainer.handle_id.counter, setter) + 1
         return (ret_id)
 
-class VteObject(Gtk.HBox):
+class VteObject(Gtk.VBox):
     def __init__(self, term_id=0):
-        super(Gtk.HBox, self).__init__()
+        super(Gtk.VBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
         self.id = VteObjectContainer.handle_id(term_id)
         self.parent = 0
         self.pwd = None
-        self.vte = Vte.Terminal()
-        self.pack_start(self.vte, True, True, 0)
+        self.pid = 0
 
+        self.title = Gtk.Label(terra_utils.get_running_cmd(self.pid))
+        self.pack_start(self.title, False, False, 0)
+
+        self.hbox = Gtk.HBox()
+        self.vte = Vte.Terminal()
+        self.hbox.pack_start(self.vte, True, True, 0)
         self.vscroll = Gtk.VScrollbar(self.vte.get_vadjustment())
-        self.pack_start(self.vscroll, False, False, 0)
+        self.hbox.pack_start(self.vscroll, False, False, 0)
+        self.pack_start(self.hbox, True, True, 0)
+
 
         for regex_string in regex_strings:
             regex_obj = GLib.Regex.new(regex_string, 0, 0)
@@ -110,7 +117,11 @@ class VteObject(Gtk.HBox):
         self.vte.connect('button-release-event', self.on_button_release)
         self.vte.connect('increase-font-size', self.change_font_size, 0.1)
         self.vte.connect('decrease-font-size', self.change_font_size, -0.1)
+        self.vte.connect('contents-changed', self.update_content)
 
+        self.update_ui()
+
+    def update_content(self, widget):
         self.update_ui()
 
     def set_pwd(self, parent=None, pwd=None):
@@ -210,9 +221,10 @@ class VteObject(Gtk.HBox):
             Gdk.color_parse(ConfigManager.get_conf('color-background')),
             [])
 
-
         if not ConfigManager.get_conf('use-default-font'):
             self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
+        if (self.pid != 0):
+            self.title.set_label(terra_utils.get_running_cmd(self.pid[1]))
 
         self.show_all()
 
