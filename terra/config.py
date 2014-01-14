@@ -70,6 +70,8 @@ class ConfigManager():
         'move-down-key': '<Control><Shift>Down',
         'move-left-key': '<Control><Shift>Left',
         'move-right-key': '<Control><Shift>Right',
+        'move-left-screen-key': '<Super><Shift>Left',
+        'move-right-screen-key': '<Super><Shift>Right',
         'hide-tab-bar': 'False',
         'hide-tab-bar-fullscreen': 'False',
         'toggle-scrollbars-key': '<Control><Shift>S',

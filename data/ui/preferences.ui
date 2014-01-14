@@ -1973,6 +1973,70 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkLabel" id="label72">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Move the terminal to left screen:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">25</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="move_left_screen_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">25</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label73">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="margin_left">10</property>
+                            <property name="margin_top">1</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Move the terminal to right screen:</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">26</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="move_right_screen_key">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="invisible_char">•</property>
+                            <property name="invisible_char_set">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">26</property>
+                            <property name="width">1</property>
+                            <property name="height">1</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkButton" id="restore_defaults">
                             <property name="label" translatable="yes">Restore defaults</property>
                             <property name="use_action_appearance">False</property>
@@ -1983,7 +2047,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">25</property>
+                            <property name="top_attach">27</property>
                             <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>
@@ -1999,7 +2063,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">25</property>
+                            <property name="top_attach">27</property>
                            <property name="width">1</property>
                             <property name="height">1</property>
                           </packing>

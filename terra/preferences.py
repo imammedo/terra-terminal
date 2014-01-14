@@ -206,6 +206,14 @@ class Preferences():
         self.move_right_key.set_text(ConfigManager.get_conf('move-right-key'))
         key_entries.append(self.move_right_key)
 
+        self.move_left_screen_key = builder.get_object('move_left_screen_key')
+        self.move_left_screen_key.set_text(ConfigManager.get_conf('move-left-screen-key'))
+        key_entries.append(self.move_left_screen_key)
+
+        self.move_right_screen_key = builder.get_object('move_right_screen_key')
+        self.move_right_screen_key.set_text(ConfigManager.get_conf('move-right-screen-key'))
+        key_entries.append(self.move_right_screen_key)
+
         self.toggle_scrollbars_key = builder.get_object('toggle_scrollbars_key')
         self.toggle_scrollbars_key.set_text(ConfigManager.get_conf('toggle-scrollbars-key'))
         key_entries.append(self.toggle_scrollbars_key)

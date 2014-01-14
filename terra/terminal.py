@@ -549,6 +549,14 @@ class TerminalWin(Gtk.Window):
             self.get_active_terminal().move(direction=4)
             return True
 
+        if ConfigManager.key_event_compare('move-left-screen-key', event):
+            terra_utils.move_left_screen(self)
+            return True
+
+        if ConfigManager.key_event_compare('move-right-screen-key', event):
+            terra_utils.move_right_screen(self)
+            return True
+
         if ConfigManager.key_event_compare('quit-key', event):
             self.quit()
             return True
