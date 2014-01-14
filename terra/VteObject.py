@@ -31,6 +31,7 @@ import time
 import threading
 
 import terra_utils
+import terra_main
 
 
 # this regex strings taken from pantheon-terminal
@@ -338,10 +339,10 @@ class VteObject(Gtk.VBox):
         self.progname = ConfigManager.get_conf('shell')
 
     def new_app(self, widget):
-        terminal.create_app()
+        terra_main.create_app()
 
     def save_conf(self, widget):
-        terminal.save_conf()
+        terra_main.save_conf()
 
     def open_preferences(self, widget):
         ConfigManager.disable_losefocus_temporary = True

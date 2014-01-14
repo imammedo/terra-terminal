@@ -20,7 +20,7 @@ import os
 
 os.putenv('LIBOVERLAY_SCROLLBAR','0')
 try:
-    from terra import terminal
+    from terra import terra_main
 except Exception as e:
     print "Error Terra library is not installed."
     print(e)
@@ -29,4 +29,4 @@ except:
     print "Error Terra library is not installed."
     sys.exit(0)
 
-terminal.main()
+terra_main.main()

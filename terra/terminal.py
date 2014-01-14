@@ -38,8 +38,81 @@ import time
 import sys
 
 import terra_utils
+import terra_main
 
-Wins = None
+class TerminalWinContainer():
+    def __init__(self):
+        globalhotkeys.init()
+        self.hotkey = globalhotkeys.GlobalHotkey()
+        self.bind_success = self.hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: self.show_hide(), None)
+        self.apps = []
+        self.old_apps = []
+        self.screenid = 0
+        self.on_doing = False
+        self.is_running = False
+
+    def show_hide(self):
+        if self.on_doing == False:
+            self.on_doing = True
+            for app in self.apps:
+                app.show_hide()
+            self.on_doing = False
+
+    def update_ui(self):
+        if self.on_doing == False:
+            self.on_doing = True
+            for app in self.apps:
+                app.update_ui()
+            self.on_doing = False
+
+    def get_screen_name(self):
+        return (str("screen-%d"% self.screenid))
+
+    def save_conf(self):
+        for app in self.apps:
+            app.save_conf()
+        for app in self.old_apps:
+            app.save_conf(False)
+
+    def app_quit(self):
+        for app in self.apps:
+            if (app.quit() == False):
+                return
+        sys.stdout.flush()
+        sys.stderr.flush()
+        if (self.is_running):
+            Gtk.main_quit()
+
+    def remove_app(self, ext):
+        if ext in self.apps:
+            self.apps.remove(ext)
+        self.old_apps.append(ext)
+        if (len(self.apps) == 0):
+            self.app_quit()
+
+    def create_app(self, screenName='DEFAULT'):
+        monitor = terra_utils.get_screen(screenName)
+        if (screenName == 'DEFAULT'):
+            screenName = self.get_screen_name()
+        if (monitor != None):
+            app = TerminalWin(screenName, monitor)
+            if (not self.bind_success):
+                terra_utils.cannot_bind(app)
+                raise Exception("Can't bind Global Keys")
+            app.hotkey = self.hotkey
+            if (len(self.apps) == 0):
+                DbusService(app)
+            self.apps.append(app)
+            self.screenid = max(self.screenid, int(screenName.split('-')[1])) + 1
+        else:
+            print("Cannot find %s"% screenName)
+
+    def get_apps(self):
+        return (self.apps)
+
+    def start(self):
+        self.is_running = True
+        Gtk.main()
 
 class TerminalWin(Gtk.Window):
     def __init__(self, name, monitor):
@@ -165,7 +238,7 @@ class TerminalWin(Gtk.Window):
 
             if response != Gtk.ResponseType.YES:
                 return False
-        quit_prog()
+        terra_main.quit_prog()
 
     def save_conf(self, keep=True):
         tabs = str('Tabs-%d'% self.screen_id)
@@ -302,10 +375,8 @@ class TerminalWin(Gtk.Window):
             self.rec_parents(tree, container)
 
     def quit(self):
-        global Wins
-
         ConfigManager.save_config()
-        Wins.remove_app(self)
+        terra_main.remove_app(self)
         self.destroy()
 
     def on_resize(self, widget, event):
@@ -731,123 +802,3 @@ class TerminalWin(Gtk.Window):
             x11_win.focus(x11_time)
             if ConfigManager.get_conf('use-animation'):
                 self.slide_down()
-
-def quit_prog():
-   global Wins
-
-   Wins.app_quit()
-
-def save_conf():
-    global Wins
-
-    Wins.save_conf()
-
-def create_app():
-    global Wins
-
-    Wins.create_app()
-
-class TerminalWinContainer():
-    def __init__(self):
-        globalhotkeys.init()
-        self.hotkey = globalhotkeys.GlobalHotkey()
-        self.bind_success = self.hotkey.bind(ConfigManager.get_conf('global-key'), lambda w: self.show_hide(), None)
-        self.apps = []
-        self.old_apps = []
-        self.screenid = 0
-        self.on_doing = False
-        self.is_running = False
-
-    def show_hide(self):
-        if self.on_doing == False:
-            self.on_doing = True
-            for app in self.apps:
-                app.show_hide()
-            self.on_doing = False
-
-    def update_ui(self):
-        if self.on_doing == False:
-            self.on_doing = True
-            for app in self.apps:
-                app.update_ui()
-            self.on_doing = False
-
-    def get_screen_name(self):
-        return (str("screen-%d"% self.screenid))
-
-    def save_conf(self):
-        for app in self.apps:
-            app.save_conf()
-        for app in self.old_apps:
-            app.save_conf(False)
-
-    def app_quit(self):
-        for app in self.apps:
-            if (app.quit() == False):
-                return
-        sys.stdout.flush()
-        sys.stderr.flush()
-        if (self.is_running):
-            Gtk.main_quit()
-
-    def remove_app(self, ext):
-        if ext in self.apps:
-            self.apps.remove(ext)
-        self.old_apps.append(ext)
-        if (len(self.apps) == 0):
-            self.app_quit()
-
-    def create_app(self, screenName='DEFAULT'):
-        monitor = terra_utils.get_screen(screenName)
-        if (screenName == 'DEFAULT'):
-            screenName = self.get_screen_name()
-        if (monitor != None):
-            app = TerminalWin(screenName, monitor)
-            if (not self.bind_success):
-                terra_utils.cannot_bind(app)
-                raise Exception("Can't bind Global Keys")
-            app.hotkey = self.hotkey
-            if (len(self.apps) == 0):
-                DbusService(app)
-            self.apps.append(app)
-            self.screenid = max(self.screenid, int(screenName.split('-')[1])) + 1
-        else:
-            print("Cannot find %s"% screenName)
-
-    def get_apps(self):
-        return (self.apps)
-
-    def start(self):
-        self.is_running = True
-        Gtk.main()
-
-def main():
-    global Wins
-
-    if (len(sys.argv) > 1):
-        print("Terra Doesn't support any argument")
-        return 1
-
-    Wins = TerminalWinContainer()
-    try:
-        LayoutManager.init()
-        for section in LayoutManager.get_sections():
-            if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
-                Wins.create_app(section)
-        if (len(Wins.get_apps()) == 0):
-            Wins.create_app()
-        if (len(Wins.get_apps()) == 0):
-            print("Cannot initiate any screen")
-            return
-    except Exception as excep:
-        print("Exception Catched:")
-        print(excep)
-        Wins.app_quit()
-    except:
-        print("Unknow Exception Catched")
-        Wins.app_quit()
-    else:
-        Wins.start()
-
-if __name__ == "__main__":
-    main()
