@@ -77,7 +77,7 @@ def move_data_files(datadir, bindir):
     if os.path.exists(datadir):
         shutil.rmtree(datadir)
     shutil.copytree('data/', datadir)
-    shutil.copy2('main/terra', bindir)
+    shutil.copyfile('main/terra', bindir + 'terra')
 
 class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
     def run(self):
@@ -100,6 +100,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
                 if rc != 0:
                     raise Warning, "msgfmt returned %d" % rc
             except Exception, e:
+                print(e)
                 sys.exit(1)
 
 def parse_pkg_config(command, components, options_dict=None):
