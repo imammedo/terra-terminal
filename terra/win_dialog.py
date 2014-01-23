@@ -31,7 +31,7 @@ class WinDialog:
 
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain('terra')
-        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
+        self.builder.add_from_file(ConfigManager.data_dir + 'ui/win_pref.ui')
         self.dialog = self.builder.get_object('win_dialog')
 
         self.window = self.sender.get_container().parent
@@ -41,8 +41,8 @@ class WinDialog:
         self.dialog.h_alig = self.builder.get_object('h_alig')
         self.dialog.h_alig.set_active(int(LayoutManager.get_conf(self.window.name, 'horizontal-position')) / 50)
 
-        self.dialog.btn_cancel = self.builder.get_object('btn_cancela')
-        self.dialog.btn_ok = self.builder.get_object('btn_oka')
+        self.dialog.btn_cancel = self.builder.get_object('btn_cancel')
+        self.dialog.btn_ok = self.builder.get_object('btn_ok')
 
         self.dialog.btn_cancel.connect('clicked', lambda w: self.close())
         self.dialog.btn_ok.connect('clicked', lambda w: self.update())

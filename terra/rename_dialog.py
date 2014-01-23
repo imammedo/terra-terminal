@@ -30,7 +30,7 @@ class RenameDialog:
 
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain('terra')
-        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
+        self.builder.add_from_file(ConfigManager.data_dir + 'ui/rename.ui')
         self.dialog = self.builder.get_object('rename_dialog')
 
         self.dialog.entry_new_name = self.builder.get_object('entry_new_name')

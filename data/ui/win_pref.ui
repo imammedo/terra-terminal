@@ -58,10 +58,14 @@
             <property name="position">0</property>
           </packing>
         </child>
-        <child>
-          <object class="GtkVBox" id="box1">
+	<child>
+          <object class="GtkGrid" id="grid2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="border_width">20</property>
+            <property name="row_spacing">4</property>
+            <property name="column_spacing">4</property>
+            <property name="column_homogeneous">True</property>
             <child>
               <object class="GtkLabel" id="label6">
                 <property name="visible">True</property>
@@ -96,7 +100,7 @@
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
-            </child>
+	    </child>
             <child>
               <object class="GtkLabel" id="label7">
                 <property name="visible">True</property>
@@ -133,12 +137,12 @@
               </packing>
 	    </child>
 	  </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
+	  <packing>
+	    <property name="expand">False</property>
+	    <property name="fill">True</property>
+	    <property name="position">1</property>
+	  </packing>
+	</child>
       </object>
     </child>
     <action-widgets>
