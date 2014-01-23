@@ -24,6 +24,7 @@ import os
 from preferences import Preferences
 from config import ConfigManager
 from terminal_dialog import ProgDialog
+from win_dialog import WinDialog
 from i18n import _
 
 import terminal
@@ -55,9 +56,10 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, bare=False, progname=ConfigManager.get_conf('shell'), pwd=None):
+    def __init__(self, parent, bare=False, progname=ConfigManager.get_conf('shell'), pwd=None):
         super(VteObjectContainer, self).__init__()
         if not bare:
+            self.parent = parent
             self.vte_list = []
             self.active_terminal = None
             self.append_terminal(VteObject(), progname, pwd=pwd)
@@ -300,10 +302,14 @@ class VteObject(Gtk.VBox):
 
             self.reset_prog = Gtk.MenuItem(_("Reset Default Progname"))
             self.submenu_item_connect_hack(self.reset_prog, self.reset_progname, self.reset_prog)
+
+            self.win_props = Gtk.MenuItem(_("Window Positions"))
+            self.submenu_item_connect_hack(self.win_props, self.win_prefs, self.win_props)
             
             self.term_menu.append(self.menu_new)
             self.term_menu.append(self.set_new_prog)
             self.term_menu.append(self.reset_prog)
+            self.term_menu.append(self.win_props)
             self.menu.append(self.term)
 
             self.menu_new = Gtk.MenuItem(_("Save Configuration"))
@@ -334,6 +340,10 @@ class VteObject(Gtk.VBox):
     def save_progname(self, widget):
         ConfigManager.disable_losefocus_temporary = True
         ProgDialog(self, self)
+
+    def win_prefs(self, widget):
+        ConfigManager.disable_losefocus_temporary = True
+        WinDialog(self, self)
 
     def reset_progname(self, widget):
         self.progname = ConfigManager.get_conf('shell')

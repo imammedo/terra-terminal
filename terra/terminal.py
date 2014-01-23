@@ -184,6 +184,8 @@ class TerminalWin(Gtk.Window):
         self.connect('configure-event', self.on_window_move)
         self.add(self.resizer)
 
+        self.set_default_size(self.monitor.width, self.monitor.height)
+
         added = False
         for section in LayoutManager.get_sections():
             tabs = str('Tabs-%d'% self.screen_id)
@@ -403,9 +405,9 @@ class TerminalWin(Gtk.Window):
             section=str('Child-%s-0'%(page_name[len('Tabs-'):]))
             progname = LayoutManager.get_conf(section, 'prog')
             pwd = LayoutManager.get_conf(section, 'pwd')
-            container = VteObjectContainer(progname=progname, pwd=pwd)
+            container = VteObjectContainer(self, progname=progname, pwd=pwd)
         if (not container):
-            container = VteObjectContainer()
+            container = VteObjectContainer(self)
 
         self.notebook.append_page(container, None)
         self.notebook.set_current_page(-1)
@@ -523,7 +525,6 @@ class TerminalWin(Gtk.Window):
         self.set_decorated(ConfigManager.get_conf('use-border'))
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
-        win_rect = self.monitor
         if ConfigManager.get_conf('hide-tab-bar'):
             self.tabbar.hide()
             self.tabbar.set_no_show_all(True)
@@ -559,9 +560,33 @@ class TerminalWin(Gtk.Window):
             self.unfullscreen()
 
             self.reshow_with_initial_size()
-            self.resize(win_rect.width, win_rect.height)
-            self.move(win_rect.x, win_rect.y)
+            self.resize(self.monitor.width, self.monitor.height)
 
+            vertical_position = self.monitor.y
+            horizontal_position = self.monitor.x
+            screen_rectangle = self.get_screen_rectangle()
+            vert = LayoutManager.get_conf(self.name, 'vertical-position')
+            if vert != None and vert <= 100:
+                height = self.monitor.height
+                vertical_position = vert * screen_rectangle.height / 100
+                if vertical_position - (height / 2) < 0:
+                    vertical_position = 0
+                elif vertical_position + (height / 2) > screen_rectangle.height:
+                    vertical_position = screen_rectangle.height - (height / 2)
+                else:
+                    vertical_position = vertical_position - (height / 2)
+
+            horiz = LayoutManager.get_conf(self.name, 'horizontal-position')
+            if horiz != None and horiz <= 100:
+                width = self.monitor.width - 1
+                horizontal_position = horiz * screen_rectangle.width / 100
+                if horizontal_position - (width / 2) < 0:
+                    horizontal_position = 0
+                elif horizontal_position + (width / 2) > screen_rectangle.width:
+                    horizontal_position = screen_rectangle.width - (width / 2)
+                else:
+                    horizontal_position = horizontal_position - (width / 2)
+            self.move(horizontal_position, vertical_position)
 
     def override_gtk_theme(self):
         css_provider = Gtk.CssProvider()
