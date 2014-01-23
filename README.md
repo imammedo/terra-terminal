@@ -12,6 +12,7 @@ Features added based on upstream (https://code.launchpad.net/~ozcanesen/terra/tr
 - Combine both configurations from above:
   * Multiple Terra Terminal on Multiple Screens
 - Open a new Terra Terminal
+- Set a predifined position for each App (Top/Center/Bottom/Free and Left/Center/Right/Free)
 
 - Start a specific program on each frame, saved in your layout.
 - Save Tab Names correctly for all Apps.
