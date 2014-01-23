@@ -820,10 +820,7 @@ class TerminalWin(Gtk.Window):
                 self.hide()
             return
         else:
-            self.update_ui()
-            self.show()
-            x11_win = self.get_window()
-            x11_time = GdkX11.x11_get_server_time(x11_win)
-            x11_win.focus(x11_time)
             if ConfigManager.get_conf('use-animation'):
                 self.slide_down()
+            self.update_ui()
+            self.show()
