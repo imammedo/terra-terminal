@@ -560,9 +560,6 @@ class TerminalWin(Gtk.Window):
 
             self.unfullscreen()
 
-            self.reshow_with_initial_size()
-            self.resize(self.monitor.width, self.monitor.height)
-
             vertical_position = self.monitor.y
             horizontal_position = self.monitor.x
             screen_rectangle = self.get_screen_rectangle()
@@ -587,6 +584,8 @@ class TerminalWin(Gtk.Window):
                     horizontal_position = screen_rectangle.width - (width / 2)
                 else:
                     horizontal_position = horizontal_position - (width / 2)
+            self.reshow_with_initial_size()
+            self.resize(self.monitor.width, self.monitor.height)
             self.move(horizontal_position, vertical_position)
 
     def override_gtk_theme(self):
@@ -788,8 +787,8 @@ class TerminalWin(Gtk.Window):
         self.slide_effect_running = False
 
     def slide_down(self, i=1):
-        step = ConfigManager.get_conf('step-count')
         self.slide_effect_running = True
+        step = ConfigManager.get_conf('step-count')
         if not self.is_fullscreen:
             win_rect = self.monitor
         else:
