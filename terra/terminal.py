@@ -377,6 +377,7 @@ class TerminalWin(Gtk.Window):
             self.rec_parents(tree, container)
 
     def quit(self):
+        ConfigManager.remove_callback(self.update_ui)
         ConfigManager.save_config()
         terra_main.remove_app(self)
         self.destroy()
