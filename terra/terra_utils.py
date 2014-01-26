@@ -109,24 +109,41 @@ def get_running_cmd(ppid):
         return(str("%s@%s"% (os.environ['USER'], pwd)))
         
 def move_left_screen(terminal):
+    min_x = terminal.monitor.x
+    min_y = terminal.monitor.y
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
                 monitor = screen.get_monitor_geometry(monitor_num)
-                if (monitor.x < terminal.monitor.x):
-                    terminal.monitor.x = monitor.x
-                    terminal.update_ui()
-                    break
+                if (monitor.x < min_x and min_x == terminal.monitor.x):
+                    min_x = monitor.x
+                    min_y = monitor.y
+                elif (min_x < monitor.x and monitor.x < terminal.monitor.x):
+                    min_x = monitor.x
+                    min_y = monitor.y
+
+    if (min_x != terminal.monitor.x):
+        terminal.monitor.x = min_x
+        terminal.monitor.y = min_y
+        terminal.update_ui()
 
 def move_right_screen(terminal):
+    min_x = terminal.monitor.x
+    min_y = terminal.monitor.y
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
                 monitor = screen.get_monitor_geometry(monitor_num)
-                if (monitor.x > terminal.monitor.x):
-                    terminal.monitor.x = monitor.x
-                    terminal.update_ui()
-                    break
+                if (monitor.x > min_x and min_x == terminal.monitor.x):
+                    min_x = monitor.x
+                    min_y = monitor.y
+                elif (min_x > monitor.x and monitor.x > terminal.monitor.x):
+                    min_x = monitor.x
+                    min_y = monitor.y
 
+    if (min_x != terminal.monitor.x):
+        terminal.monitor.x = min_x
+        terminal.monitor.y = min_y
+        terminal.update_ui()
