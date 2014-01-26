@@ -585,7 +585,6 @@ class TerminalWin(Gtk.Window):
             self.unfullscreen()
             self.reshow_with_initial_size()
             self.resize(self.monitor.width, self.monitor.height)
-            print("Move: %d:%d"% (horizontal_position, vertical_position))
             self.move(horizontal_position, vertical_position)
 
     def override_gtk_theme(self):

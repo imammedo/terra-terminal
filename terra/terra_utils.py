@@ -109,41 +109,41 @@ def get_running_cmd(ppid):
         return(str("%s@%s"% (os.environ['USER'], pwd)))
         
 def move_left_screen(terminal):
-    min_x = terminal.monitor.x
-    min_y = terminal.monitor.y
+    minus = terminal.get_screen_rectangle()
+    win_rect = minus
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
                 monitor = screen.get_monitor_geometry(monitor_num)
-                if (monitor.x < min_x and min_x == terminal.monitor.x):
-                    min_x = monitor.x
-                    min_y = monitor.y
-                elif (min_x < monitor.x and monitor.x < terminal.monitor.x):
-                    min_x = monitor.x
-                    min_y = monitor.y
+                if (monitor.x < minus.x and minus.x == win_rect.x):
+                    minus = monitor
+                elif (minus.x < monitor.x and monitor.x < win_rect.x):
+                    minus = monitor
 
-    if (min_x != terminal.monitor.x):
-        terminal.monitor.x = min_x
-        terminal.monitor.y = min_y
+    if (minus.x != terminal.get_screen_rectangle().x):
+        terminal.monitor.x = minus.x + minus.x * \
+            (1 - float(win_rect.width - (terminal.monitor.x - win_rect.x)) / float(win_rect.width))
+        terminal.monitor.y = minus.y + + minus.y * \
+            (1 - float(win_rect.height - (terminal.monitor.y - win_rect.y)) / float(win_rect.height))
         terminal.update_ui()
 
 def move_right_screen(terminal):
-    min_x = terminal.monitor.x
-    min_y = terminal.monitor.y
+    minus = terminal.get_screen_rectangle()
+    win_rect = minus
     for disp in Gdk.DisplayManager.get().list_displays():
         for screen_num in range(disp.get_n_screens()):
             screen = disp.get_screen(screen_num)
             for monitor_num in range(screen.get_n_monitors()):
                 monitor = screen.get_monitor_geometry(monitor_num)
-                if (monitor.x > min_x and min_x == terminal.monitor.x):
-                    min_x = monitor.x
-                    min_y = monitor.y
-                elif (min_x > monitor.x and monitor.x > terminal.monitor.x):
-                    min_x = monitor.x
-                    min_y = monitor.y
+                if (minus.x < monitor.x and minus.x == win_rect.x):
+                    minus = monitor
+                elif (minus.x > monitor.x and monitor.x > win_rect.x):
+                    minus = monitor
 
-    if (min_x != terminal.monitor.x):
-        terminal.monitor.x = min_x
-        terminal.monitor.y = min_y
+    if (minus.x != terminal.get_screen_rectangle().x):
+        terminal.monitor.x = minus.x + minus.x * \
+            (1 - float(win_rect.width - (terminal.monitor.x - win_rect.x)) / float(win_rect.width))
+        terminal.monitor.y = minus.y + + minus.y * \
+            (1 - float(win_rect.height - (terminal.monitor.y - win_rect.y)) / float(win_rect.height))
         terminal.update_ui()
