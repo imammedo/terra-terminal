@@ -33,19 +33,19 @@ def get_paned_parent(vte_list, ParId):
         return parent[0]
     return None
 
-def check_heritage(val, elems, _elems, liste):
-    parent = get_paned_parent(_elems, val.parent)
-    if parent and parent in _elems:
-        _elems.append(val)
-        if (val in liste):
-            liste.remove(val)
-        for vale in liste:
-            if vale.parent == val.parent and vale.id <= min(liste, key=lambda a: attrgetter('id')(a)).id:
-                return check_heritage(vale, elems, _elems, liste)
-        return 1
-    return 0
-
 def my_sorted(elems):
+    def check_heritage(val, elems, _elems, liste):
+        parent = get_paned_parent(_elems, val.parent)
+        if parent and parent in _elems:
+            _elems.append(val)
+            if (val in liste):
+                liste.remove(val)
+            for vale in liste:
+                if vale.parent == val.parent and vale.id <= min(liste, key=lambda a: attrgetter('id')(a)).id:
+                    return check_heritage(vale, elems, _elems, liste)
+            return 1
+        return 0
+
     _elems = []
     liste = list(elems)
     while (len(liste)):
