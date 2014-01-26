@@ -107,6 +107,14 @@ def get_running_cmd(ppid):
             return(str("%s@%s $>%s"% (os.environ['USER'], pwd)))
     except:
         return(str("%s@%s"% (os.environ['USER'], pwd)))
+
+def set_new_size(terminal, minus, win_rect):
+    if (minus.x != terminal.get_screen_rectangle().x):
+        terminal.monitor.x = minus.x + (float(minus.width) / float(win_rect.width) * float(terminal.monitor.x - win_rect.x))
+        terminal.monitor.y = minus.y + (float(minus.height) / float(win_rect.height) * float(terminal.monitor.y - win_rect.y))
+        terminal.monitor.width = float(minus.width) / float(win_rect.width) * float(terminal.monitor.width)
+        terminal.monitor.height = float(minus.height) / float(win_rect.height) * float(terminal.monitor.height)
+        terminal.update_ui()
         
 def move_left_screen(terminal):
     minus = terminal.get_screen_rectangle()
@@ -120,11 +128,7 @@ def move_left_screen(terminal):
                     minus = monitor
                 elif (minus.x < monitor.x and monitor.x < win_rect.x):
                     minus = monitor
-
-    if (minus.x != terminal.get_screen_rectangle().x):
-        terminal.monitor.x = minus.x + (float(minus.width) / float(win_rect.width) * float(terminal.monitor.x - win_rect.x))
-        terminal.monitor.y = minus.y + (float(minus.height) / float(win_rect.height) * float(terminal.monitor.y - win_rect.y))
-        terminal.update_ui()
+    set_new_size(terminal, minus, win_rect)
 
 def move_right_screen(terminal):
     minus = terminal.get_screen_rectangle()
@@ -138,8 +142,4 @@ def move_right_screen(terminal):
                     minus = monitor
                 elif (minus.x > monitor.x and monitor.x > win_rect.x):
                     minus = monitor
-
-    if (minus.x != terminal.get_screen_rectangle().x):
-        terminal.monitor.x = minus.x + (float(minus.width) / float(win_rect.width) * float(terminal.monitor.x - win_rect.x))
-        terminal.monitor.y = minus.y + (float(minus.height) / float(win_rect.height) * float(terminal.monitor.y - win_rect.y))
-        terminal.update_ui()
+    set_new_size(terminal, minus, win_rect)
