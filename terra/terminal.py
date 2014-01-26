@@ -566,25 +566,26 @@ class TerminalWin(Gtk.Window):
                 height = self.monitor.height
                 vertical_position = vert * screen_rectangle.height / 100
                 if vertical_position - (height / 2) < 0:
-                    vertical_position = 0
+                    vertical_position = screen_rectangle.y + 0
                 elif vertical_position + (height / 2) > screen_rectangle.height:
-                    vertical_position = screen_rectangle.height - (height / 2)
+                    vertical_position = screen_rectangle.y + screen_rectangle.height - (height / 2)
                 else:
-                    vertical_position = vertical_position - (height / 2)
+                    vertical_position = screen_rectangle.y + vertical_position - (height / 2)
 
             horiz = LayoutManager.get_conf(self.name, 'horizontal-position')
             if horiz != None and horiz <= 100:
                 width = self.monitor.width - 1
                 horizontal_position = horiz * screen_rectangle.width / 100
                 if horizontal_position - (width / 2) < 0:
-                    horizontal_position = 0
+                    horizontal_position = screen_rectangle.x + 0
                 elif horizontal_position + (width / 2) > screen_rectangle.width:
-                    horizontal_position = screen_rectangle.width - (width / 2)
+                    horizontal_position = screen_rectangle.x + screen_rectangle.width - (width / 2)
                 else:
-                    horizontal_position = horizontal_position - (width / 2)
+                    horizontal_position = screen_rectangle.x + horizontal_position - (width / 2)
             self.unfullscreen()
             self.reshow_with_initial_size()
             self.resize(self.monitor.width, self.monitor.height)
+            print("Move: %d:%d"% (horizontal_position, vertical_position))
             self.move(horizontal_position, vertical_position)
 
     def override_gtk_theme(self):
