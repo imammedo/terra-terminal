@@ -122,10 +122,8 @@ def move_left_screen(terminal):
                     minus = monitor
 
     if (minus.x != terminal.get_screen_rectangle().x):
-        terminal.monitor.x = minus.x + minus.x * \
-            (1 - float(win_rect.width - (terminal.monitor.x - win_rect.x)) / float(win_rect.width))
-        terminal.monitor.y = minus.y + + minus.y * \
-            (1 - float(win_rect.height - (terminal.monitor.y - win_rect.y)) / float(win_rect.height))
+        terminal.monitor.x = minus.x + (float(minus.width) / float(win_rect.width) * float(terminal.monitor.x - win_rect.x))
+        terminal.monitor.y = minus.y + (float(minus.height) / float(win_rect.height) * float(terminal.monitor.y - win_rect.y))
         terminal.update_ui()
 
 def move_right_screen(terminal):
@@ -142,8 +140,6 @@ def move_right_screen(terminal):
                     minus = monitor
 
     if (minus.x != terminal.get_screen_rectangle().x):
-        terminal.monitor.x = minus.x + minus.x * \
-            (1 - float(win_rect.width - (terminal.monitor.x - win_rect.x)) / float(win_rect.width))
-        terminal.monitor.y = minus.y + + minus.y * \
-            (1 - float(win_rect.height - (terminal.monitor.y - win_rect.y)) / float(win_rect.height))
+        terminal.monitor.x = minus.x + (float(minus.width) / float(win_rect.width) * float(terminal.monitor.x - win_rect.x))
+        terminal.monitor.y = minus.y + (float(minus.height) / float(win_rect.height) * float(terminal.monitor.y - win_rect.y))
         terminal.update_ui()
