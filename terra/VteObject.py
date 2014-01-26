@@ -27,8 +27,6 @@ from terminal_dialog import ProgDialog
 from win_dialog import WinDialog
 from i18n import _
 
-import terminal
-import time
 import threading
 
 import terra_utils

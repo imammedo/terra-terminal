@@ -19,22 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject, GdkX11
-from gi.repository import Gio
+from gi.repository import Gtk, Gdk, GdkPixbuf, GObject, GdkX11
 
 from terra import globalhotkeys
 
-import VteObject
-from VteObject import VteObjectContainer
+from VteObject import VteObjectContainer, VteObject
 from config import ConfigManager
 from layout import LayoutManager
 from rename_dialog import RenameDialog
 from dbusservice import DbusService
 from i18n import _
 
-from math import floor
-import os
-import time
 import sys
 
 import terra_utils
@@ -327,7 +322,7 @@ class TerminalWin(Gtk.Window):
                 if (isinstance(child1, Gtk.Paned)):
                     TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(tree)
                     self.rec_parents(child1, container)
-                if isinstance(child1, VteObject.VteObject):
+                if isinstance(child1, VteObject):
                     if not terra_utils.get_paned_parent(container.vte_list, child1.parent):
                         self.use_child(child1, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, TerminalWin.rec_parents.im_func._pos)
                     else:
@@ -353,13 +348,13 @@ class TerminalWin(Gtk.Window):
                 if (isinstance(child2, Gtk.Paned)):
                     TerminalWin.rec_parents.im_func._pos = self.get_paned_pos(tree)
                     self.rec_parents(child2, container)
-                if isinstance(child2, VteObject.VteObject):
+                if isinstance(child2, VteObject):
                     if not terra_utils.get_paned_parent(container.vte_list, child2.parent):
                         self.use_child(child2, TerminalWin.rec_parents.im_func._parent, TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
                     else:
                         self.use_child(child2, terra_utils.get_paned_parent(container.vte_list, child2.parent), TerminalWin.rec_parents.im_func._axis, self.get_paned_pos(tree))
 
-        elif not TerminalWin.rec_parents.im_func._first_child and isinstance(tree, VteObject.VteObject):
+        elif not TerminalWin.rec_parents.im_func._first_child and isinstance(tree, VteObject):
             if tree in container.vte_list:
                 container.vte_list.remove(tree)
             if len(container.vte_list) and container.vte_list[0].id == 0:

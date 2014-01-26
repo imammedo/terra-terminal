@@ -20,9 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from layout import LayoutManager
-from dbusservice import DbusService
 from i18n import _
-from terminal import TerminalWinContainer, TerminalWin
+from terminal import TerminalWinContainer
 
 import sys
 
