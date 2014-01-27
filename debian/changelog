@@ -1,9 +1,9 @@
-terra (0.2.0); urgency=low
+terra (0.2.0) stable; urgency=low
 
-  * Advanced multi monitor fully compliant
-  * Multi Terra-terminal by screen
+ * Advanced multi monitor fully compliant
+ * Multi Terra-terminal by screen
 
-  -- Arnaud Sourioux <six.dsn@gmail.com>
+ -- Arnaud Sourioux <six.dsn@gmail.com>  Mon, 22 Mar 2010 00:37:31 +0100
 
 terra (0.1.8); urgency=low
 
