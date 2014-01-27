@@ -95,9 +95,10 @@ class VteObject(Gtk.VBox):
         self.id = VteObjectContainer.handle_id(term_id)
         self.parent = 0
         self.pwd = None
-        self.pid = 0
+        self.pid = (0, 0)
+        self.progname = ""
 
-        self.title = Gtk.Label(terra_utils.get_running_cmd(self.pid))
+        self.title = Gtk.Label(terra_utils.get_running_cmd(self))
         self.title.set_line_wrap(True)
         self.pack_start(self.title, False, False, 0)
 
@@ -226,7 +227,7 @@ class VteObject(Gtk.VBox):
         if not ConfigManager.get_conf('use-default-font'):
             self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
         if (self.pid != 0):
-            self.title.set_label(terra_utils.get_running_cmd(self.pid[1]))
+            self.title.set_label(terra_utils.get_running_cmd(self))
 
         self.show_all()
 

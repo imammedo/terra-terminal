@@ -94,19 +94,24 @@ def get_pwd(pid):
     except:
         return None
 
-def get_running_cmd(ppid):
-    pwd = get_pwd(ppid)
+def get_prog_values(pid, pwd):
+    value = " ".join(commands.getstatusoutput("ps -p " + str(pid) + " o user=,cmd=,etime=")[1].split()).split(' ')
+    return(str("%s@%s $>%s %s"% (value[0], pwd, str(" ".join(value[1:-1])), value[-1])))
+    
+def get_running_cmd(terminal):
+    pwd = get_pwd(terminal.pid[1])
     if (not pwd):
         pwd = os.uname()[1]
+    ret = str("%s@%s $>%s"% (os.environ['USER'], pwd, "POUET"))#terminal.progname))
     try:
-        pid = int(commands.getstatusoutput("ps -o pid= --ppid " + str(ppid))[1])
-        try:
-            value = " ".join(commands.getstatusoutput("ps -p " + str(pid) + " o user=,cmd=,etime=")[1].split()).split(' ')
-            return(str("%s@%s $>%s %s"% (value[0], pwd, str(" ".join(value[1:-1])), value[-1])))
-        except:
-            return(str("%s@%s $>%s"% (os.environ['USER'], pwd)))
+        pid = int(commands.getstatusoutput("ps -o pid= --ppid " + str(terminal.pid[1]))[1])
+        ret = get_prog_values(pid, pwd)
     except:
-        return(str("%s@%s"% (os.environ['USER'], pwd)))
+        try:
+            ret = get_prog_values(terminal.pid[1], pwd)
+        except:
+            pass
+    return (ret)
 
 def set_new_size(terminal, minus, win_rect):
     if (minus.x != terminal.get_screen_rectangle().x):
