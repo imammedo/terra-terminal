@@ -345,6 +345,7 @@ class VteObject(Gtk.VBox):
 
     def reset_progname(self, widget):
         self.progname = ConfigManager.get_conf('shell')
+        self.fork_process(self.progname)
 
     def new_app(self, widget):
         terra_main.create_app()
