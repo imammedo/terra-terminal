@@ -560,10 +560,13 @@ class TerminalWin(Gtk.Window):
             if vert != None and vert <= 100:
                 height = self.monitor.height
                 vertical_position = vert * screen_rectangle.height / 100
+                #top
                 if vertical_position - (height / 2) < 0:
                     vertical_position = screen_rectangle.y + 0
+                #bottom
                 elif vertical_position + (height / 2) > screen_rectangle.height:
-                    vertical_position = screen_rectangle.y + screen_rectangle.height - (height / 2)
+                    vertical_position = screen_rectangle.y + screen_rectangle.height - height
+                #center
                 else:
                     vertical_position = screen_rectangle.y + vertical_position - (height / 2)
 
@@ -571,10 +574,13 @@ class TerminalWin(Gtk.Window):
             if horiz != None and horiz <= 100:
                 width = self.monitor.width - 1
                 horizontal_position = horiz * screen_rectangle.width / 100
+                #left
                 if horizontal_position - (width / 2) < 0:
                     horizontal_position = screen_rectangle.x + 0
+                #right
                 elif horizontal_position + (width / 2) > screen_rectangle.width:
-                    horizontal_position = screen_rectangle.x + screen_rectangle.width - (width / 2)
+                    horizontal_position = screen_rectangle.x + screen_rectangle.width - width
+                #center
                 else:
                     horizontal_position = screen_rectangle.x + horizontal_position - (width / 2)
             self.unfullscreen()
