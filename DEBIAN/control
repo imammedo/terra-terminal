@@ -7,18 +7,10 @@ Build-Depends: debhelper (>= 8),
  python-dev (>= 2.6),
  python-distutils-extra (>= 2.10)
 Maintainer: Arnaud Sourioux <six.dsn@gmail.com>
-Standards-Version: 3.9.3
-X-Python-Version: >= 2.6
-
 Package: terra
-Architecture: any
-Depends: ${misc:Depends},
- ${python:Depends},
- python-dbus,
- gir1.2-glib-2.0,
- gir1.2-gtk-3.0,
- gir1.2-vte-2.90,
- gir1.2-gdkpixbuf-2.0
+Version: 0.2
+Architecture: amd64
+Depends: python (>= 2.7.1-0ubuntu2), python (<< 2.8), python-dbus, gir1.2-glib-2.0, gir1.2-gtk-3.0, gir1.2-vte-2.90, gir1.2-gdkpixbuf-2.0
 Description: Terra Terminal Emulator
  Terra is GTK+3.0 based terminal emulator with useful user interface, it
  also supports multiple terminals with splitting screen horizontally or
