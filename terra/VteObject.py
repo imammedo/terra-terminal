@@ -301,15 +301,15 @@ class VteObject(Gtk.VBox):
 
             self.reset_prog = Gtk.MenuItem(_("Reset Default Progname"))
             self.submenu_item_connect_hack(self.reset_prog, self.reset_progname, self.reset_prog)
-
-            self.win_props = Gtk.MenuItem(_("Window Positions"))
-            self.submenu_item_connect_hack(self.win_props, self.win_prefs, self.win_props)
             
             self.term_menu.append(self.menu_new)
             self.term_menu.append(self.set_new_prog)
             self.term_menu.append(self.reset_prog)
-            self.term_menu.append(self.win_props)
             self.menu.append(self.term)
+
+            self.win_props = Gtk.MenuItem(_("Window Positions"))
+            self.win_props.connect("activate", self.win_prefs)
+            self.menu.append(self.win_props)
 
             self.menu_new = Gtk.MenuItem(_("Save Configuration"))
             self.menu_new.connect("activate", self.save_conf)
