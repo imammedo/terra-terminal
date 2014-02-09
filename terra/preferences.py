@@ -243,11 +243,6 @@ class Preferences():
         self.chk_scroll_on_keystroke = builder.get_object('chk_scroll_on_keystroke')
         self.chk_scroll_on_keystroke.set_active(ConfigManager.get_conf('scroll-on-keystroke'))
         
-        self.chk_hide_tab_bar = builder.get_object('chk_hide_tab_bar')
-        self.chk_hide_tab_bar.set_active(ConfigManager.get_conf('hide-tab-bar'))
-        
-        self.chk_hide_tab_bar_fullscreen = builder.get_object('chk_hide_tab_bar_fullscreen')
-        self.chk_hide_tab_bar_fullscreen.set_active(ConfigManager.get_conf('hide-tab-bar-fullscreen'))
 
         self.chk_prompt_on_quit = builder.get_object('chk_prompt_on_quit')
         self.chk_prompt_on_quit.set_active(ConfigManager.get_conf('prompt-on-quit'))
@@ -410,10 +405,6 @@ class Preferences():
 
         ConfigManager.set_conf('infinite-scrollback', self.chk_scrollback_unlimited.get_active())
 
-        ConfigManager.set_conf('hide-tab-bar', self.chk_hide_tab_bar.get_active())
-
-        ConfigManager.set_conf('hide-tab-bar-fullscreen', self.chk_hide_tab_bar_fullscreen.get_active())
-        
         ConfigManager.set_conf('prompt-on-quit', self.chk_prompt_on_quit.get_active())
 
         ConfigManager.set_conf('spawn-term-on-last-close', self.spawn_term_on_last_close.get_active())

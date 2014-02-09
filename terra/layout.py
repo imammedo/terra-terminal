@@ -30,10 +30,11 @@ class LayoutManager():
             'posy': '0',
             'width': '1280',
             'height': '1024',
-            'tabs': '0',
             'fullscreen': 'False',
             'vertical-position': '150',
             'horizontal-position': '150',
+            'hide-tab-bar': False,
+            'hide-tab-bar-fullscreen': True,
             })
 
     cfg_dir = os.environ['HOME'] + '/.config/terra/'

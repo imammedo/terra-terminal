@@ -61,7 +61,18 @@ class TerminalWinContainer():
             self.on_doing = False
 
     def get_screen_name(self):
-        return (str("screen-%d"% self.screenid))
+        screenname = str("screen-%d"% self.screenid)
+        tabbar = LayoutManager.get_conf('DEFAULT', 'hide-tab-bar')
+        tabbarFull = LayoutManager.get_conf('DEFAULT', 'hide-tab-bar-fullcreen')
+        if (tabbar):
+            LayoutManager.set_conf(screenname, 'hide-tab-bar', True)
+        else:
+            LayoutManager.set_conf(screenname, 'hide-tab-bar', False)
+        if (tabbarFull):
+            LayoutManager.set_conf(screenname, 'hide-tab-bar-fullscreen', True)
+        else:
+            LayoutManager.set_conf(screenname, 'hide-tab-bar-fullscreen', False)
+        return (screenname)
 
     def save_conf(self):
         for app in self.apps:
@@ -521,7 +532,8 @@ class TerminalWin(Gtk.Window):
         self.set_decorated(ConfigManager.get_conf('use-border'))
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
-        if ConfigManager.get_conf('hide-tab-bar'):
+        #hide/show tabbar
+        if LayoutManager.get_conf(self.name, 'hide-tab-bar'):
             self.tabbar.hide()
             self.tabbar.set_no_show_all(True)
         else:
@@ -539,7 +551,7 @@ class TerminalWin(Gtk.Window):
                 self.resizer.remove(self.resizer.get_child2())
 
             # hide tab bar
-            if ConfigManager.get_conf('hide-tab-bar-fullscreen'):
+            if LayoutManager.get_conf(self.name, 'hide-tab-bar-fullscreen'):
                 self.tabbar.set_no_show_all(True)
                 self.tabbar.hide()
         else:
@@ -547,11 +559,6 @@ class TerminalWin(Gtk.Window):
             if self.resizer.get_child2() == None:
                 self.resizer.add2(Gtk.Box())
                 self.resizer.get_child2().show_all()
-            
-            # show tab bar
-            if ConfigManager.get_conf('hide-tab-bar-fullscreen'):
-                self.tabbar.set_no_show_all(False)
-                self.tabbar.show()
 
             vertical_position = self.monitor.y
             horizontal_position = self.monitor.x
