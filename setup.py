@@ -25,7 +25,7 @@ try:
     import DistUtilsExtra.auto
     from distutils.extension import Extension
 except ImportError:
-    print >> sys.stderr, 'To build terra you need https://launchpad.net/python-distutils-extra'
+    sys.stderr.write('To build terra you need https://launchpad.net/python-distutils-extra\n')
     sys.exit(1)
 assert DistUtilsExtra.auto.__version__ >= '2.18', 'needs DistUtilsExtra.auto >= 2.18'
 
@@ -36,8 +36,8 @@ def update_config(file_orig, values = {}):
 
     oldvalues = {}
     try:
-        fin = file(file_orig, 'r')
-        fout = file(fin.name + '.new', 'w')
+        fin = open(file_orig, 'r')
+        fout = open(fin.name + '.new', 'w')
 
         for line in fin:
             fields = line.split(' = ') # Separate variable from value
@@ -50,7 +50,7 @@ def update_config(file_orig, values = {}):
         fout.close()
         fin.close()
         os.rename(fout.name, fin.name)
-    except (OSError, IOError), e:
+    except (OSError, IOError) as e:
         print ("ERROR: Can't find %s"% (file_orig))
         sys.exit(1)
     return oldvalues
@@ -58,8 +58,8 @@ def update_config(file_orig, values = {}):
 def update_desktop_file(datadir):
 
     try:
-        fin = file('terra.desktop.in', 'r')
-        fout = file(fin.name + '.new', 'w')
+        fin = open('terra.desktop.in', 'r')
+        fout = open(fin.name + '.new', 'w')
 
         for line in fin:
             if 'Icon=' in line:
@@ -69,7 +69,7 @@ def update_desktop_file(datadir):
         fout.close()
         fin.close()
         os.rename(fout.name, fin.name)
-    except (OSError, IOError), e:
+    except (OSError, IOError) as e:
         print ("ERROR: Can't find terra.desktop.in")
         sys.exit(1)
 
@@ -98,8 +98,8 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
             try:
                 rc = subprocess.call(['msgfmt', '-o', mo, po])
                 if rc != 0:
-                    raise Warning, "msgfmt returned %d" % rc
-            except Exception, e:
+                    raise (Warning, "msgfmt returned %d" % rc)
+            except Exception as e:
                 print(e)
                 sys.exit(1)
 
@@ -135,7 +135,9 @@ def get_command_output(cmd, warnOnStderr=True, warnOnReturnCode=True):
     """
     p = subprocess.Popen(cmd, shell=True, close_fds=True,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
+    output = p.communicate()
+    stdout = output[0].decode(encoding='UTF-8')
+    stderr = output[1].decode(encoding='UTF-8')
     if warnOnStderr and stderr != '':
         raise RuntimeError("%s outputted the following error:\n%s" %
                            (cmd, stderr))
