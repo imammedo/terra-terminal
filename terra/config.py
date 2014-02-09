@@ -37,7 +37,7 @@ class ConfigManager():
         'color-text': '#ffffffffffff',
         'color-background': '#000000000000',
         'transparency': '50',
-        'shell': os.environ['SHELL'],
+        'shell': os.getenv('SHELL', '/bin/sh'),
         'dir': '$home$',
         'background-image': '',
         'use-default-font': 'True',

@@ -73,21 +73,14 @@ def update_desktop_file(datadir):
         print ("ERROR: Can't find terra.desktop.in")
         sys.exit(1)
 
-def move_data_files(datadir, bindir):
-    if os.path.exists(datadir):
-        shutil.rmtree(datadir)
-    shutil.copytree('data/', datadir)
-    shutil.copyfile('main/terra', bindir + 'terra')
-
 class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
     def run(self):
-        values = {'__terra_data_directory__': "'%s'" % (self.prefix + '/share/terra/'),
+        values = {'__terra_data_directory__': "'%s'" % (self.install_data + '/share/terra/'),
                   '__version__': "'%s'" % self.distribution.get_version()}
         previous_values = update_config('terra/config.py', values)
-        update_desktop_file(self.prefix + '/share/terra/')
+        update_desktop_file(self.install_data + '/share/terra/')
         DistUtilsExtra.auto.install_auto.run(self)
         update_config('terra/config.py', previous_values)
-        move_data_files(self.prefix + '/share/terra/', self.prefix + '/bin/')
         for po in glob.glob (os.path.join (PO_DIR, '*.po')):
             lang = os.path.basename(po[:-3])
             mo = os.path.join(MO_DIR, lang, 'terra.mo')
@@ -157,6 +150,16 @@ DistUtilsExtra.auto.setup(
     long_description='''Terra is GTK+3.0 based terminal emulator with useful user interface, it also supports multiple terminals with splitting screen horizontally or vertically. New features will be added soon. It's very new and experimental project. It's written in python with python-gobject, If you want to contribute just checkout and try. Feel free to open issues for bug report or new features.''',
     url='https://github.com/Sixdsn/terra-terminal',
     cmdclass={'install': InstallAndUpdateDataDirectory},
+    data_files=[
+        ('share/terra/image/',
+         glob.glob("data/image/*.svg")
+     ),
+        ('share/terra/ui/',
+         glob.glob("data/ui/*.ui")
+     ),
+        ('bin/',
+         glob.glob("main/terra")
+     ),
+    ],
     ext_modules=[globalhotkeys]
     )
-
