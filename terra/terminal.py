@@ -235,7 +235,7 @@ class TerminalWin(Gtk.Window):
 
     def on_window_move(self, window, event):
         winpos = self.get_position()
-        if not self.is_fullscreen:
+        if not self.is_fullscreen and winpos[0] > 0 and winpos[1] > 0:
             self.monitor.x = winpos[0]
             self.monitor.y = winpos[1]
             LayoutManager.set_conf(self.name, 'posx', winpos[0])
