@@ -307,7 +307,7 @@ class VteObject(Gtk.VBox):
             self.term_menu.append(self.reset_prog)
             self.menu.append(self.term)
 
-            self.win_props = Gtk.MenuItem(_("Window Positions"))
+            self.win_props = Gtk.MenuItem(_("Window Properties"))
             self.win_props.connect("activate", self.win_prefs)
             self.menu.append(self.win_props)
 
