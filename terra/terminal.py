@@ -133,6 +133,7 @@ class TerminalWin(Gtk.Window):
         
         self.screen = self.get_screen()
         self.monitor = monitor
+#        self.check_visible()
 
         self.init_transparency()
         self.init_ui()
@@ -211,6 +212,12 @@ class TerminalWin(Gtk.Window):
     def delete_event_callback(self):
         self.hide()
         return True
+
+    def check_visible(self):
+        if (not terra_utils.is_on_visible_screen(self)):
+            print("Not_visible")
+            main_screen = self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
+            self.monitor = main_monitor
 
     def on_window_losefocus(self, window, event):
         if self.slide_effect_running:

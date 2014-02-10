@@ -120,7 +120,9 @@ def set_new_size(terminal, minus, win_rect):
         terminal.monitor.width = float(minus.width) / float(win_rect.width) * float(terminal.monitor.width)
         terminal.monitor.height = float(minus.height) / float(win_rect.height) * float(terminal.monitor.height)
         terminal.update_ui()
-        
+        return True
+    return False
+
 def move_left_screen(terminal):
     minus = terminal.get_screen_rectangle()
     win_rect = minus
@@ -133,7 +135,7 @@ def move_left_screen(terminal):
                     minus = monitor
                 elif (minus.x < monitor.x and monitor.x < win_rect.x):
                     minus = monitor
-    set_new_size(terminal, minus, win_rect)
+    return (set_new_size(terminal, minus, win_rect))
 
 def move_right_screen(terminal):
     minus = terminal.get_screen_rectangle()
@@ -147,4 +149,22 @@ def move_right_screen(terminal):
                     minus = monitor
                 elif (minus.x > monitor.x and monitor.x > win_rect.x):
                     minus = monitor
-    set_new_size(terminal, minus, win_rect)
+    return (set_new_size(terminal, minus, win_rect))
+
+def is_in_screen(minus, monitor):
+    if (minus.x >= monitor.x and minus.y >= monitor.y):
+        if (minus.x + minus.width <=  monitor.x + monitor.width and minus.y + minus.height <=  monitor.y + monitor.height):
+            return True
+    return False
+
+def is_on_visible_screen(terminal):
+    minus = terminal.get_screen_rectangle()
+    win_rect = minus
+    for disp in Gdk.DisplayManager.get().list_displays():
+        for screen_num in range(disp.get_n_screens()):
+            screen = disp.get_screen(screen_num)
+            for monitor_num in range(screen.get_n_monitors()):
+                monitor = screen.get_monitor_geometry(monitor_num)
+                if (is_in_screen(minus, monitor)):
+                    return True
+    return False
