@@ -132,8 +132,8 @@ class TerminalWin(Gtk.Window):
         ConfigManager.add_callback(self.update_ui)
         
         self.screen = self.get_screen()
+        self.screen.connect('monitors-changed', self.check_visible)
         self.monitor = monitor
-#        self.check_visible()
 
         self.init_transparency()
         self.init_ui()
@@ -215,9 +215,8 @@ class TerminalWin(Gtk.Window):
 
     def check_visible(self):
         if (not terra_utils.is_on_visible_screen(self)):
-            print("Not_visible")
-            main_screen = self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
-            self.monitor = main_monitor
+            active_monitor = self.screen.get_monitor_workarea(self.screen.get_primary_monitor())
+            terra_utils.set_new_size(self, active_monitor, self.monitor)
 
     def on_window_losefocus(self, window, event):
         if self.slide_effect_running:
@@ -546,6 +545,8 @@ class TerminalWin(Gtk.Window):
         else:
             self.tabbar.set_no_show_all(False)
             self.tabbar.show()
+
+        self.check_visible()
 
         if self.is_fullscreen:
             win_rect = self.get_screen_rectangle()
