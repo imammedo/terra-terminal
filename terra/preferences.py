@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11
 from config import ConfigManager
-from i18n import _
+from i18n import t
 import os
 
 class Preferences():

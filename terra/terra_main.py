@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from layout import LayoutManager
-from i18n import _
+from i18n import t
 from terminal import TerminalWinContainer
 
 import sys

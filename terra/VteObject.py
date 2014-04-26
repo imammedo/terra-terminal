@@ -25,7 +25,7 @@ from preferences import Preferences
 from config import ConfigManager
 from terminal_dialog import ProgDialog
 from win_dialog import WinDialog
-from i18n import _
+from i18n import t
 
 import threading
 

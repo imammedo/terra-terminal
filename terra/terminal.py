@@ -28,7 +28,7 @@ from config import ConfigManager
 from layout import LayoutManager
 from rename_dialog import RenameDialog
 from dbusservice import DbusService
-from i18n import _
+from i18n import t
 
 import sys
 
