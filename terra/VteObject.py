@@ -254,78 +254,78 @@ class VteObject(Gtk.VBox):
             self.menu.connect('deactivate', lambda w: setattr(ConfigManager, 'disable_losefocus_temporary', False))
 
             if value:
-                self.menu_open_link = Gtk.MenuItem(_("Open Link"))
+                self.menu_open_link = Gtk.MenuItem(t("Open Link"))
                 self.menu_open_link.connect("activate", lambda w: Gtk.show_uri(self.get_screen(), value, GdkX11.x11_get_server_time(self.get_window())))
                 self.menu.append(self.menu_open_link)
 
-                self.menu_copy_link = Gtk.MenuItem(_("Copy Link Address"))
+                self.menu_copy_link = Gtk.MenuItem(t("Copy Link Address"))
                 self.menu_copy_link.connect("activate", lambda w: Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD).set_text(value, -1))
                 self.menu.append(self.menu_copy_link)
 
                 self.menu.append(Gtk.SeparatorMenuItem.new())
 
             else:
-                self.menu_copy = Gtk.MenuItem(_("Copy"))
+                self.menu_copy = Gtk.MenuItem(t("Copy"))
                 self.menu_copy.connect("activate", lambda w: self.vte.copy_clipboard())
                 self.menu.append(self.menu_copy)
 
-                self.menu_paste = Gtk.MenuItem(_("Paste"))
+                self.menu_paste = Gtk.MenuItem(t("Paste"))
                 self.menu_paste.connect("activate", lambda w: self.vte.paste_clipboard())
                 self.menu.append(self.menu_paste)
 
 
-            self.menu_select_all = Gtk.MenuItem(_("Select All"))
+            self.menu_select_all = Gtk.MenuItem(t("Select All"))
             self.menu_select_all.connect("activate", lambda w: self.vte.select_all())
             self.menu.append(self.menu_select_all)
 
             self.menu.append(Gtk.SeparatorMenuItem.new())
 
-            self.menu_v_split = Gtk.MenuItem(_("Split Vertical"))
+            self.menu_v_split = Gtk.MenuItem(t("Split Vertical"))
             self.menu_v_split.connect("activate", self.split_axis, 'h')
             self.menu.append(self.menu_v_split)
 
-            self.menu_h_split = Gtk.MenuItem(_("Split Horizontal"))
+            self.menu_h_split = Gtk.MenuItem(t("Split Horizontal"))
             self.menu_h_split.connect("activate", self.split_axis, 'v')
             self.menu.append(self.menu_h_split)
 
             self.term_menu = Gtk.Menu()
 
-            self.term = Gtk.MenuItem(_("Terminals"))
+            self.term = Gtk.MenuItem(t("Terminals"))
             self.term.set_submenu(self.term_menu)
 
-            self.menu_new = Gtk.MenuItem(_("New Terminal"))
+            self.menu_new = Gtk.MenuItem(t("New Terminal"))
             self.submenu_item_connect_hack(self.menu_new, self.new_app, self.menu_new)
 
-            self.set_new_prog = Gtk.MenuItem(_("Set ProgName"))
+            self.set_new_prog = Gtk.MenuItem(t("Set ProgName"))
             self.submenu_item_connect_hack(self.set_new_prog, self.save_progname, self.set_new_prog)
 
-            self.reset_prog = Gtk.MenuItem(_("Reset Default Progname"))
+            self.reset_prog = Gtk.MenuItem(t("Reset Default Progname"))
             self.submenu_item_connect_hack(self.reset_prog, self.reset_progname, self.reset_prog)
-            
+
             self.term_menu.append(self.menu_new)
             self.term_menu.append(self.set_new_prog)
             self.term_menu.append(self.reset_prog)
             self.menu.append(self.term)
 
-            self.win_props = Gtk.MenuItem(_("Window Properties"))
+            self.win_props = Gtk.MenuItem(t("Window Properties"))
             self.win_props.connect("activate", self.win_prefs)
             self.menu.append(self.win_props)
 
-            self.menu_new = Gtk.MenuItem(_("Save Configuration"))
+            self.menu_new = Gtk.MenuItem(t("Save Configuration"))
             self.menu_new.connect("activate", self.save_conf)
             self.menu.append(self.menu_new)
 
-            self.menu_close = Gtk.MenuItem(_("Close"))
+            self.menu_close = Gtk.MenuItem(t("Close"))
             self.menu_close.connect("activate", self.close_node)
             self.menu.append(self.menu_close)
 
             self.menu.append(Gtk.SeparatorMenuItem.new())
 
-            self.menu_preferences = Gtk.MenuItem(_("Preferences"))
+            self.menu_preferences = Gtk.MenuItem(t("Preferences"))
             self.menu_preferences.connect("activate", self.open_preferences)
             self.menu.append(self.menu_preferences)
 
-            self.menu_quit = Gtk.MenuItem(_("Quit"))
+            self.menu_quit = Gtk.MenuItem(t("Quit"))
             self.menu_quit.connect("activate", lambda w: self.get_toplevel().exit())
             self.menu.append(self.menu_quit)
 
@@ -463,7 +463,7 @@ class VteObject(Gtk.VBox):
         child = self
         parent = self.get_parent()
         vpath, hpath = [], []
-        while True: 
+        while True:
             if type(parent) == VteObjectContainer:
                 break
 
@@ -477,7 +477,7 @@ class VteObject(Gtk.VBox):
                     hpath.append(1)
                 else:
                     hpath.append(2)
-                    
+
             child = parent
             parent = parent.get_parent()
 
@@ -579,7 +579,7 @@ class VteObject(Gtk.VBox):
                         obj = obj.get_child2()
 
         obj.grab_focus()
-        self.get_container().active_terminal = obj 
+        self.get_container().active_terminal = obj
 
     def grab_focus(self):
         self.vte.grab_focus()

@@ -26,7 +26,7 @@ import os
 class Preferences():
 
     def __init__(self):
-        
+
         self.init_ui()
 
     def init_ui(self):
@@ -42,7 +42,7 @@ class Preferences():
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.version = builder.get_object('version')
-        self.version.set_label(_("Version: ") + ConfigManager.version)
+        self.version.set_label(t("Version: ") + ConfigManager.version)
 
         self.btn_cancel = builder.get_object('btn_cancel')
         self.btn_cancel.connect('clicked', self.on_cancel_clicked)
@@ -197,7 +197,7 @@ class Preferences():
 
         self.restore_defaults = builder.get_object('restore_defaults')
         self.restore_defaults.connect('clicked', lambda w: self.restore_defaults_cb())
-        
+
         self.move_left_key = builder.get_object('move_left_key')
         self.move_left_key.set_text(ConfigManager.get_conf('move-left-key'))
         key_entries.append(self.move_left_key)
@@ -242,7 +242,7 @@ class Preferences():
 
         self.chk_scroll_on_keystroke = builder.get_object('chk_scroll_on_keystroke')
         self.chk_scroll_on_keystroke.set_active(ConfigManager.get_conf('scroll-on-keystroke'))
-        
+
 
         self.chk_prompt_on_quit = builder.get_object('chk_prompt_on_quit')
         self.chk_prompt_on_quit.set_active(ConfigManager.get_conf('prompt-on-quit'))
@@ -381,7 +381,7 @@ class Preferences():
         ConfigManager.set_conf('split-v-key', self.split_v_key.get_text())
 
         ConfigManager.set_conf('close-node-key', self.close_node_key.get_text())
-    
+
         ConfigManager.set_conf('move-up-key', self.move_up_key.get_text())
 
         ConfigManager.set_conf('move-down-key', self.move_down_key.get_text())

@@ -82,7 +82,7 @@ def get_screen(name):
 def cannot_bind(app):
     ConfigManager.set_conf('hide-on-start', False)
     ConfigManager.set_conf('losefocus-hiding', False)
-    msgtext = _("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
+    msgtext = t("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
     msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
     msgbox.run()
     msgbox.destroy()
@@ -97,7 +97,7 @@ def get_pwd(pid):
 def get_prog_values(pid, pwd):
     value = " ".join(commands.getstatusoutput("ps -p " + str(pid) + " o user=,cmd=,etime=")[1].split()).split(' ')
     return(str("%s@%s $>%s %s"% (value[0], pwd, str(" ".join(value[1:-1])), value[-1])))
-    
+
 def get_running_cmd(terminal):
     pwd = get_pwd(terminal.pid[1])
     if (not pwd):
