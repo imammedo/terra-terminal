@@ -340,7 +340,7 @@
                     <property name="height">1</property>
                   </packing>
                 </child>
-		<child>
+                <child>
                   <object class="GtkCheckButton" id="chk_prompt_on_quit">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
