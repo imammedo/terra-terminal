@@ -28,7 +28,7 @@ from config import ConfigManager
 from layout import LayoutManager
 from rename_dialog import RenameDialog
 from dbusservice import DbusService
-from i18n import _
+from i18n import t
 
 import sys
 
@@ -130,7 +130,7 @@ class TerminalWin(Gtk.Window):
         self.name = name
         self.screen_id = int(name.split('-')[1])
         ConfigManager.add_callback(self.update_ui)
-        
+
         self.screen = self.get_screen()
         self.screen.connect('monitors-changed', self.check_visible)
         self.monitor = monitor
@@ -144,13 +144,13 @@ class TerminalWin(Gtk.Window):
         self.paned_childs = []
 
     def init_ui(self):
-        self.set_title(_('Terra Terminal Emulator'))
+        self.set_title(t('Terra Terminal Emulator'))
 
         if LayoutManager.get_conf(self.name, 'fullscreen'):
             self.is_fullscreen = True
         else:
             self.is_fullscreen = False
-        
+
         self.slide_effect_running = False
         self.losefocus_time = 0
         self.set_has_resize_grip(False)
@@ -244,7 +244,7 @@ class TerminalWin(Gtk.Window):
     def exit(self):
         if ConfigManager.get_conf('prompt-on-quit'):
             ConfigManager.disable_losefocus_temporary = True
-            msgtext = _("Do you really want to quit?")
+            msgtext = t("Do you really want to quit?")
             msgbox = Gtk.MessageDialog(self, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.YES_NO, msgtext)
             response = msgbox.run()
             msgbox.destroy()
@@ -433,7 +433,7 @@ class TerminalWin(Gtk.Window):
 
         tab_name = LayoutManager.get_conf(page_name, 'name')
         if page_name == None or tab_name == None:
-            tab_name = _("Terminal ") + str(page_count+1)
+            tab_name = t("Terminal ") + str(page_count+1)
 
         new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, tab_name)
         new_button.set_property('draw-indicator', False)
@@ -473,7 +473,7 @@ class TerminalWin(Gtk.Window):
                     self.notebook.set_current_page(page_no)
                     self.get_active_terminal().grab_focus()
                     return
-                page_no = page_no + 1      
+                page_no = page_no + 1
 
     def page_button_mouse_event(self, button, event):
         if event.button != 3:
@@ -520,7 +520,7 @@ class TerminalWin(Gtk.Window):
                 if i == sender:
                     self.notebook.remove_page(page_no)
                     self.buttonbox.remove(i)
-                    
+
                     last_button = self.buttonbox.get_children()[-1]
                     last_button.set_active(True)
                     return True
@@ -610,7 +610,7 @@ class TerminalWin(Gtk.Window):
         bg_hex =  '#%02X%02X%02X' % (int((bg.red/65536.0)*256), int((bg.green/65536.0)*256), int((bg.blue/65536.0)*256))
 
         css_provider.load_from_data('''
-            #notebook GtkPaned 
+            #notebook GtkPaned
             {
                 -GtkPaned-handle-size: %i;
             }

@@ -18,13 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-_ = None
+t = None
 try:
     import gettext
     gettext.textdomain('terra')
-    _ = gettext.gettext
+    t = gettext.gettext
 except:
     def dummytrans (text):
         return(text)
 
-    _ = dummytrans
+    t = dummytrans
