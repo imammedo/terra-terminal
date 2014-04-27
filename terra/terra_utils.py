@@ -20,12 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from gi.repository import Gtk, Gdk
-from layout import LayoutManager
-from config import ConfigManager
 from operator import attrgetter
 
 import os
 import commands
+
+from i18n import t
+from layout import LayoutManager
+from config import ConfigManager
 
 def get_paned_parent(vte_list, ParId):
     parent = [item for item in vte_list if item.id == ParId]
