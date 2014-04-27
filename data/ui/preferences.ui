@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
-  <object class="GtkAdjustment" id="adjustment_height">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment_seperator">
+  <object class="GtkAdjustment" id="separator_size">
     <property name="upper">10</property>
     <property name="value">2</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment_transparency">
+  <object class="GtkAdjustment" id="background_transparency">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
@@ -78,7 +72,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_hide_from_taskbar">
+                  <object class="GtkCheckButton" id="hide_from_taskbar">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -99,7 +93,7 @@
                     <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="adjustment">adjustment_seperator</property>
+                    <property name="adjustment">separator_size</property>
                     <property name="round_digits">1</property>
                     <property name="digits">0</property>
                     <property name="value_pos">left</property>
@@ -225,7 +219,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry_shell">
+                  <object class="GtkEntry" id="start_shell_program">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
@@ -255,7 +249,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_hide_on_start">
+                  <object class="GtkCheckButton" id="hide_on_start">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -288,7 +282,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_run_on_startup">
+                  <object class="GtkCheckButton" id="run_on_startup">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -340,8 +334,8 @@
                     <property name="height">1</property>
                   </packing>
                 </child>
-		<child>
-                  <object class="GtkCheckButton" id="chk_prompt_on_quit">
+                <child>
+                  <object class="GtkCheckButton" id="prompt_on_quit">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -374,7 +368,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="spawn-term-on-last-close">
+                  <object class="GtkCheckButton" id="spawn_term_on_last_close">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -407,7 +401,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry_select_by_word">
+                  <object class="GtkEntry" id="select_by_word">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
@@ -468,7 +462,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_use_border">
+                  <object class="GtkCheckButton" id="use_border">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -500,7 +494,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_always_on_top">
+                  <object class="GtkCheckButton" id="always_on_top">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -532,7 +526,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_losefocus">
+                  <object class="GtkCheckButton" id="hide_on_losefocus">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -635,7 +629,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_use_animation">
+                  <object class="GtkCheckButton" id="use_animation">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -652,7 +646,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry_step_count">
+                  <object class="GtkEntry" id="animation_step_count">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
@@ -666,7 +660,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry_step_time">
+                  <object class="GtkEntry" id="animation_step_time">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
@@ -807,7 +801,7 @@
                     <property name="width_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="adjustment">adjustment_transparency</property>
+                    <property name="adjustment">background_transparency</property>
                     <property name="round_digits">0</property>
                     <property name="digits">0</property>
                     <property name="value_pos">left</property>
@@ -856,7 +850,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_use_system_font">
+                  <object class="GtkCheckButton" id="use_system_font">
                     <property name="label" translatable="yes">Use default system font</property>
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
@@ -890,7 +884,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_show_scrollbar">
+                  <object class="GtkCheckButton" id="show_scrollbar">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -1036,7 +1030,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkEntry" id="entry_scrollback_lines">
+                      <object class="GtkEntry" id="scrollback_lines">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">•</property>
@@ -1050,7 +1044,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="chk_scrollback_unlimited">
+                      <object class="GtkCheckButton" id="scrollback_unlimited">
                         <property name="label" translatable="yes">Infinite</property>
                         <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
@@ -1107,7 +1101,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_scroll_on_output">
+                  <object class="GtkCheckButton" id="scroll_on_output">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -1124,7 +1118,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="chk_scroll_on_keystroke">
+                  <object class="GtkCheckButton" id="scroll_on_keystroke">
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -1444,7 +1438,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="move_page_left">
+                          <object class="GtkEntry" id="move_page_left_key">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>
@@ -1459,7 +1453,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="move_page_right">
+                          <object class="GtkEntry" id="move_page_right_key">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>

@@ -22,26 +22,22 @@ import ConfigParser
 import os
 
 class LayoutManager():
+    config_dir_path = os.path.join(os.environ['HOME'], '.config', 'terra')
+    config_file_path = os.path.join(config_dir_path, 'layout.cfg')
 
-    config = ConfigParser.SafeConfigParser(
-        {
-            'id': '0',
-            'posx': '0',
-            'posy': '0',
-            'width': '1280',
-            'height': '1024',
-            'fullscreen': 'False',
-            'vertical-position': '150',
-            'horizontal-position': '150',
-            'hide-tab-bar': False,
-            'hide-tab-bar-fullscreen': True,
-            })
-
-    cfg_dir = os.environ['HOME'] + '/.config/terra/'
-    cfg_file = 'layout.cfg'
-    cfg_full_path = cfg_dir + cfg_file
-
-    config.read(cfg_full_path)
+    config = ConfigParser.SafeConfigParser({
+        'id': '0',
+        'posx': '0',
+        'posy': '0',
+        'width': '1280',
+        'height': '1024',
+        'fullscreen': 'False',
+        'vertical-position': '150',
+        'horizontal-position': '150',
+        'hide-tab-bar': False,
+        'hide-tab-bar-fullscreen': True,
+    })
+    config.read(config_file_path)
 
     @staticmethod
     def init():
@@ -57,7 +53,7 @@ class LayoutManager():
         try:
             value = LayoutManager.config.get(section, key)
         except ConfigParser.Error:
-#            print ("[DEBUG] No option '%s' found in namespace '%s'."% (key, section))
+            print ("[DEBUG] No option '%s' found in section '%s'."% (key, section))
             return None
 
         try:
@@ -68,21 +64,22 @@ class LayoutManager():
             elif value == 'False':
                 return False
             else:
-                if key == 'select-by-word': value = b64decode(value)
+                if key == 'select_by_word': value = b64decode(value)
                 return value
 
     @staticmethod
     def set_conf(section, key, value):
-        if key == 'select-by-word':
+        if key == 'select_by_word':
             value = b64encode(value)
+
         try:
             LayoutManager.config.set(section, key, str(value))
         except ConfigParser.NoSectionError:
-#            print ("[DEBUG] No section '%s'."% (section))
+            print ("[DEBUG] No section '%s'."% (section))
             LayoutManager.config.add_section(section)
             LayoutManager.config.set(section, key, str(value))
         except ConfigParser.Error:
-#            print ("[DEBUG] No option '%s' found in namespace '%s'."% (key, section))
+            print ("[DEBUG] Could not set option '%s' in section '%s'."% (key, section))
             return
 
     @staticmethod
@@ -97,8 +94,8 @@ class LayoutManager():
 
     @staticmethod
     def save_config():
-        if not os.path.exists(LayoutManager.cfg_dir):
-            os.mkdir(LayoutManager.cfg_dir)
+        if not os.path.exists(LayoutManager.config_dir_path):
+            os.mkdir(LayoutManager.config_dir_path)
 
-        with open(LayoutManager.cfg_full_path, 'wb') as configfile:
+        with open(LayoutManager.config_file_path, 'wb') as configfile:
             LayoutManager.config.write(configfile)

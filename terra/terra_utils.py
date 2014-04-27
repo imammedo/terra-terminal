@@ -20,12 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from gi.repository import Gtk, Gdk
-from layout import LayoutManager
-from config import ConfigManager
 from operator import attrgetter
 
 import os
 import commands
+
+from i18n import t
+from layout import LayoutManager
+from config import ConfigManager
 
 def get_paned_parent(vte_list, ParId):
     parent = [item for item in vte_list if item.id == ParId]
@@ -80,9 +82,9 @@ def get_screen(name):
     return (rect)
 
 def cannot_bind(app):
-    ConfigManager.set_conf('hide-on-start', False)
-    ConfigManager.set_conf('losefocus-hiding', False)
-    msgtext = t("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
+    ConfigManager.set_conf('general', 'hide_on_start', False)
+    ConfigManager.set_conf('general', 'hide_on_losefocus', False)
+    msgtext = t("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('shortcuts', 'global_key')
     msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
     msgbox.run()
     msgbox.destroy()

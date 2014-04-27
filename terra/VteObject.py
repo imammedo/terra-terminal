@@ -54,7 +54,7 @@ regex_strings =[SCHEME + "//(?:" + USERPASS + "\\@)?" + HOST + PORT + URLPATH,
     "(?:news:|man:|info:)[[:alnum:]\\Q^_{|}~!\"#$%&'()*+,./;:=?`\\E]+"]
 
 class VteObjectContainer(Gtk.HBox):
-    def __init__(self, parent, bare=False, progname=ConfigManager.get_conf('shell'), pwd=None):
+    def __init__(self, parent, bare=False, progname=ConfigManager.get_conf('general', 'start_shell_program'), pwd=None):
         super(VteObjectContainer, self).__init__()
         if not bare:
             self.parent = parent
@@ -130,10 +130,10 @@ class VteObject(Gtk.VBox):
     def set_pwd(self, parent=None, pwd=None):
         if (parent):
             self.parent = parent.id
-        dir_conf = ConfigManager.get_conf('dir')
-        if dir_conf == '$home$':
+        start_directory = ConfigManager.get_conf('general', 'start_directory')
+        if start_directory == '$home$':
             run_dir = os.environ['HOME']
-        elif dir_conf == '$pwd$':
+        elif start_directory == '$pwd$':
             if (pwd):
                 run_dir = pwd
             else:
@@ -146,14 +146,14 @@ class VteObject(Gtk.VBox):
                 if (not run_dir):
                     run_dir = os.getcwd()
         else:
-            run_dir = dir_conf
+            run_dir = start_directory
         self.pwd = run_dir
 
     def fork_process(self, progname):
         if (not self.pwd):
             self.set_pwd()
         if (not progname):
-            progname = ConfigManager.get_conf('shell')
+            progname = ConfigManager.get_conf('general', 'start_shell_program')
         self.progname = progname
         self.pid = self.vte.fork_command_full(
             Vte.PtyFlags.DEFAULT,
@@ -188,44 +188,45 @@ class VteObject(Gtk.VBox):
         self.vte.set_font(current_font)
 
     def on_child_exited(self, event):
-        self.fork_process(ConfigManager.get_conf('shell'))
+        self.fork_process(ConfigManager.get_conf('general', 'start_shell_program'))
 
     def update_ui(self):
-        if ConfigManager.get_conf('show-scrollbar'):
+        if ConfigManager.get_conf('terminal', 'show_scrollbar'):
             self.vscroll.set_no_show_all(False)
         else:
             self.vscroll.set_no_show_all(True)
             self.vscroll.hide()
 
-        if ConfigManager.get_conf('infinite-scrollback'):
+        if ConfigManager.get_conf('terminal', 'scrollback_unlimited'):
             self.vte.set_scrollback_lines(-1)
         else:
-            self.vte.set_scrollback_lines(ConfigManager.get_conf('scrollback-lines'))
+            self.vte.set_scrollback_lines(ConfigManager.get_conf('terminal', 'scrollback_lines'))
 
-        self.vte.set_scroll_on_output(ConfigManager.get_conf('scroll-on-output'))
+        self.vte.set_scroll_on_output(ConfigManager.get_conf('terminal', 'scroll_on_output'))
 
-        self.vte.set_scroll_on_keystroke(ConfigManager.get_conf('scroll-on-keystroke'))
+        self.vte.set_scroll_on_keystroke(ConfigManager.get_conf('terminal', 'scroll_on_keystroke'))
 
         if hasattr(self.vte, 'set_background_saturation'):
-            self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+            self.vte.set_background_saturation(ConfigManager.get_conf('terminal', 'background_transparency') / 100.0)
         if hasattr(self.vte, 'set_background_transparent'):
             self.vte.set_background_transparent(ConfigManager.use_fake_transparency)
         if hasattr(self.vte, 'set_background_image_file'):
             self.vte.set_background_image_file(
-                ConfigManager.get_conf('background-image'))
+                ConfigManager.get_conf('terminal', 'background_image'))
 
-        self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
+        transparency_value = int(ConfigManager.get_conf('terminal', 'background_transparency'))
+        self.vte.set_opacity((100 - transparency_value) / 100.0 * 65535)
 
 
-        self.vte.set_word_chars(ConfigManager.get_conf('select-by-word'))
+        self.vte.set_word_chars(ConfigManager.get_conf('general', 'select_by_word'))
 
         self.vte.set_colors(
-            Gdk.color_parse(ConfigManager.get_conf('color-text')),
-            Gdk.color_parse(ConfigManager.get_conf('color-background')),
+            Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_text')),
+            Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background')),
             [])
 
-        if not ConfigManager.get_conf('use-default-font'):
-            self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
+        if not ConfigManager.get_conf('terminal', 'use_system_font'):
+            self.vte.set_font_from_string(ConfigManager.get_conf('terminal', 'font_name'))
         if (self.pid != 0):
             self.title.set_label(terra_utils.get_running_cmd(self))
 
@@ -345,7 +346,7 @@ class VteObject(Gtk.VBox):
         WinDialog(self, self)
 
     def reset_progname(self, widget):
-        self.progname = ConfigManager.get_conf('shell')
+        self.progname = ConfigManager.get_conf('general', 'start_shell_program')
         self.fork_process(self.progname)
 
     def new_app(self, widget):
