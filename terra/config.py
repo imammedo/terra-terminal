@@ -21,121 +21,68 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 from gi.repository import Gdk
 from base64 import b64encode, b64decode
 import ConfigParser
+from defaults import ConfigDefaults
 import os
 
 __terra_data_directory__ = '/usr/share/terra/'
 __version__ = '0.2.0'
 
 class ConfigManager():
+    config_dir_path = os.path.join(os.environ['HOME'], '.config', 'terra')
+    config_file_path = os.path.join(config_dir_path, 'main.cfg')
 
-    config = ConfigParser.SafeConfigParser(
-        {
-        'seperator-size': '2',
-        'use-border': 'False',
-        'skip-taskbar': 'False',
-        'skip-pager': 'False',
-        'color-text': '#ffffffffffff',
-        'color-background': '#000000000000',
-        'transparency': '50',
-        'shell': os.getenv('SHELL', '/bin/sh'),
-        'dir': '$home$',
-        'background-image': '',
-        'use-default-font': 'True',
-        'font-name': 'Monospace 10',
-        'show-scrollbar': 'True',
-        'losefocus-hiding': 'False',
-        'hide-on-start': 'False',
-        'global-key': 'F12',
-        'quit-key': '<Control>q',
-        'fullscreen-key': 'F11',
-        'new-page-key': '<Control>N',
-        'rename-page-key': 'F2',
-        'close-page-key': '<Control>W',
-        'next-page-key': '<Control>Right',
-        'prev-page-key': '<Control>Left',
-        'move-page-right': '<Super>Right',
-        'move-page-left': '<Super>Left',
-        'select-all-key': '<Control>A',
-        'copy-key': '<Control><Shift>C',
-        'paste-key': '<Control><Shift>V',
-        'split-v-key': '<Control><Shift>J',
-        'split-h-key': '<Control><Shift>H',
-        'close-node-key': '<Control><Shift>K',
-        'always-on-top': 'False',
-        'scrollback-lines': '1024',
-        'scroll-on-output': 'False',
-        'scroll-on-keystroke': 'True',
-        'infinite-scrollback': 'False',
-        'move-up-key': '<Control><Shift>Up',
-        'move-down-key': '<Control><Shift>Down',
-        'move-left-key': '<Control><Shift>Left',
-        'move-right-key': '<Control><Shift>Right',
-        'move-left-screen-key': '<Super><Shift>Left',
-        'move-right-screen-key': '<Super><Shift>Right',
-        'toggle-scrollbars-key': '<Control><Shift>S',
-        'prompt-on-quit': 'True',
-        'select-by-word': 'LUEtWmEtejAtOSwuLz8lJiM6Xw==',
-        'use-animation': 'False',
-        'step-count': '20',
-        'step-time': '10',
-        'spawn-term-on-last-close': 'False',
-        })
-
-    cfg_dir = os.environ['HOME'] + '/.config/terra/'
-    cfg_file = 'main.cfg'
-    cfg_full_path = cfg_dir + cfg_file
-
-    namespace = 'DEFAULT'
-    config.read(cfg_full_path)
+    config = ConfigDefaults
+    config.read(config_file_path)
+    defaults = ConfigDefaults
 
     callback_list = []
-
     use_fake_transparency = False
-
     disable_losefocus_temporary = False
 
     data_dir = __terra_data_directory__
-
     version = __version__
 
     @staticmethod
-    def get_conf(key):
+    def get_conf(section, option):
         try:
-            value = ConfigManager.config.get(ConfigManager.namespace, key)
+            value = ConfigManager.config.get(section, option)
         except ConfigParser.Error:
-            print ("[DEBUG] No option '%s' found in namespace '%s'." %
-                    (key, ConfigManager.namespace))
+            print ("[DEBUG] Config section '%s' has no option named '%s'." %
+                    (section, option))
             return None
+
+        if option == 'select_by_word':
+            return b64decode(value)
+
+        if value == 'True':
+            return True
+        elif value == 'False':
+            return False
 
         try:
             return int(value)
         except ValueError:
-            if value == 'True':
-                return True
-            elif value == 'False':
-                return False
-            else:
-                if key == 'select-by-word':
-                    value = b64decode(value)
-                return value
+            return value
 
     @staticmethod
-    def set_conf(key, value):
-        if key == 'select-by-word':
+    def set_conf(section, option, value):
+        if option == 'select_by_word':
             value = b64encode(value)
+
         try:
-            ConfigManager.config.set(ConfigManager.namespace, key, str(value))
+            ConfigManager.config.set(section, option, str(value))
         except ConfigParser.Error:
-            print ("[DEBUG] No option '%s' found in namespace '%s'." %
-                    (key, ConfigManager.namespace))
+            print ("[DEBUG] Config section '%s' has no option named '%s'." %
+                    (section, option))
             return
 
     @staticmethod
     def save_config():
-        if not os.path.exists(ConfigManager.cfg_dir):
-            os.mkdir(ConfigManager.cfg_dir)
+        if not os.path.exists(ConfigManager.config_dir_path):
+            os.mkdir(ConfigManager.config_dir_path)
 
-        with open(ConfigManager.cfg_full_path, 'wb') as configfile:
+        with open(ConfigManager.config_file_path, 'wb') as configfile:
+            # @TODO: Only save overridden values?!?
             ConfigManager.config.write(configfile)
 
     @staticmethod
@@ -158,7 +105,7 @@ class ConfigManager():
 
     @staticmethod
     def key_event_compare(conf_name, event):
-        key_string = ConfigManager.get_conf(conf_name)
+        key_string = ConfigManager.get_conf('shortcuts', conf_name)
 
         if ((Gdk.ModifierType.CONTROL_MASK & event.state) == Gdk.ModifierType.CONTROL_MASK) != ('<Control>' in key_string):
             return False

@@ -82,9 +82,9 @@ def get_screen(name):
     return (rect)
 
 def cannot_bind(app):
-    ConfigManager.set_conf('hide-on-start', False)
-    ConfigManager.set_conf('losefocus-hiding', False)
-    msgtext = t("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('global-key')
+    ConfigManager.set_conf('general', 'hide_on_start', False)
+    ConfigManager.set_conf('general', 'hide_on_losefocus', False)
+    msgtext = t("Another application using '%s'. Please open preferences and change the shortcut key.") % ConfigManager.get_conf('shortcuts', 'global_key')
     msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
     msgbox.run()
     msgbox.destroy()
