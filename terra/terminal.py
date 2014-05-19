@@ -127,6 +127,7 @@ class TerminalWin(Gtk.Window):
     def __init__(self, name, monitor):
         super(TerminalWin, self).__init__()
 
+        self.set_keep_above(True)
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain('terra')
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
