@@ -122,6 +122,7 @@ class VteObject(Gtk.VBox):
         self.vte.connect('decrease-font-size', self.change_font_size, -0.1)
         self.vte.connect('contents-changed', self.update_content)
 
+        self.prefs = Preferences()
         self.update_ui()
 
     def update_content(self, widget):
@@ -357,8 +358,7 @@ class VteObject(Gtk.VBox):
 
     def open_preferences(self, widget):
         ConfigManager.disable_losefocus_temporary = True
-        prefs = Preferences()
-        prefs.show()
+        self.prefs.show()
 
     def close_node(self, widget):
         parent = self.get_parent()

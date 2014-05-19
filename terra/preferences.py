@@ -26,10 +26,10 @@ import os
 class Preferences():
 
     def __init__(self):
-
         self.init_ui()
 
     def init_ui(self):
+        self.is_running = True
         builder = Gtk.Builder()
         builder.set_translation_domain('terra')
         builder.add_from_file(ConfigManager.data_dir + 'ui/preferences.ui')
@@ -244,6 +244,8 @@ class Preferences():
 
 
     def show(self):
+        if not self.is_running:
+            self.init_ui()
         self.window.show_all()
 
 
@@ -349,11 +351,13 @@ class Preferences():
         self.window.present()
 
     def on_ok_clicked(self, widget):
+        self.is_running = False
         self.on_apply_clicked(self.btn_ok)
         self.window.hide()
         ConfigManager.disable_losefocus_temporary = False
 
 
     def on_cancel_clicked(self, widget):
+        self.is_running = False
         self.window.hide()
         ConfigManager.disable_losefocus_temporary = False
