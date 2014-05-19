@@ -36,6 +36,7 @@ class Preferences():
 
         self.window = builder.get_object('preferences_window')
         self.window.connect('destroy', self.on_cancel_clicked)
+        self.window.set_keep_above(True)
 
         self.btn_cancel = builder.get_object('btn_cancel')
         self.btn_cancel.connect('clicked', self.on_cancel_clicked)
@@ -345,7 +346,7 @@ class Preferences():
 
         ConfigManager.save_config()
         ConfigManager.callback()
-
+        self.window.present()
 
     def on_ok_clicked(self, widget):
         self.on_apply_clicked(self.btn_ok)
