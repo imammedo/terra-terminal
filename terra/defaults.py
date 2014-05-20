@@ -102,13 +102,19 @@ defaultValues = {
         'move_right_screen_key': '<Super><Shift>Right',
     },
 
-    # 'layout': {
-    #     # Layout default settings.
-    #     'v_alig': 'Top',
-    #     'h_alig': 'Center',
-    #     'hide-tab-bar': False,
-    #     'hide-tab-bar-fullscreen': True,
-    # },
+    'layout': {
+        # Layout default settings.
+        'width': 1280,
+        'height': 1024,
+        'posx': 0,
+        'posy': 0,
+        'fullscreen': False,
+        'horizontal-position': 150,
+        'vertical-position': 150,
+        'id': 0,
+        'hide-tab-bar-fullscreen': True,
+        'hide-tab-bar': False,
+    },
 }
 
 # Create ConfigDefaults object containing the application default settings.

@@ -43,6 +43,15 @@ class ConfigManager():
     version = __version__
 
     @staticmethod
+    def init():
+        ConfigParser.SafeConfigParser({})
+        ConfigManager.save_config()
+
+    @staticmethod
+    def get_sections():
+        return (ConfigManager.config.sections())
+
+    @staticmethod
     def get_conf(section, option):
         try:
             value = ConfigManager.config.get(section, option)
@@ -68,12 +77,25 @@ class ConfigManager():
     def set_conf(section, option, value):
         if option == 'select_by_word':
             value = b64encode(value)
-
         try:
+            ConfigManager.config.set(section, option, str(value))
+        except ConfigParser.NoSectionError:
+            print ("[DEBUG] No section '%s'."% (section))
+            ConfigManager.config.add_section(section)
             ConfigManager.config.set(section, option, str(value))
         except ConfigParser.Error:
             print ("[DEBUG] Config section '%s' has no option named '%s'." %
                     (section, option))
+            return
+
+    @staticmethod
+    def del_conf(section):
+        try:
+            ConfigManager.config.remove_section(section)
+        except ConfigParser.NoSectionError:
+            print ("[DEBUG] No section '%s'."% (section))
+        except ConfigParser.Error:
+            print ("[DEBUG] No section '%s'."% (section))
             return
 
     @staticmethod

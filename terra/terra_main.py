@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from layout import LayoutManager
+from config import ConfigManager
 from i18n import t
 from terminal import TerminalWinContainer
 
@@ -56,9 +56,9 @@ def main():
 
     Wins = TerminalWinContainer()
     try:
-        LayoutManager.init()
-        for section in LayoutManager.get_sections():
-            if (section.find("screen-") == 0 and (LayoutManager.get_conf(section, 'enabled'))):
+        ConfigManager.init()
+        for section in ConfigManager.get_sections():
+            if (section.find("layout-screen-") == 0 and (ConfigManager.get_conf(section, 'enabled'))):
                 Wins.create_app(section)
         if (len(Wins.get_apps()) == 0):
             Wins.create_app()

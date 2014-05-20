@@ -26,7 +26,6 @@ import os
 import commands
 
 from i18n import t
-from layout import LayoutManager
 from config import ConfigManager
 
 def get_paned_parent(vte_list, ParId):
@@ -63,17 +62,17 @@ def my_sorted(elems):
     return (_elems)
 
 def get_screen(name):
-    if (LayoutManager.get_conf(name, 'enabled') == False):
+    if (ConfigManager.get_conf(name, 'enabled') == False):
         return None
-    posx = LayoutManager.get_conf(name, 'posx')
-    posy = LayoutManager.get_conf(name, 'posy')
-    width = LayoutManager.get_conf(name, 'width')
-    height = LayoutManager.get_conf(name, 'height')
+    posx = ConfigManager.get_conf(name, 'posx')
+    posy = ConfigManager.get_conf(name, 'posy')
+    width = ConfigManager.get_conf(name, 'width')
+    height = ConfigManager.get_conf(name, 'height')
     if (posx == None or posy == None or width == None or height == None):
-        posx = LayoutManager.get_conf('DEFAULT', 'posx')
-        posy = LayoutManager.get_conf('DEFAULT', 'posy')
-        width = LayoutManager.get_conf('DEFAULT', 'width')
-        height = LayoutManager.get_conf('DEFAULT', 'height')
+        posx = ConfigManager.get_conf('layout', 'posx')
+        posy = ConfigManager.get_conf('layout', 'posy')
+        width = ConfigManager.get_conf('layout', 'width')
+        height = ConfigManager.get_conf('layout', 'height')
     rect = Gdk.Rectangle()
     rect.x = posx
     rect.y = posy

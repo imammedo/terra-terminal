@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 from gi.repository import Gtk, Gdk
 
 from config import ConfigManager
-from layout import LayoutManager
 
 class WinDialog:
     def __init__(self, sender, active_terminal):
@@ -36,16 +35,16 @@ class WinDialog:
 
         self.window = self.sender.get_container().parent
         self.dialog.v_alig = self.builder.get_object('v_alig')
-        self.dialog.v_alig.set_active(int(LayoutManager.get_conf(self.window.name, 'vertical-position')) / 50)
+        self.dialog.v_alig.set_active(int(ConfigManager.get_conf(self.window.name, 'vertical-position')) / 50)
 
         self.dialog.h_alig = self.builder.get_object('h_alig')
-        self.dialog.h_alig.set_active(int(LayoutManager.get_conf(self.window.name, 'horizontal-position')) / 50)
+        self.dialog.h_alig.set_active(int(ConfigManager.get_conf(self.window.name, 'horizontal-position')) / 50)
 
         self.chk_hide_tab_bar = self.builder.get_object('chk_hide_tab_bar')
-        self.chk_hide_tab_bar.set_active(LayoutManager.get_conf(self.window.name, 'hide-tab-bar'))
+        self.chk_hide_tab_bar.set_active(ConfigManager.get_conf(self.window.name, 'hide-tab-bar'))
 
         self.chk_hide_tab_bar_fullscreen = self.builder.get_object('chk_hide_tab_bar_fullscreen')
-        self.chk_hide_tab_bar_fullscreen.set_active(LayoutManager.get_conf(self.window.name, 'hide-tab-bar-fullscreen'))
+        self.chk_hide_tab_bar_fullscreen.set_active(ConfigManager.get_conf(self.window.name, 'hide-tab-bar-fullscreen'))
 
         self.dialog.btn_cancel = self.builder.get_object('btn_cancel')
         self.dialog.btn_ok = self.builder.get_object('btn_ok')
@@ -69,10 +68,10 @@ class WinDialog:
         del self
 
     def update(self):
-        LayoutManager.set_conf(self.window.name, 'vertical-position', self.dialog.v_alig.get_active() * 50)
-        LayoutManager.set_conf(self.window.name, 'horizontal-position', self.dialog.h_alig.get_active() * 50)
-        LayoutManager.set_conf(self.window.name, 'hide-tab-bar', self.chk_hide_tab_bar.get_active())
-        LayoutManager.set_conf(self.window.name, 'hide-tab-bar-fullscreen', self.chk_hide_tab_bar_fullscreen.get_active())
+        ConfigManager.set_conf(self.window.name, 'vertical-position', self.dialog.v_alig.get_active() * 50)
+        ConfigManager.set_conf(self.window.name, 'horizontal-position', self.dialog.h_alig.get_active() * 50)
+        ConfigManager.set_conf(self.window.name, 'hide-tab-bar', self.chk_hide_tab_bar.get_active())
+        ConfigManager.set_conf(self.window.name, 'hide-tab-bar-fullscreen', self.chk_hide_tab_bar_fullscreen.get_active())
         self.window.update_ui()
         ConfigManager.disable_losefocus_temporary = False
         self.close()
