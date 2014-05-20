@@ -439,16 +439,16 @@ class VteObject(Gtk.VBox):
         parent.remove(self)
         new_terminal = VteObject(term_id=term_id)
         new_terminal.parent = self.id
-        paned.pack1(self, True, True)
-        paned.pack2(new_terminal, True, True)
+        paned.pack1(self, True, False)
+        paned.pack2(new_terminal, True, False)
         paned.show_all()
 
         if mode == 0:
             parent.pack_start(paned, True, True, 0)
         elif mode == 1:
-            parent.pack1(paned, True, True)
+            parent.pack1(paned, True, False)
         else:
-            parent.pack2(paned, True, True)
+            parent.pack2(paned, True, False)
 
         self.get_container().append_terminal(new_terminal, progname, pwd)
         parent.show_all()
