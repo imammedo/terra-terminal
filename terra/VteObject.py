@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from gi.repository import Gtk, Vte, GLib, Gdk, GdkX11, GObject
 import os
+import re
 
 from preferences import Preferences
 from config import ConfigManager
@@ -239,9 +240,13 @@ class VteObject(Gtk.VBox):
                 Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background')),
                 [])
         except:
+            alpha = (100 - transparency_value)/100.0
+            bg = Gdk.RGBA.from_color(Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background')))
+            m = re.match(r'rgb\((\d+),(\d+),(\d+)\)', Gdk.RGBA.to_string(bg))
+            Gdk.RGBA.parse(bg, 'rgba(' + m.group(1) + ',' + m.group(2) + ',' + m.group(3) + ',' + str(alpha) + ')')
             self.vte.set_colors(
                 Gdk.RGBA.from_color(Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_text'))),
-                Gdk.RGBA.from_color(Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background'))),
+                bg,
                 [])
 
         if not ConfigManager.get_conf('terminal', 'use_system_font'):
