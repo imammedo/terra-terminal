@@ -228,8 +228,10 @@ class VteObject(Gtk.VBox):
         transparency_value = int(ConfigManager.get_conf('terminal', 'background_transparency'))
         self.vte.set_opacity((100 - transparency_value) / 100.0 * 65535)
 
-
-        self.vte.set_word_chars(ConfigManager.get_conf('general', 'select_by_word'))
+        try:
+            self.vte.set_word_chars(ConfigManager.get_conf('general', 'select_by_word'))
+        except:
+            pass
 
         self.vte.set_colors(
             Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_text')),
