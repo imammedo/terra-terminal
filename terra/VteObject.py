@@ -156,7 +156,13 @@ class VteObject(Gtk.VBox):
         if (not progname):
             progname = ConfigManager.get_conf('general', 'start_shell_program')
         self.progname = progname
-        self.pid = self.vte.fork_command_full(
+
+        if hasattr(self.vte, 'fork_command_full'):
+            fork = self.vte.fork_command_full
+        else:
+            fork = self.vte.spawn_sync
+
+        self.pid = fork(
             Vte.PtyFlags.DEFAULT,
             self.pwd,
             self.progname.split(),
