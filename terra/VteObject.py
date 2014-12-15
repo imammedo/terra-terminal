@@ -227,10 +227,16 @@ class VteObject(Gtk.VBox):
         if hasattr(self.vte, 'set_word_chars'):
             self.vte.set_word_chars(ConfigManager.get_conf('general', 'select_by_word'))
 
-        self.vte.set_colors(
-            Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_text')),
-            Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background')),
-            [])
+        try:
+            self.vte.set_colors(
+                Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_text')),
+                Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background')),
+                [])
+        except:
+            self.vte.set_colors(
+                Gdk.RGBA.from_color(Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_text'))),
+                Gdk.RGBA.from_color(Gdk.color_parse(ConfigManager.get_conf('terminal', 'color_background'))),
+                [])
 
         if not ConfigManager.get_conf('terminal', 'use_system_font'):
             self.vte.set_font_from_string(ConfigManager.get_conf('terminal', 'font_name'))
